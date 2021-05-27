@@ -1,12 +1,16 @@
 package com.dayaonweb.quoter.view.ui.profile
 
+import android.app.Activity
+import android.net.Uri
 import android.util.Log
+import androidx.activity.result.ActivityResult
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.dayaonweb.quoter.enums.Status
 import com.dayaonweb.quoter.extensions.hideKeyboard
 import com.dayaonweb.quoter.service.model.User
+import com.github.dhaval2404.imagepicker.ImagePicker
 import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.ktx.firestore
@@ -36,6 +40,26 @@ class ProfileViewModel : ViewModel() {
                 fetchUserName(it.result)
             }
         }
+    }
+
+    fun getProfileImageUri(result: ActivityResult): Uri? {
+        val resultCode = result.resultCode
+        val data = result.data
+        if (resultCode == Activity.RESULT_OK) {
+            //Image Uri will not be null for RESULT_OK
+            val fileUri = data?.data!!
+            updateProfileImage(fileUri)
+            return fileUri
+        } else if (resultCode == ImagePicker.RESULT_ERROR) {
+            Log.e(TAG, "handleProfileImageResult: ${ImagePicker.getError(data)}")
+            _status.postValue(Status.UPDATE_FAIL)
+        }
+        return null
+    }
+
+    private fun updateProfileImage(fileUri: Uri) {
+        // Upload image
+
     }
 
     fun updateUserName(userNameInput: TextInputLayout?) {

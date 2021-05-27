@@ -1,10 +1,14 @@
 package com.dayaonweb.quoter.view.ui.profile
 
 import android.graphics.drawable.GradientDrawable
+import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -15,11 +19,23 @@ import com.dayaonweb.quoter.enums.Status
 import com.dayaonweb.quoter.extensions.isVisible
 import com.dayaonweb.quoter.extensions.loadImageUri
 import com.dayaonweb.quoter.extensions.snack
+import com.github.dhaval2404.imagepicker.ImagePicker
+
+private const val TAG = "Profile"
 
 class Profile : Fragment() {
 
     private var binding: FragmentProfileBinding? = null
     private val viewModel by viewModels<ProfileViewModel>()
+    private val startForProfileImageResult =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+             val fileUri = viewModel.getProfileImageUri(result)
+            if(fileUri!=null){
+                Log.d(TAG, "fileUri=$fileUri")
+                binding?.ivUserProfilePicture?.setImageURI(fileUri)
+            }
+        }
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -33,7 +49,7 @@ class Profile : Fragment() {
             binding?.btnUpdate?.isVisible(user.name.isNotEmpty())
             binding?.tilUsername?.editText?.setText(user.name)
         }
-        viewModel.status.observe(viewLifecycleOwner,{ status ->
+        viewModel.status.observe(viewLifecycleOwner, { status ->
             when (status) {
                 Status.READ_FAIL -> view?.snack("Unable to fetch data. Please try again later!")
                 Status.UPDATE_FAIL -> view?.snack("Unable to update. Please try again later!")
@@ -51,8 +67,7 @@ class Profile : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         binding?.apply {
             ivUserProfilePicture.setOnClickListener {
-                // Handle image pick + image capture
-                view.snack("Coming soon!")
+                handleProfilePictureIntent()
             }
             btnSuggestion.setOnClickListener {
                 // Show form dialog
@@ -61,6 +76,15 @@ class Profile : Fragment() {
                 viewModel.updateUserName(binding?.tilUsername)
             }
         }
+    }
+
+    private fun handleProfilePictureIntent() {
+        ImagePicker.with(this)
+            .cropSquare()
+            .compress(1024)
+            .createIntent { intent ->
+                startForProfileImageResult.launch(intent)
+            }
     }
 
 

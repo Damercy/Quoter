@@ -27,9 +27,7 @@
                     android:layout_height="200dp"
                     android:layout_centerHorizontal="true"
                     android:layout_marginTop="24dp"
-                    app:tint="@android:color/darker_gray"
-                    app:shapeAppearanceOverlay="@style/circleImageView"
-                    app:srcCompat="@drawable/ic_profile" />
+                    app:shapeAppearanceOverlay="@style/circleImageView" />
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/tilUsername"
