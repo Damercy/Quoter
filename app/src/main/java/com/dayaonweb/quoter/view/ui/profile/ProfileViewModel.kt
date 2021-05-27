@@ -42,24 +42,24 @@ class ProfileViewModel : ViewModel() {
         }
     }
 
-    fun getProfileImageUri(result: ActivityResult): Uri? {
+    fun handleProfileImageResult(result: ActivityResult){
         val resultCode = result.resultCode
         val data = result.data
         if (resultCode == Activity.RESULT_OK) {
             //Image Uri will not be null for RESULT_OK
             val fileUri = data?.data!!
             updateProfileImage(fileUri)
-            return fileUri
         } else if (resultCode == ImagePicker.RESULT_ERROR) {
             Log.e(TAG, "handleProfileImageResult: ${ImagePicker.getError(data)}")
             _status.postValue(Status.UPDATE_FAIL)
         }
-        return null
     }
 
     private fun updateProfileImage(fileUri: Uri) {
         // Upload image
-
+        val user = _user.value?:User("","","")
+        user.profilePicture = fileUri.toString()
+        _user.postValue(user)
     }
 
     fun updateUserName(userNameInput: TextInputLayout?) {

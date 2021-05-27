@@ -1,9 +1,7 @@
 package com.dayaonweb.quoter.view.ui.profile
 
 import android.graphics.drawable.GradientDrawable
-import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -29,11 +27,7 @@ class Profile : Fragment() {
     private val viewModel by viewModels<ProfileViewModel>()
     private val startForProfileImageResult =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
-             val fileUri = viewModel.getProfileImageUri(result)
-            if(fileUri!=null){
-                Log.d(TAG, "fileUri=$fileUri")
-                binding?.ivUserProfilePicture?.setImageURI(fileUri)
-            }
+            viewModel.handleProfileImageResult(result)
         }
 
 
@@ -48,6 +42,7 @@ class Profile : Fragment() {
             binding?.ivUserProfilePicture?.loadImageUri(user.profilePicture)
             binding?.btnUpdate?.isVisible(user.name.isNotEmpty())
             binding?.tilUsername?.editText?.setText(user.name)
+            binding?.ivUserProfilePicture?.loadImageUri(user.profilePicture)
         }
         viewModel.status.observe(viewLifecycleOwner, { status ->
             when (status) {
@@ -58,7 +53,6 @@ class Profile : Fragment() {
                 else -> return@observe
             }
         })
-
         return binding?.root
     }
 
