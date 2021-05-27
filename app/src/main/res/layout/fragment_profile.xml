@@ -29,6 +29,18 @@
                     android:layout_marginTop="24dp"
                     app:shapeAppearanceOverlay="@style/circleImageView" />
 
+                <com.google.android.material.progressindicator.CircularProgressIndicator
+                    android:id="@+id/uploadIndicator"
+                    app:trackColor="@color/purple_200"
+                    app:indicatorColor="@color/purple_500"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+
+                    android:layout_marginTop="20dp"
+                    android:indeterminate="true"
+                    app:indicatorSize="200dp" />
+
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/tilUsername"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"

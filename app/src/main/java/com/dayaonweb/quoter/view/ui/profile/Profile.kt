@@ -37,7 +37,7 @@ class Profile : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_profile, container, false)
-        viewModel.fetchUserDetails()
+        binding?.root?.context?.let { viewModel.fetchUserDetails(it) }
         viewModel.user.observe({ lifecycle }) { user ->
             binding?.ivUserProfilePicture?.loadImageUri(user.profilePicture)
             binding?.btnUpdate?.isVisible(user.name.isNotEmpty())
@@ -45,15 +45,37 @@ class Profile : Fragment() {
             binding?.ivUserProfilePicture?.loadImageUri(user.profilePicture)
         }
         viewModel.status.observe(viewLifecycleOwner, { status ->
+
             when (status) {
-                Status.READ_FAIL -> view?.snack("Unable to fetch data. Please try again later!")
-                Status.UPDATE_FAIL -> view?.snack("Unable to update. Please try again later!")
-                Status.UPDATE_SUCCESS -> view?.snack("Updated!")
-                Status.IN_PROGRESS -> view?.snack("Updating...")
+                Status.READ_FAIL -> {
+                    toggleIndicator(false)
+                    view?.snack("Unable to fetch data. Please try again later!")
+                }
+                Status.UPDATE_FAIL -> {
+                    toggleIndicator(false)
+                    view?.snack("Unable to update. Please try again later!")
+                }
+                Status.UPDATE_SUCCESS -> {
+                    toggleIndicator(false)
+                    view?.snack("Updated!")
+                }
+                Status.IN_PROGRESS -> toggleIndicator(true)
                 else -> return@observe
             }
         })
+        viewModel.progressAmount.observe(viewLifecycleOwner, { progressAmount ->
+            toggleIndicator(true)
+            binding?.uploadIndicator?.setProgressCompat(progressAmount, true)
+        })
         return binding?.root
+    }
+
+    private fun toggleIndicator(visible: Boolean) {
+        with(binding?.uploadIndicator) {
+            this?.isVisible(visible)
+            if (!visible)
+                this?.isIndeterminate = true
+        }
     }
 
 
