@@ -42,7 +42,6 @@ class ProfileViewModel : ViewModel() {
         viewModelScope.launch {
             val userId = context.readFromPreferences(Constants.USER_ID) ?: ""
             if (userId.isNotEmpty()) {
-                Log.d(TAG, "fetchUserDetails: uservalue=${_user.value}")
                 _user.postValue(User(userId, "", ""))
                 fetchUserProfilePicture(userId)
                 fetchUserName(userId)
@@ -82,7 +81,6 @@ class ProfileViewModel : ViewModel() {
                     "."
                 ) == true
             ) profilePictureUri.lastPathSegment else "DP.jpg"
-        Log.d(TAG, "uploadProfilePicture: lastPathSegment=${fileNameWithExt}")
         _storage.reference.child(
             "users/$userId/profilePicture/DP${
                 fileNameWithExt?.substring(
@@ -101,6 +99,7 @@ class ProfileViewModel : ViewModel() {
             .addOnProgressListener { progress ->
                 _status.postValue(Status.IN_PROGRESS)
                 val progressAmount = (progress.bytesTransferred / progress.totalByteCount) * 100
+                Log.d(TAG, "uploadProfilePicture:progress=${progress.bytesTransferred}  progressAmountf=$progressAmount progressAmountI=${progressAmount.toInt()}")
                 _progressAmount.postValue(progressAmount.toInt())
             }
     }
@@ -151,7 +150,6 @@ class ProfileViewModel : ViewModel() {
                     profilePicture.downloadUrl
                         .addOnSuccessListener {
                             val user = _user.value ?: User("", "", "")
-                            Log.d(TAG, "fetchUserProfilePicture: user=$user")
                             user.profilePicture = it.toString()
                             _user.postValue(user)
                         }

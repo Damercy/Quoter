@@ -64,8 +64,8 @@ class Profile : Fragment() {
             }
         })
         viewModel.progressAmount.observe(viewLifecycleOwner, { progressAmount ->
-            toggleIndicator(true)
-            binding?.uploadIndicator?.setProgressCompat(progressAmount, true)
+            if(progressAmount>0)
+                binding?.uploadIndicator?.setProgressCompat(progressAmount, true)
         })
         return binding?.root
     }

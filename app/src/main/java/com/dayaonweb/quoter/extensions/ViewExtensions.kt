@@ -13,9 +13,8 @@ private const val TAG = "ViewExtensions"
 
 fun ImageView.loadImageUri(url: String?) =
     Glide.with(this).load(url).centerCrop().transition(DrawableTransitionOptions.withCrossFade())
+        .placeholder(R.drawable.ic_loop_loading)
         .error(R.drawable.ic_profile)
-        .fallback(R.drawable.ic_profile)
-        .placeholder(R.drawable.ic_profile)
         .into(this)
 
 fun View.isVisible(visible: Boolean) {
