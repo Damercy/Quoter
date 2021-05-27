@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "956961414759",
+    "project_id": "quoter-ad7a1",
+    "storage_bucket": "quoter-ad7a1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:956961414759:android:5c0379e906b4d1cc8e7ec2",
+        "android_client_info": {
+          "package_name": "com.dayaonweb.quoter"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "956961414759-ap9u70etjtsv3tqtn00l5u87nh3ro8ki.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDZul8alH-q8c6iZmZohCnOMax3jpnVH6k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "956961414759-ap9u70etjtsv3tqtn00l5u87nh3ro8ki.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
