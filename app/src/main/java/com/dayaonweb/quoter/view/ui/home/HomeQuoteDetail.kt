@@ -63,7 +63,7 @@ class HomeQuoteDetail : Fragment() {
             binding?.tvAuthorDescription?.text = author.description
         }
         viewModel.authorImage.observe({ lifecycle }) { authorImageUrl ->
-            binding?.ivAuthorImage?.loadImageUri(authorImageUrl)
+            binding?.ivAuthorImage?.loadImageUri(authorImageUrl,null)
         }
         viewModel.status.observe({ lifecycle }) { status ->
             Log.d(TAG, "onViewCreated: Called status value=$status")

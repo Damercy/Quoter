@@ -39,10 +39,9 @@ class Profile : Fragment() {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_profile, container, false)
         binding?.root?.context?.let { viewModel.fetchUserDetails(it) }
         viewModel.user.observe({ lifecycle }) { user ->
-            binding?.ivUserProfilePicture?.loadImageUri(user.profilePicture)
             binding?.btnUpdate?.isVisible(user.name.isNotEmpty())
             binding?.tilUsername?.editText?.setText(user.name)
-            binding?.ivUserProfilePicture?.loadImageUri(user.profilePicture)
+            binding?.ivUserProfilePicture?.loadImageUri(user.profilePicture,R.drawable.ic_profile)
         }
         viewModel.status.observe(viewLifecycleOwner, { status ->
 
