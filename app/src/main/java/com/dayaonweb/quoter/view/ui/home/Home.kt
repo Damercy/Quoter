@@ -65,9 +65,11 @@ class Home : Fragment() {
 
 
     override fun onResume() {
+        Log.d(TAG, "onResume: CAlled resume")
         super.onResume()
         val toolbar = (activity as AppCompatActivity).supportActionBar
         toolbar?.apply {
+            show()
             title = "Home"
             subtitle = "Browse quotes"
             setBackgroundDrawable(
