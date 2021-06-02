@@ -43,6 +43,7 @@ class ProfileViewModel : ViewModel() {
             val userId = context.readFromPreferences(Constants.USER_ID) ?: ""
             if (userId.isNotEmpty()) {
                 _user.postValue(User(userId, "", ""))
+                // Store DP file path in datastore. If value is null, fetch else display this value
                 fetchUserProfilePicture(userId)
                 fetchUserName(userId)
             }

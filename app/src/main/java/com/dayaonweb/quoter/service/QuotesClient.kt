@@ -11,5 +11,5 @@ class QuotesClient {
         .addConverterFactory(MoshiConverterFactory.create())
         .build()
 
-    val api = retrofit.create(QuoteService::class.java)
+    val api: QuoteService = retrofit.create(QuoteService::class.java)
 }

@@ -1,6 +1,5 @@
 package com.dayaonweb.quoter.service.repository
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
@@ -15,7 +14,6 @@ object QuotesRepo {
     private val api = QuotesClient().api
 
     fun getQuotes(): LiveData<PagingData<Quote>> {
-        Log.d(TAG, "getQuotes: Called!")
         return Pager(
             config = PagingConfig(
                 pageSize = 10,
@@ -27,5 +25,8 @@ object QuotesRepo {
             }
         ).liveData
     }
+
+    suspend fun getAuthorBySlug(authorSlug: String, limit: Int?, page: Int?) =
+        api.getAuthorBySlug(authorSlug, limit, page)
 
 }
