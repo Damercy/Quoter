@@ -15,9 +15,9 @@ class HomeViewModel : ViewModel() {
     val author: LiveData<Author> = _author
 
 
-    fun fetchAuthorDetailsBySlug(slug: String) {
+    fun fetchAuthorDetailsBySlug(slug: String, limit: Int? = null, page: Int? = null) {
         viewModelScope.launch {
-            QuotesRepo.getAuthorBySlug(slug, null, null).results?.let {
+            QuotesRepo.getAuthorBySlug(slug, limit,page).results?.let {
                 _author.postValue(it[0])
             }
         }

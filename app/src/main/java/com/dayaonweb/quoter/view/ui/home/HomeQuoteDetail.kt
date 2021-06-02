@@ -11,6 +11,7 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
 import com.dayaonweb.quoter.R
 import com.dayaonweb.quoter.databinding.FragmentQuoteDetailBinding
+import com.dayaonweb.quoter.extensions.isVisible
 
 class HomeQuoteDetail : Fragment() {
 
@@ -29,13 +30,17 @@ class HomeQuoteDetail : Fragment() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        (activity as AppCompatActivity).supportActionBar?.hide()
         super.onCreate(savedInstanceState)
         viewModel.fetchAuthorDetailsBySlug(args.authorSlug)
 //        val animation =
 //            TransitionInflater.from(requireContext()).inflateTransition(android.R.transition.fade)
 //        sharedElementEnterTransition = animation
 //        sharedElementReturnTransition = animation
+    }
+
+    override fun onResume() {
+        super.onResume()
+        (activity as AppCompatActivity).supportActionBar?.hide()
     }
 
 
@@ -48,6 +53,7 @@ class HomeQuoteDetail : Fragment() {
             title = args.authorName
         }
         viewModel.author.observe({lifecycle}){ author ->
+            binding?.loader?.isVisible(false)
             binding?.tvAuthorBio?.text = author.bio
             binding?.tvAuthorDescription?.text = author.description
         }
