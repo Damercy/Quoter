@@ -108,6 +108,7 @@ class Profile : Fragment() {
         super.onResume()
         val toolbar = (activity as AppCompatActivity).supportActionBar
         toolbar?.apply {
+            show()
             title = "Profile"
             subtitle = "Edit profile"
             setBackgroundDrawable(

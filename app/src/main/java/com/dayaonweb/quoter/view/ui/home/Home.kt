@@ -3,9 +3,7 @@ package com.dayaonweb.quoter.view.ui.home
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -63,9 +61,7 @@ class Home : Fragment() {
         }
     }
 
-
     override fun onResume() {
-        Log.d(TAG, "onResume: CAlled resume")
         super.onResume()
         val toolbar = (activity as AppCompatActivity).supportActionBar
         toolbar?.apply {

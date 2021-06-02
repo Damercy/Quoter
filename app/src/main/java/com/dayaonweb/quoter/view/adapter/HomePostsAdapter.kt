@@ -4,6 +4,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.Navigation.findNavController
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
@@ -16,7 +17,7 @@ import com.dayaonweb.quoter.service.model.Quote
 private const val TAG = "HomePostsAdapter"
 
 
-class HomePostsAdapter() : PagingDataAdapter<Quote, HomePostsViewHolder>(quoteComparator) {
+class HomePostsAdapter: PagingDataAdapter<Quote, HomePostsViewHolder>(quoteComparator) {
 
 
     companion object {
