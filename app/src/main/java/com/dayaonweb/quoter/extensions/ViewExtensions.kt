@@ -7,17 +7,20 @@ import android.widget.ImageView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestOptions
-import com.dayaonweb.quoter.R
 import com.google.android.material.snackbar.Snackbar
 
 private const val TAG = "ViewExtensions"
 
-fun ImageView.loadImageUri(url: String?) =
-    Glide.with(this).load(url).apply(RequestOptions.centerCropTransform())
-        .transition(DrawableTransitionOptions.withCrossFade())
-        .placeholder(R.drawable.ic_loop_loading)
-        .error(R.drawable.ic_profile)
-        .into(this)
+fun ImageView.loadImageUri(url: String?, errorDrawable: Int?) =
+    if (errorDrawable == null) {
+        Glide.with(this).load(url).apply(RequestOptions.centerCropTransform())
+            .transition(DrawableTransitionOptions.withCrossFade())
+            .into(this)
+    } else
+        Glide.with(this).load(url).apply(RequestOptions.centerCropTransform())
+            .transition(DrawableTransitionOptions.withCrossFade())
+            .error(errorDrawable)
+            .into(this)
 
 fun View.isVisible(visible: Boolean) {
     visibility = if (visible)

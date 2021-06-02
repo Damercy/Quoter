@@ -8,8 +8,8 @@ import com.squareup.moshi.JsonClass
 data class PageContent(
     @Json(name = "ns")
     val ns: Int?,
-    @Json(name = "original")
-    val original: Original?,
+    @Json(name = "thumbnail")
+    val original: Thumbnail?,
     @Json(name = "pageid")
     val pageId: Int?,
     @Json(name = "title")
