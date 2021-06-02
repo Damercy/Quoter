@@ -29,5 +29,8 @@
         <argument
             android:name="authorName"
             app:argType="string" />
+        <argument
+            android:name="authorQuote"
+            app:argType="string" />
     </fragment>
 </navigation>

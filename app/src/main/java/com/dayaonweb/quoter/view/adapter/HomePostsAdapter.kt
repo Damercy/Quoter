@@ -32,7 +32,7 @@ class HomePostsAdapter: PagingDataAdapter<Quote, HomePostsViewHolder>(quoteCompa
             holder.bind(quote)
             holder.itemView.setOnClickListener {
                 val extras = FragmentNavigatorExtras(it to "quoteCardMain")
-                val arguments = HomeQuoteDetailArgs(quote.authorSlug,quote.author)
+                val arguments = HomeQuoteDetailArgs(quote.authorSlug,quote.author,quote.content)
                 findNavController(it).navigate(R.id.action_home_to_homeQuoteDetail,arguments.toBundle(), null, extras)
             }
         }

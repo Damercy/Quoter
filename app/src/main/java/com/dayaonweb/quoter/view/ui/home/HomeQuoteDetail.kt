@@ -61,6 +61,7 @@ class HomeQuoteDetail : Fragment() {
             binding?.loader?.isVisible(false)
             binding?.tvAuthorBio?.text = author.bio
             binding?.tvAuthorDescription?.text = author.description
+            binding?.tvAuthorQuote?.text = String.format("\"%s\"",args.authorQuote)
         }
         viewModel.authorImage.observe({ lifecycle }) { authorImageUrl ->
             binding?.ivAuthorImage?.loadImageUri(authorImageUrl,null)

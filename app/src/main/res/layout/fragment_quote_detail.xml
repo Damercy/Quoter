@@ -85,13 +85,13 @@
 
         <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_marginHorizontal="16dp"
             app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:orientation="vertical">
 
                 <com.google.android.material.textview.MaterialTextView
@@ -108,6 +108,23 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     tools:text="Thomas Alva Edison (February 11, 1847 – October 18, 1931) was an American inventor and businessman who has been described as America's greatest inventor. He developed many devices in fields such as electric power generation, mass communication, sound recording, and motion pictures." />
+
+                <View
+                    android:id="@+id/divider2"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginVertical="16dp"
+                    android:background="?android:attr/listDivider" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/tvAuthorQuote"
+                    style="@style/TextAppearance.MaterialComponents.Headline5"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    android:textStyle="italic"
+                    tools:text="&quot;Genius is 1% inspiration and 99% perspiration.&quot;" />
+
 
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
