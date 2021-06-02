@@ -11,5 +11,11 @@ class QuotesClient {
         .addConverterFactory(MoshiConverterFactory.create())
         .build()
 
+    private val wikiRetrofit = Retrofit.Builder()
+        .baseUrl("https://en.wikipedia.org/w/")
+        .addConverterFactory(MoshiConverterFactory.create())
+        .build()
+
     val api: QuoteService = retrofit.create(QuoteService::class.java)
+    val wikiApi: QuoteService = wikiRetrofit.create(QuoteService::class.java)
 }

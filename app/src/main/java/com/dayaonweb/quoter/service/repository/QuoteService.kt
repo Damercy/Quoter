@@ -2,6 +2,7 @@ package com.dayaonweb.quoter.service.repository
 
 import com.dayaonweb.quoter.service.model.AuthorBySlugResponse
 import com.dayaonweb.quoter.service.model.Quotes
+import com.dayaonweb.quoter.service.model.wikiAPI.WikiApiImageResponse
 import retrofit2.http.GET
 import retrofit2.http.Query
 
@@ -26,5 +27,15 @@ interface QuoteService {
         @Query("page") page: Int? = null,
     ): AuthorBySlugResponse
 
-    // https://en.wikipedia.org/w/api.php?action=query&prop=pageimages&format=json&piprop=original&titles={authorName}&pilicense=any ---> Get author image
+
+    // Only to be called from wikiApi
+    @GET("api.php")
+    suspend fun getAuthorImage(
+        @Query("action") action: String = "query",
+        @Query("prop") prop: String = "pageimages",
+        @Query("format") format: String = "json",
+        @Query("piprop") piProp: String = "original",
+        @Query("titles") authorName: String,
+        @Query("pilicense") license: String = "any",
+    ): WikiApiImageResponse
 }

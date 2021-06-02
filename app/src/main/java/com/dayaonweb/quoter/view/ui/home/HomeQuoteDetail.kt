@@ -1,6 +1,8 @@
 package com.dayaonweb.quoter.view.ui.home
 
+import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,6 +14,9 @@ import androidx.navigation.fragment.navArgs
 import com.dayaonweb.quoter.R
 import com.dayaonweb.quoter.databinding.FragmentQuoteDetailBinding
 import com.dayaonweb.quoter.extensions.isVisible
+import com.dayaonweb.quoter.extensions.loadImageUri
+
+private const val TAG = "HomeQuoteDetail"
 
 class HomeQuoteDetail : Fragment() {
 
@@ -31,15 +36,13 @@ class HomeQuoteDetail : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        viewModel.fetchAuthorImage(args.authorName.trim().replace(" ","_",true))
         viewModel.fetchAuthorDetailsBySlug(args.authorSlug)
-//        val animation =
-//            TransitionInflater.from(requireContext()).inflateTransition(android.R.transition.fade)
-//        sharedElementEnterTransition = animation
-//        sharedElementReturnTransition = animation
     }
 
     override fun onResume() {
         super.onResume()
+        activity?.window?.statusBarColor = Color.TRANSPARENT
         (activity as AppCompatActivity).supportActionBar?.hide()
     }
 
@@ -57,11 +60,15 @@ class HomeQuoteDetail : Fragment() {
             binding?.tvAuthorBio?.text = author.bio
             binding?.tvAuthorDescription?.text = author.description
         }
+        viewModel.authorImage.observe({lifecycle}){ authorImageUrl ->
+            binding?.ivAuthorImage?.loadImageUri(authorImageUrl)
+        }
     }
 
     override fun onDestroy() {
         super.onDestroy()
         binding = null
+        activity?.window?.statusBarColor = resources.getColor(R.color.design_default_color_primary_variant,null)
     }
 
 

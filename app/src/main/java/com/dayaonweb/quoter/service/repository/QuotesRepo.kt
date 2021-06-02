@@ -29,4 +29,6 @@ object QuotesRepo {
     suspend fun getAuthorBySlug(authorSlug: String, limit: Int?, page: Int?) =
         api.getAuthorBySlug(authorSlug, limit, page)
 
+
+    suspend fun getAuthorImageResponse(authorName:String) = QuotesClient().wikiApi.getAuthorImage(authorName = authorName)
 }
