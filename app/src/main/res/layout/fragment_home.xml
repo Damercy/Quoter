@@ -8,20 +8,31 @@
         android:layout_height="match_parent"
         tools:context=".view.ui.home.Home">
 
+        <com.faltenreich.skeletonlayout.SkeletonLayout
+            android:id="@+id/loader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <include layout="@layout/skeleton_quote_item" />
+
+                <include layout="@layout/skeleton_quote_item" />
+
+                <include layout="@layout/skeleton_quote_item" />
+
+                <include layout="@layout/skeleton_quote_item" />
+            </LinearLayout>
+        </com.faltenreich.skeletonlayout.SkeletonLayout>
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvBrowseQuotes"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior" />
-
-        <com.google.android.material.progressindicator.LinearProgressIndicator
-            android:id="@+id/loader"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginHorizontal="64dp"
-            android:indeterminate="true"
-            android:visibility="gone" />
 
         <LinearLayout
             android:id="@+id/llErrorState"

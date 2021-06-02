@@ -2,15 +2,11 @@ package com.dayaonweb.quoter.view.ui.home
 
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.navigation.fragment.FragmentNavigatorExtras
-import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.fragment.findNavController
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.dayaonweb.quoter.R
@@ -48,7 +44,7 @@ class Home : Fragment() {
 
         quotesAdapter.addLoadStateListener { loadState ->
             with(binding) {
-                this?.loader?.isVisible(loadState.source.refresh is LoadState.Loading)
+                binding?.loader?.isVisible(loadState.source.refresh is LoadState.Loading)
                 this?.rvBrowseQuotes?.isVisible(loadState.source.refresh is LoadState.NotLoading)
                 this?.llErrorState?.isVisible(loadState.source.refresh is LoadState.Error)
             }
