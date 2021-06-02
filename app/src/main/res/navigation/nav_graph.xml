@@ -8,10 +8,19 @@
         android:id="@+id/home"
         android:name="com.dayaonweb.quoter.view.ui.home.Home"
         android:label="fragment_home"
-        tools:layout="@layout/fragment_home" />
+        tools:layout="@layout/fragment_home" >
+        <action
+            android:id="@+id/action_home_to_homeQuoteDetail"
+            app:destination="@id/homeQuoteDetail" />
+    </fragment>
     <fragment
         android:id="@+id/profile"
         android:name="com.dayaonweb.quoter.view.ui.profile.Profile"
         android:label="fragment_profile"
         tools:layout="@layout/fragment_profile" />
+    <fragment
+        android:id="@+id/homeQuoteDetail"
+        android:name="com.dayaonweb.quoter.view.ui.home.HomeQuoteDetail"
+        tools:layout="@layout/fragment_quote_detail"
+        android:label="HomeQuoteDetail" />
 </navigation>

@@ -2,6 +2,7 @@ package com.dayaonweb.quoter.view.ui.home
 
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,6 +10,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.FragmentNavigatorExtras
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.fragment.findNavController
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.dayaonweb.quoter.R
@@ -16,6 +20,8 @@ import com.dayaonweb.quoter.databinding.FragmentHomeBinding
 import com.dayaonweb.quoter.extensions.isVisible
 import com.dayaonweb.quoter.view.adapter.HomePostsAdapter
 import com.dayaonweb.quoter.view.adapter.QuotesLoadStateAdapter
+
+private const val TAG = "Home"
 
 class Home : Fragment() {
     private var binding: FragmentHomeBinding? = null
@@ -43,7 +49,7 @@ class Home : Fragment() {
         }
 
         quotesAdapter.addLoadStateListener { loadState ->
-            with(binding){
+            with(binding) {
                 this?.loader?.isVisible(loadState.source.refresh is LoadState.Loading)
                 this?.rvBrowseQuotes?.isVisible(loadState.source.refresh is LoadState.NotLoading)
                 this?.llErrorState?.isVisible(loadState.source.refresh is LoadState.Error)
@@ -52,8 +58,8 @@ class Home : Fragment() {
         binding?.btnRetry?.setOnClickListener {
             quotesAdapter.retry()
         }
-        viewModel.quotes.observe(viewLifecycleOwner){
-            quotesAdapter.submitData(viewLifecycleOwner.lifecycle,it)
+        viewModel.quotes.observe(viewLifecycleOwner) {
+            quotesAdapter.submitData(viewLifecycleOwner.lifecycle, it)
         }
     }
 
