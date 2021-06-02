@@ -16,12 +16,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:fitsSystemWindows="true"
+                android:theme="@style/CustomToolbarTheme"
                 app:contentScrim="@color/design_default_color_primary_dark"
                 app:layout_scrollFlags="scroll|snap|exitUntilCollapsed"
-                app:statusBarScrim="@color/design_default_color_primary_dark"
-                android:theme="@style/CustomToolbarTheme"
-                app:subtitle="American inventor"
-                app:title="Thomas Edison">
+                app:statusBarScrim="@color/design_default_color_primary_dark">
 
                 <ImageView
                     android:layout_width="match_parent"
@@ -33,10 +31,12 @@
                     app:srcCompat="@drawable/gradient_background" />
 
                 <com.google.android.material.appbar.MaterialToolbar
+                    android:id="@+id/navToolbar"
                     android:layout_width="match_parent"
                     android:layout_height="?attr/actionBarSize"
-                    android:background="@android:color/transparent"
-                    app:layout_collapseMode="pin" />
+                    app:layout_collapseMode="pin"
+                    app:navigationIcon="@drawable/ic_arrow_back"
+                    app:navigationIconTint="@color/white" />
 
             </com.google.android.material.appbar.CollapsingToolbarLayout>
 

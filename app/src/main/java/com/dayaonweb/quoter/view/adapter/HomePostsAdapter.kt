@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.DiffUtil
 import com.dayaonweb.quoter.R
 import com.dayaonweb.quoter.databinding.QuoteItemBinding
 import com.dayaonweb.quoter.service.model.Quote
+import com.dayaonweb.quoter.view.ui.home.HomeQuoteDetailArgs
 
 private const val TAG = "HomePostsAdapter"
 
@@ -37,7 +38,8 @@ class HomePostsAdapter: PagingDataAdapter<Quote, HomePostsViewHolder>(quoteCompa
                Log.d(TAG, "onBindViewHolder: Called")
 //                onQuoteItemClicked
                 val extras = FragmentNavigatorExtras(it to "quoteCardMain")
-                findNavController(it).navigate(R.id.action_home_to_homeQuoteDetail, null, null, extras)
+                val arguments = HomeQuoteDetailArgs(quote.authorSlug,quote.author)
+                findNavController(it).navigate(R.id.action_home_to_homeQuoteDetail,arguments.toBundle(), null, extras)
             }
         }
     }

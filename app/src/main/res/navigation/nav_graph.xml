@@ -22,5 +22,12 @@
         android:id="@+id/homeQuoteDetail"
         android:name="com.dayaonweb.quoter.view.ui.home.HomeQuoteDetail"
         tools:layout="@layout/fragment_quote_detail"
-        android:label="HomeQuoteDetail" />
+        android:label="HomeQuoteDetail" >
+        <argument
+            android:name="authorSlug"
+            app:argType="string" />
+        <argument
+            android:name="authorName"
+            app:argType="string" />
+    </fragment>
 </navigation>
