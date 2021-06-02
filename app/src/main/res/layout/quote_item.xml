@@ -6,6 +6,7 @@
 
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
+        android:transitionName="quoteCardHolder"
         android:layout_height="200dp"
         android:layout_margin="16dp"
         android:clickable="true"

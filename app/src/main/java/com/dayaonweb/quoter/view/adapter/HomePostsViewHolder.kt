@@ -22,6 +22,9 @@ class HomePostsViewHolder(itemView: QuoteItemBinding) : RecyclerView.ViewHolder(
             copyToClipBoard(quote.content)
             Snackbar.make(binding.root,"Copied successfully",Snackbar.LENGTH_SHORT).show()
         }
+        binding.root.setOnClickListener {
+            Snackbar.make(binding.root,"Clicked!",Snackbar.LENGTH_SHORT).show()
+        }
     }
 
 
