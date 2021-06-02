@@ -6,13 +6,15 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.ImageView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import com.bumptech.glide.request.RequestOptions
 import com.dayaonweb.quoter.R
 import com.google.android.material.snackbar.Snackbar
 
 private const val TAG = "ViewExtensions"
 
 fun ImageView.loadImageUri(url: String?) =
-    Glide.with(this).load(url).centerCrop().transition(DrawableTransitionOptions.withCrossFade())
+    Glide.with(this).load(url).apply(RequestOptions.centerCropTransform())
+        .transition(DrawableTransitionOptions.withCrossFade())
         .placeholder(R.drawable.ic_loop_loading)
         .error(R.drawable.ic_profile)
         .into(this)

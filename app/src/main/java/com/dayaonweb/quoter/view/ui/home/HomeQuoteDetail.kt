@@ -13,8 +13,10 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
 import com.dayaonweb.quoter.R
 import com.dayaonweb.quoter.databinding.FragmentQuoteDetailBinding
+import com.dayaonweb.quoter.enums.Status
 import com.dayaonweb.quoter.extensions.isVisible
 import com.dayaonweb.quoter.extensions.loadImageUri
+import com.dayaonweb.quoter.extensions.snack
 
 private const val TAG = "HomeQuoteDetail"
 
@@ -36,7 +38,7 @@ class HomeQuoteDetail : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel.fetchAuthorImage(args.authorName.trim().replace(" ","_",true))
+        viewModel.fetchAuthorImage(args.authorName.trim().replace(" ", "_", true))
         viewModel.fetchAuthorDetailsBySlug(args.authorSlug)
     }
 
@@ -55,20 +57,28 @@ class HomeQuoteDetail : Fragment() {
             }
             title = args.authorName
         }
-        viewModel.author.observe({lifecycle}){ author ->
+        viewModel.author.observe({ lifecycle }) { author ->
             binding?.loader?.isVisible(false)
             binding?.tvAuthorBio?.text = author.bio
             binding?.tvAuthorDescription?.text = author.description
         }
-        viewModel.authorImage.observe({lifecycle}){ authorImageUrl ->
+        viewModel.authorImage.observe({ lifecycle }) { authorImageUrl ->
             binding?.ivAuthorImage?.loadImageUri(authorImageUrl)
+        }
+        viewModel.status.observe({ lifecycle }) { status ->
+            Log.d(TAG, "onViewCreated: Called status value=$status")
+            if (status == Status.READ_FAIL) {
+                requireView().snack("Failed to load data. Try later!")
+                binding?.loader?.isVisible(false)
+            }
         }
     }
 
     override fun onDestroy() {
         super.onDestroy()
         binding = null
-        activity?.window?.statusBarColor = resources.getColor(R.color.design_default_color_primary_variant,null)
+        activity?.window?.statusBarColor =
+            resources.getColor(R.color.design_default_color_primary_variant, null)
     }
 
 
