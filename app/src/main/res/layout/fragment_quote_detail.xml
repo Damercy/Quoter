@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
@@ -54,28 +55,20 @@
                 android:orientation="vertical">
 
                 <com.google.android.material.textview.MaterialTextView
-                    style="@style/TextAppearance.MaterialComponents.Subtitle1"
+                    android:id="@+id/tvAuthorDescription"
+                    style="@style/TextAppearance.MaterialComponents.Headline5"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Thomas Alva Edison (February 11, 1847 – October 18, 1931) was an American inventor and businessman who has been described as America's greatest inventor. He developed many devices in fields such as electric power generation, mass communication, sound recording, and motion pictures." />
+                    android:paddingVertical="16dp"
+                    tools:text="American inventor" />
 
                 <com.google.android.material.textview.MaterialTextView
-                    style="@style/TextAppearance.MaterialComponents.Subtitle1"
+                    android:id="@+id/tvAuthorBio"
+                    style="@style/TextAppearance.MaterialComponents.Body1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Thomas Alva Edison (February 11, 1847 – October 18, 1931) was an American inventor and businessman who has been described as America's greatest inventor. He developed many devices in fields such as electric power generation, mass communication, sound recording, and motion pictures." />
+                    tools:text="Thomas Alva Edison (February 11, 1847 – October 18, 1931) was an American inventor and businessman who has been described as America's greatest inventor. He developed many devices in fields such as electric power generation, mass communication, sound recording, and motion pictures." />
 
-                <com.google.android.material.textview.MaterialTextView
-                    style="@style/TextAppearance.MaterialComponents.Subtitle1"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Thomas Alva Edison (February 11, 1847 – October 18, 1931) was an American inventor and businessman who has been described as America's greatest inventor. He developed many devices in fields such as electric power generation, mass communication, sound recording, and motion pictures." />
-
-                <com.google.android.material.textview.MaterialTextView
-                    style="@style/TextAppearance.MaterialComponents.Subtitle1"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Thomas Alva Edison (February 11, 1847 – October 18, 1931) was an American inventor and businessman who has been described as America's greatest inventor. He developed many devices in fields such as electric power generation, mass communication, sound recording, and motion pictures." />
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
 

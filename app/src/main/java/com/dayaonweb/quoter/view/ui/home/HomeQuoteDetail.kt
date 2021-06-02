@@ -31,6 +31,7 @@ class HomeQuoteDetail : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         (activity as AppCompatActivity).supportActionBar?.hide()
         super.onCreate(savedInstanceState)
+        viewModel.fetchAuthorDetailsBySlug(args.authorSlug)
 //        val animation =
 //            TransitionInflater.from(requireContext()).inflateTransition(android.R.transition.fade)
 //        sharedElementEnterTransition = animation
@@ -45,6 +46,10 @@ class HomeQuoteDetail : Fragment() {
                 activity?.onBackPressed()
             }
             title = args.authorName
+        }
+        viewModel.author.observe({lifecycle}){ author ->
+            binding?.tvAuthorBio?.text = author.bio
+            binding?.tvAuthorDescription?.text = author.description
         }
     }
 

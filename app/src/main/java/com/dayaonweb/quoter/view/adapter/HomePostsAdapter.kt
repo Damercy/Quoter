@@ -35,8 +35,6 @@ class HomePostsAdapter: PagingDataAdapter<Quote, HomePostsViewHolder>(quoteCompa
         getItem(position)?.let { quote ->
             holder.bind(quote)
             holder.itemView.setOnClickListener {
-               Log.d(TAG, "onBindViewHolder: Called")
-//                onQuoteItemClicked
                 val extras = FragmentNavigatorExtras(it to "quoteCardMain")
                 val arguments = HomeQuoteDetailArgs(quote.authorSlug,quote.author)
                 findNavController(it).navigate(R.id.action_home_to_homeQuoteDetail,arguments.toBundle(), null, extras)

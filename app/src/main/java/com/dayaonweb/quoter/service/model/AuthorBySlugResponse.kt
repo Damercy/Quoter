@@ -13,7 +13,7 @@ data class AuthorBySlugResponse(
     @Json(name = "page")
     val page: Int?,
     @Json(name = "results")
-    val results: List<Result>?,
+    val results: List<Author>?,
     @Json(name = "totalCount")
     val totalCount: Int?,
     @Json(name = "totalPages")
