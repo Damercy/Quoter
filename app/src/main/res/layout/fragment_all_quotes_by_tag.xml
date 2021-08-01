@@ -42,9 +42,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView"
             app:np_dividerColor="@android:color/transparent"
-            app:np_selectedTextAlign="selectedTextAlignLeft"
             app:np_selectedTextSize="48sp"
-            app:np_textAlign="textAlignLeft"
             app:np_textSize="40sp"
             app:np_wrapSelectorWheel="true" />
 
@@ -56,8 +54,7 @@
             android:textColor="@color/black"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.25"
-            app:layout_constraintStart_toStartOf="@+id/textView"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/numberPicker"
             app:layout_constraintVertical_bias="0.58000004"
             tools:text="technology" />

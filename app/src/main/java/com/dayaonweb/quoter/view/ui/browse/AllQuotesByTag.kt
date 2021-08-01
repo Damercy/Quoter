@@ -1,6 +1,7 @@
 package com.dayaonweb.quoter.view.ui.browse
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -44,14 +45,27 @@ class AllQuotesByTag : Fragment() {
     }
 
     private fun attachListeners() {
-        bi?.numberPicker?.setOnValueChangedListener { _, _, newVal: Int ->
-            bi?.quoteTagTextView?.text = data.values.toTypedArray()[newVal]
+        bi?.apply {
+            numberPicker.setOnValueChangedListener { _, _, newVal: Int ->
+                quoteTagTextView.text = data.values.toTypedArray()[newVal]
+            }
+            numberPicker.setOnClickListener {
+                Log.d(TAG, "attachListeners: clicked with itemID/tag:${data.values.toTypedArray()[numberPicker.value]}")
+            }
+            menuImageView.setOnClickListener {
+
+            }
         }
+
     }
 
     override fun onDestroy() {
         bi = null
         super.onDestroy()
+    }
+
+    companion object{
+        private const val TAG = "AllQuotesByTag"
     }
 
 
