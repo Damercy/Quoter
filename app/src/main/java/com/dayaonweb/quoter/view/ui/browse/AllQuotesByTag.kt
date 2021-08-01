@@ -58,13 +58,15 @@ class AllQuotesByTag : Fragment() {
             maxValue = quoteCountToName.size - 1
             displayedValues = quoteCountToName.keys.map { it.toString() }.toTypedArray()
         }
-        bi?.quoteTagTextView?.text = quoteCountToName.values.toTypedArray()[0]
+        bi?.quoteTagTextView?.text =
+            viewModel.getFormattedQuoteNameTag(quoteCountToName.values.toTypedArray()[0])
     }
 
     private fun attachListeners() {
         bi?.apply {
-            numberPicker.setOnValueChangedListener { _, _, newVal: Int ->
-                quoteTagTextView.text = quoteCountToName.values.toTypedArray()[newVal]
+            numberPicker.setOnValueChangedListener { _, _, newVal ->
+                quoteTagTextView.text =
+                    viewModel.getFormattedQuoteNameTag(quoteCountToName.values.toTypedArray()[newVal])
             }
             numberPicker.setOnClickListener {
                 Log.d(

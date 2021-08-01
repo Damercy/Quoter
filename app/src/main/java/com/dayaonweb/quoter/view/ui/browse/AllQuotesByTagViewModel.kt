@@ -29,6 +29,13 @@ class AllQuotesByTagViewModel : ViewModel() {
         }
     }
 
+    fun getFormattedQuoteNameTag(tag: String): String {
+        return if (!tag.contains("-"))
+            tag.plus(" quotes")
+        else
+            tag.replace("-", " ", true)
+    }
+
 
     companion object {
         private const val TAG = "AllQuotesByTagViewModel"
