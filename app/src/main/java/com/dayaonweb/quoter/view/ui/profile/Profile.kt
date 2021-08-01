@@ -1,20 +1,18 @@
 package com.dayaonweb.quoter.view.ui.profile
 
-import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.dayaonweb.quoter.R
 import com.dayaonweb.quoter.databinding.FragmentProfileBinding
 import com.dayaonweb.quoter.enums.Status
-import com.dayaonweb.quoter.extensions.isVisible
 import com.dayaonweb.quoter.extensions.loadImageUri
 import com.dayaonweb.quoter.extensions.snack
 import com.github.dhaval2404.imagepicker.ImagePicker
@@ -39,9 +37,9 @@ class Profile : Fragment() {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_profile, container, false)
         binding?.root?.context?.let { viewModel.fetchUserDetails(it) }
         viewModel.user.observe({ lifecycle }) { user ->
-            binding?.btnUpdate?.isVisible(user.name.isNotEmpty())
+            binding?.btnUpdate?.isVisible = user.name.isNotEmpty()
             binding?.tilUsername?.editText?.setText(user.name)
-            binding?.ivUserProfilePicture?.loadImageUri(user.profilePicture,R.drawable.ic_profile)
+            binding?.ivUserProfilePicture?.loadImageUri(user.profilePicture, R.drawable.ic_profile)
         }
         viewModel.status.observe(viewLifecycleOwner, { status ->
 
@@ -63,7 +61,7 @@ class Profile : Fragment() {
             }
         })
         viewModel.progressAmount.observe(viewLifecycleOwner, { progressAmount ->
-            if(progressAmount>0)
+            if (progressAmount > 0)
                 binding?.uploadIndicator?.setProgressCompat(progressAmount, true)
         })
         return binding?.root
@@ -71,7 +69,7 @@ class Profile : Fragment() {
 
     private fun toggleIndicator(visible: Boolean) {
         with(binding?.uploadIndicator) {
-            this?.isVisible(visible)
+            this?.isVisible = visible
             if (!visible)
                 this?.isIndeterminate = true
         }
@@ -102,25 +100,6 @@ class Profile : Fragment() {
             }
     }
 
-
-    override fun onResume() {
-        super.onResume()
-        val toolbar = (activity as AppCompatActivity).supportActionBar
-        toolbar?.apply {
-            show()
-            title = "Profile"
-            subtitle = "Edit profile"
-            setBackgroundDrawable(
-                GradientDrawable(
-                    GradientDrawable.Orientation.TOP_BOTTOM,
-                    intArrayOf(
-                        context?.getColor(R.color.purple_700)!!,
-                        context?.getColor(R.color.purple_500)!!
-                    )
-                )
-            )
-        }
-    }
 
     override fun onDestroy() {
         super.onDestroy()

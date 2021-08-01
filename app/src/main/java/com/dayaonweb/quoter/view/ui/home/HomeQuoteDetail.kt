@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -14,7 +15,6 @@ import androidx.navigation.fragment.navArgs
 import com.dayaonweb.quoter.R
 import com.dayaonweb.quoter.databinding.FragmentQuoteDetailBinding
 import com.dayaonweb.quoter.enums.Status
-import com.dayaonweb.quoter.extensions.isVisible
 import com.dayaonweb.quoter.extensions.loadImageUri
 import com.dayaonweb.quoter.extensions.snack
 
@@ -58,19 +58,19 @@ class HomeQuoteDetail : Fragment() {
             title = args.authorName
         }
         viewModel.author.observe({ lifecycle }) { author ->
-            binding?.loader?.isVisible(false)
+            binding?.loader?.isVisible = false
             binding?.tvAuthorBio?.text = author.bio
             binding?.tvAuthorDescription?.text = author.description
-            binding?.tvAuthorQuote?.text = String.format("\"%s\"",args.authorQuote)
+            binding?.tvAuthorQuote?.text = String.format("\"%s\"", args.authorQuote)
         }
         viewModel.authorImage.observe({ lifecycle }) { authorImageUrl ->
-            binding?.ivAuthorImage?.loadImageUri(authorImageUrl,null)
+            binding?.ivAuthorImage?.loadImageUri(authorImageUrl, null)
         }
         viewModel.status.observe({ lifecycle }) { status ->
             Log.d(TAG, "onViewCreated: Called status value=$status")
             if (status == Status.READ_FAIL) {
                 requireView().snack("Failed to load data. Try later!")
-                binding?.loader?.isVisible(false)
+                binding?.loader?.isVisible = false
             }
         }
     }

@@ -2,11 +2,11 @@ package com.dayaonweb.quoter.view.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.paging.LoadState
 import androidx.paging.LoadStateAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.dayaonweb.quoter.databinding.LoadStateAdapterBinding
-import com.dayaonweb.quoter.extensions.isVisible
 
 class QuotesLoadStateAdapter(private val retry: () -> Unit) :
     LoadStateAdapter<QuotesLoadStateAdapter.QuotesLoadStateViewHolder>() {
@@ -39,8 +39,8 @@ class QuotesLoadStateAdapter(private val retry: () -> Unit) :
 
         fun bind(loadState: LoadState) {
             with(binding) {
-                loader.isVisible(loadState is LoadState.Loading)
-                llErrorState.isVisible(loadState is LoadState.Error)
+                loader.isVisible = loadState is LoadState.Loading
+                llErrorState.isVisible = loadState is LoadState.Error
             }
         }
     }

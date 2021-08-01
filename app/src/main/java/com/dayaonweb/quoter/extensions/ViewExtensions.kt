@@ -22,13 +22,6 @@ fun ImageView.loadImageUri(url: String?, errorDrawable: Int?) =
             .error(errorDrawable)
             .into(this)
 
-fun View.isVisible(visible: Boolean) {
-    visibility = if (visible)
-        View.VISIBLE
-    else
-        View.GONE
-}
-
 fun View.snack(message: String, duration: Int = Snackbar.LENGTH_SHORT) =
     Snackbar.make(this, message, duration).show()
 

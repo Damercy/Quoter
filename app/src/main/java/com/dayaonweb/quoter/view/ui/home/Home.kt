@@ -2,8 +2,11 @@ package com.dayaonweb.quoter.view.ui.home
 
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -11,7 +14,6 @@ import androidx.paging.LoadState
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.dayaonweb.quoter.R
 import com.dayaonweb.quoter.databinding.FragmentHomeBinding
-import com.dayaonweb.quoter.extensions.isVisible
 import com.dayaonweb.quoter.view.adapter.HomePostsAdapter
 import com.dayaonweb.quoter.view.adapter.QuotesLoadStateAdapter
 
@@ -44,9 +46,9 @@ class Home : Fragment() {
 
         quotesAdapter.addLoadStateListener { loadState ->
             with(binding) {
-                binding?.loader?.isVisible(loadState.source.refresh is LoadState.Loading)
-                this?.rvBrowseQuotes?.isVisible(loadState.source.refresh is LoadState.NotLoading)
-                this?.llErrorState?.isVisible(loadState.source.refresh is LoadState.Error)
+                binding?.loader?.isVisible = loadState.source.refresh is LoadState.Loading
+                this?.rvBrowseQuotes?.isVisible = loadState.source.refresh is LoadState.NotLoading
+                this?.llErrorState?.isVisible = loadState.source.refresh is LoadState.Error
             }
         }
         binding?.btnRetry?.setOnClickListener {
@@ -57,24 +59,6 @@ class Home : Fragment() {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        val toolbar = (activity as AppCompatActivity).supportActionBar
-        toolbar?.apply {
-            show()
-            title = "Home"
-            subtitle = "Browse quotes"
-            setBackgroundDrawable(
-                GradientDrawable(
-                    GradientDrawable.Orientation.TOP_BOTTOM,
-                    intArrayOf(
-                        context?.getColor(R.color.purple_700)!!,
-                        context?.getColor(R.color.purple_500)!!
-                    )
-                )
-            )
-        }
-    }
 
     override fun onDestroy() {
         super.onDestroy()
