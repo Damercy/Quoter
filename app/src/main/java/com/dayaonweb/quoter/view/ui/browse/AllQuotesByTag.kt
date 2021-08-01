@@ -6,16 +6,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import com.dayaonweb.quoter.R
 import com.dayaonweb.quoter.databinding.FragmentAllQuotesByTagBinding
 
 class AllQuotesByTag : Fragment() {
 
     private var bi: FragmentAllQuotesByTagBinding? = null
-    val data =
-        mapOf("1" to "technology", "1550" to "famous quotes", "20" to "faith", "9" to "friendship")
+    private val viewModel: AllQuotesByTagViewModel by viewModels()
+    private var quoteCountToName = mutableMapOf<Int, String>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -29,28 +31,46 @@ class AllQuotesByTag : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initNumberPicker()
         attachListeners()
+        attachObservers()
+        viewModel.getAllQuotes()
+    }
+
+    private fun attachObservers() {
+        viewModel.allQuotesByTag.observe({ lifecycle }) {
+            if (it.isNotEmpty()) {
+                it.filter { item ->
+                    item.quoteCount != 0
+                }.forEach { item ->
+                    quoteCountToName[item.quoteCount] = item.name
+                }
+                initNumberPicker()
+            }
+        }
     }
 
     private fun initNumberPicker() {
         bi?.numberPicker?.apply {
+            isVisible = true
             typeface = ResourcesCompat.getFont(requireContext(), R.font.main_bold)
             setSelectedTypeface(ResourcesCompat.getFont(requireContext(), R.font.main_bold))
             minValue = 0
-            maxValue = data.size - 1
-            displayedValues = data.keys.toTypedArray()
+            maxValue = quoteCountToName.size - 1
+            displayedValues = quoteCountToName.keys.map { it.toString() }.toTypedArray()
         }
-        bi?.quoteTagTextView?.text = data.values.toTypedArray()[0]
+        bi?.quoteTagTextView?.text = quoteCountToName.values.toTypedArray()[0]
     }
 
     private fun attachListeners() {
         bi?.apply {
             numberPicker.setOnValueChangedListener { _, _, newVal: Int ->
-                quoteTagTextView.text = data.values.toTypedArray()[newVal]
+                quoteTagTextView.text = quoteCountToName.values.toTypedArray()[newVal]
             }
             numberPicker.setOnClickListener {
-                Log.d(TAG, "attachListeners: clicked with itemID/tag:${data.values.toTypedArray()[numberPicker.value]}")
+                Log.d(
+                    TAG,
+                    "attachListeners: clicked with itemID/tag:${quoteCountToName.values.toTypedArray()[numberPicker.value]}"
+                )
             }
             menuImageView.setOnClickListener {
 
@@ -64,7 +84,7 @@ class AllQuotesByTag : Fragment() {
         super.onDestroy()
     }
 
-    companion object{
+    companion object {
         private const val TAG = "AllQuotesByTag"
     }
 

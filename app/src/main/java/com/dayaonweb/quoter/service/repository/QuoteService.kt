@@ -2,6 +2,7 @@ package com.dayaonweb.quoter.service.repository
 
 import com.dayaonweb.quoter.service.model.AuthorBySlugResponse
 import com.dayaonweb.quoter.service.model.Quotes
+import com.dayaonweb.quoter.service.model.QuotesTagsResponseItem
 import com.dayaonweb.quoter.service.model.wikiAPI.WikiApiImageResponse
 import retrofit2.http.GET
 import retrofit2.http.Query
@@ -27,6 +28,8 @@ interface QuoteService {
         @Query("page") page: Int? = null,
     ): AuthorBySlugResponse
 
+    @GET("tags")
+    suspend fun getAllTags(): List<QuotesTagsResponseItem>
 
     // Only to be called from wikiApi
     @GET("api.php")
