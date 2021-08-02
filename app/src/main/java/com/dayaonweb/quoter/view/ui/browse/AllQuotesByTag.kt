@@ -13,6 +13,7 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.dayaonweb.quoter.R
 import com.dayaonweb.quoter.databinding.FragmentAllQuotesByTagBinding
+import com.dayaonweb.quoter.view.ui.browseatag.BrowseTagArgs
 
 class AllQuotesByTag : Fragment() {
 
@@ -70,11 +71,8 @@ class AllQuotesByTag : Fragment() {
                     viewModel.getFormattedQuoteNameTag(quoteCountToName.values.toTypedArray()[newVal])
             }
             numberPicker.setOnClickListener {
-                Log.d(
-                    TAG,
-                    "attachListeners: clicked with itemID/tag:${quoteCountToName.values.toTypedArray()[numberPicker.value]}"
-                )
-                findNavController().navigate(R.id.action_allQuotesByTag_to_browseTag)
+                val arg = BrowseTagArgs(quoteCountToName.values.toTypedArray()[numberPicker.value]).toBundle()
+                findNavController().navigate(R.id.action_allQuotesByTag_to_browseTag,arg)
             }
             menuImageView.setOnClickListener {
 

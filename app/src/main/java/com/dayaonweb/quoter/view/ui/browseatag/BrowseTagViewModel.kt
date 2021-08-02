@@ -16,11 +16,11 @@ class BrowseTagViewModel : ViewModel() {
     private val _quotes = MutableLiveData<Quotes>()
     val quotes: LiveData<Quotes> = _quotes
 
-    fun fetchQuotesByTag(tag: String) {
+    fun fetchQuotesByTag(tag: String, pageNo: Int) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 try {
-                    val response = QuotesRepo.getQuotesByTags(listOf(tag))
+                    val response = QuotesRepo.getQuotesByTags(listOf(tag),pageNo)
                     Log.d(TAG, "fetchQuotesByTag: response: $response")
                     _quotes.postValue(response)
 

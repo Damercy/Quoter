@@ -40,11 +40,19 @@
         android:label="AllQuotesByTag" >
         <action
             android:id="@+id/action_allQuotesByTag_to_browseTag"
-            app:destination="@id/browseTag" />
+            app:destination="@id/browseTag"
+            app:enterAnim="@android:anim/fade_in"
+            app:exitAnim="@android:anim/fade_out"
+            app:popEnterAnim="@android:anim/fade_in"
+            app:popExitAnim="@android:anim/fade_out" />
     </fragment>
     <fragment
         android:id="@+id/browseTag"
         tools:layout="@layout/fragment_browse_tag"
         android:name="com.dayaonweb.quoter.view.ui.browseatag.BrowseTag"
-        android:label="BrowseTag" />
+        android:label="BrowseTag" >
+        <argument
+            android:name="tag"
+            app:argType="string" />
+    </fragment>
 </navigation>

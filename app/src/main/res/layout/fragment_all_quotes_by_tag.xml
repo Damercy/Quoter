@@ -11,6 +11,7 @@
         tools:context=".view.ui.browse.AllQuotesByTag">
 
         <ImageView
+            android:contentDescription="@null"
             android:id="@+id/menu_image_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

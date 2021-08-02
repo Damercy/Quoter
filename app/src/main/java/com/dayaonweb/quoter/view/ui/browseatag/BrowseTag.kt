@@ -1,6 +1,7 @@
 package com.dayaonweb.quoter.view.ui.browseatag
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,6 +10,7 @@ import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.navArgs
 import com.dayaonweb.quoter.R
 import com.dayaonweb.quoter.databinding.FragmentBrowseTagBinding
 import com.dayaonweb.quoter.service.model.Quote
@@ -18,7 +20,10 @@ class BrowseTag : Fragment() {
     private var bi: FragmentBrowseTagBinding? = null
     private val viewModel: BrowseTagViewModel by viewModels()
     private var quoteToAuthor = mutableMapOf<Quote, String>()
-    private var currentPageCount = -1
+    private var totalPages = -1
+    private var pageToFetch = 1
+    private var currentPageCount = 0
+    private val args: BrowseTagArgs by navArgs()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -33,12 +38,13 @@ class BrowseTag : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         attachListeners()
         attachObservers()
-        viewModel.fetchQuotesByTag("love") // get from args
+        viewModel.fetchQuotesByTag(args.tag,pageToFetch)
     }
 
     private fun attachObservers() {
         viewModel.quotes.observe({ lifecycle }) {
-            currentPageCount = it.count
+            currentPageCount+= it.count
+            totalPages = it.totalPages
             for (result in it.results) {
                 quoteToAuthor[result] = result.author
             }
@@ -51,10 +57,18 @@ class BrowseTag : Fragment() {
             shareImageView.setOnClickListener {
 
             }
+            backImageView.setOnClickListener {
+                requireActivity().onBackPressed()
+            }
             quoteScroller.setOnValueChangedListener { _, _, newVal ->
                 quoteTextView.text = quoteToAuthor.keys.toTypedArray()[newVal].content
                 authorTextView.text = quoteToAuthor.values.toTypedArray()[newVal]
                 serialTextView.text = String.format("%s", "${newVal + 1}/$currentPageCount")
+                if(currentPageCount - (newVal+1) <= 4) {
+                    pageToFetch++
+                    if(pageToFetch<=totalPages)
+                        viewModel.fetchQuotesByTag(args.tag,pageToFetch)
+                }
             }
 
         }
@@ -73,10 +87,16 @@ class BrowseTag : Fragment() {
         bi?.quoteTextView?.text = quoteToAuthor.keys.toTypedArray()[0].content
         bi?.authorTextView?.text = quoteToAuthor.values.toTypedArray()[0]
         bi?.serialTextView?.text = String.format("%s", "1/$currentPageCount")
+        bi?.shareImageView?.isVisible = true
+        bi?.backImageView?.isVisible = true
     }
 
     override fun onDestroy() {
         bi = null
         super.onDestroy()
+    }
+
+    companion object{
+        private const val TAG = "BrowseTag"
     }
 }

@@ -31,7 +31,7 @@ object QuotesRepo {
 
     suspend fun getAllQuoteTags() = api.getAllTags()
 
-    suspend fun getQuotesByTags(tags: List<String>) = api.getQuotes(tags = tags)
+    suspend fun getQuotesByTags(tags: List<String>, pageNo:Int) = api.getQuotes(tags = tags,page = pageNo)
 
 
     suspend fun getAuthorImageResponse(authorName:String) = QuotesClient().wikiApi.getAuthorImage(authorName = authorName)

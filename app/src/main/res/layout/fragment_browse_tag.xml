@@ -9,6 +9,20 @@
         android:animateLayoutChanges="true"
         tools:context=".view.ui.browseatag.BrowseTag">
 
+        <ImageView
+            android:id="@+id/back_image_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@null"
+            android:visibility="invisible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_back" />
+
 
         <com.shawnlin.numberpicker.NumberPicker
             android:id="@+id/quoteScroller"
@@ -19,8 +33,10 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/back_image_view"
             app:np_dividerColor="@android:color/transparent"
+            app:np_wrapSelectorWheel="false"
+            app:np_maxFlingVelocityCoefficient="20"
             app:np_orientation="horizontal"
             app:np_selectedTextSize="48sp"
             app:np_wheelItemCount="1" />
@@ -39,14 +55,14 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/quoteScroller"
-            tools:text="To be or not to be, that is the question"
-            tools:ignore="RtlCompat" />
+            tools:ignore="RtlCompat"
+            tools:text="To be or not to be, that is the question" />
 
         <TextView
             android:id="@+id/author_text_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="64dp"
+            android:layout_marginStart="56dp"
             android:fontFamily="@font/main_regular"
             android:textAllCaps="true"
             android:textColor="@color/cardview_dark_background"
@@ -78,6 +94,7 @@
             android:layout_marginBottom="16dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@null"
+            android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
