@@ -1,6 +1,7 @@
 package com.dayaonweb.quoter.view.ui.browsetag
 
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -37,12 +38,12 @@ class BrowseTag : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         attachListeners()
         attachObservers()
-        viewModel.fetchQuotesByTag(args.tag,pageToFetch)
+        viewModel.fetchQuotesByTag(args.tag, pageToFetch)
     }
 
     private fun attachObservers() {
         viewModel.quotes.observe({ lifecycle }) {
-            currentPageCount+= it.count
+            currentPageCount += it.count
             totalPages = it.totalPages
             for (result in it.results) {
                 quoteToAuthor[result] = result.author
@@ -60,13 +61,18 @@ class BrowseTag : Fragment() {
                 requireActivity().onBackPressed()
             }
             quoteScroller.setOnValueChangedListener { _, _, newVal ->
-                quoteTextView.text = quoteToAuthor.keys.toTypedArray()[newVal].content
+                val currentQuote = quoteToAuthor.keys.toTypedArray()[newVal]
+                quoteTextView.text = currentQuote.content
                 authorTextView.text = quoteToAuthor.values.toTypedArray()[newVal]
                 serialTextView.text = String.format("%s", "${newVal + 1}/$currentPageCount")
-                if(currentPageCount - (newVal+1) <= 4) {
+                quoteTextView.setTextSize(
+                    TypedValue.COMPLEX_UNIT_SP,
+                    if (currentQuote.length > 150) 24f else 32f
+                )
+                if (currentPageCount - (newVal + 1) <= 4) {
                     pageToFetch++
-                    if(pageToFetch<=totalPages)
-                        viewModel.fetchQuotesByTag(args.tag,pageToFetch)
+                    if (pageToFetch <= totalPages)
+                        viewModel.fetchQuotesByTag(args.tag, pageToFetch)
                 }
             }
 
@@ -88,6 +94,7 @@ class BrowseTag : Fragment() {
         bi?.serialTextView?.text = String.format("%s", "1/$currentPageCount")
         bi?.shareImageView?.isVisible = true
         bi?.backImageView?.isVisible = true
+        bi?.quoteImageView?.isVisible = true
     }
 
     override fun onDestroy() {
@@ -95,7 +102,7 @@ class BrowseTag : Fragment() {
         super.onDestroy()
     }
 
-    companion object{
+    companion object {
         private const val TAG = "BrowseTag"
     }
 }
