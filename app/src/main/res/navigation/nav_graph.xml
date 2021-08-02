@@ -37,5 +37,14 @@
         android:id="@+id/allQuotesByTag"
         tools:layout="@layout/fragment_all_quotes_by_tag"
         android:name="com.dayaonweb.quoter.view.ui.browse.AllQuotesByTag"
-        android:label="AllQuotesByTag" />
+        android:label="AllQuotesByTag" >
+        <action
+            android:id="@+id/action_allQuotesByTag_to_browseTag"
+            app:destination="@id/browseTag" />
+    </fragment>
+    <fragment
+        android:id="@+id/browseTag"
+        tools:layout="@layout/fragment_browse_tag"
+        android:name="com.dayaonweb.quoter.view.ui.browseatag.BrowseTag"
+        android:label="BrowseTag" />
 </navigation>

@@ -10,6 +10,7 @@ import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import com.dayaonweb.quoter.R
 import com.dayaonweb.quoter.databinding.FragmentAllQuotesByTagBinding
 
@@ -73,6 +74,7 @@ class AllQuotesByTag : Fragment() {
                     TAG,
                     "attachListeners: clicked with itemID/tag:${quoteCountToName.values.toTypedArray()[numberPicker.value]}"
                 )
+                findNavController().navigate(R.id.action_allQuotesByTag_to_browseTag)
             }
             menuImageView.setOnClickListener {
 

@@ -6,6 +6,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:animateLayoutChanges="true"
         tools:context=".view.ui.browseatag.BrowseTag">
 
 
@@ -13,31 +14,62 @@
             android:id="@+id/quoteScroller"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toTopOf="@+id/author_text_view"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.0"
             app:np_dividerColor="@android:color/transparent"
             app:np_orientation="horizontal"
             app:np_selectedTextSize="48sp"
             app:np_wheelItemCount="1" />
 
         <TextView
+            android:id="@+id/quote_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:fontFamily="@font/main_bold"
+            android:gravity="center"
+            android:padding="48dp"
+            android:textAlignment="textStart"
+            android:textColor="@color/black"
+            android:textSize="32sp"
+            app:layout_constraintBottom_toBottomOf="@+id/quoteScroller"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/quoteScroller"
+            tools:text="To be or not to be, that is the question"
+            tools:ignore="RtlCompat" />
+
+        <TextView
             android:id="@+id/author_text_view"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginStart="64dp"
             android:fontFamily="@font/main_regular"
             android:textAllCaps="true"
             android:textColor="@color/cardview_dark_background"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.25"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.84000003"
             tools:text="Shakespeare" />
+
+        <TextView
+            android:id="@+id/serial_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:fontFamily="@font/main_bold"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="@+id/share_image_view"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/share_image_view"
+            app:layout_constraintVertical_bias="0.84000003"
+            tools:text="1/20" />
 
         <ImageView
             android:id="@+id/share_image_view"

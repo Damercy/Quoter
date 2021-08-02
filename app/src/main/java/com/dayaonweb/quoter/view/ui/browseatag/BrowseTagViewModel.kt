@@ -21,6 +21,7 @@ class BrowseTagViewModel : ViewModel() {
             withContext(Dispatchers.IO) {
                 try {
                     val response = QuotesRepo.getQuotesByTags(listOf(tag))
+                    Log.d(TAG, "fetchQuotesByTag: response: $response")
                     _quotes.postValue(response)
 
                 } catch (exception: Exception) {
