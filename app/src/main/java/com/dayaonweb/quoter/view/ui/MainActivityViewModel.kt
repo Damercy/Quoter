@@ -19,39 +19,7 @@ import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 
-private const val TAG = "MainActivityViewModel"
-
-class MainActivityViewModel(context: Context) : ViewModel() {
-
-
-    fun initUser(context: Context) {
-        context.dataStore
-        viewModelScope.launch {
-            if (context.readFromPreferences(Constants.USER_ID).isNullOrEmpty()) {
-                val userId = FirebaseInstallations.getInstance().id
-                userId.addOnCompleteListener {
-                    if (it.isSuccessful && it.result != null) {
-                        viewModelScope.launch {
-                            context.writeToPreferences(Constants.USER_ID, it.result)
-                        }
-                        initUserData(it.result)
-                    }
-                }
-            }
-        }
-
-
-    }
-
-    private fun initUserData(userId: String?) {
-        if (userId.isNullOrEmpty())
-            return
-        val data = hashMapOf("name" to userId.subSequence(0, 10).toString())
-        Firebase.firestore.collection("users")
-            .document(userId)
-            .set(data, SetOptions.merge())
-    }
-
+class MainActivityViewModel : ViewModel() {
 
 
     fun themeOnClickListener(context: Context) {

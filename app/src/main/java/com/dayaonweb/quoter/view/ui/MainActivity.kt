@@ -1,9 +1,6 @@
 package com.dayaonweb.quoter.view.ui
 
-import android.content.res.Configuration
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
@@ -14,18 +11,14 @@ private const val TAG = "MainActivity"
 
 class MainActivity : AppCompatActivity() {
 
-    lateinit var binding: ActivityMainBinding
-    lateinit var actViewModel: MainActivityViewModel
-    private lateinit var actViewModelFactory: MainActivityViewModelFactory
+    private lateinit var binding: ActivityMainBinding
+    private lateinit var viewModel: MainActivityViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        actViewModelFactory = MainActivityViewModelFactory(this)
-        actViewModel =
-            ViewModelProvider(this, actViewModelFactory).get(MainActivityViewModel::class.java)
+        viewModel = ViewModelProvider(this).get(MainActivityViewModel::class.java)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         binding.lifecycleOwner = this
-        actViewModel.initUser(this)
     }
 
 

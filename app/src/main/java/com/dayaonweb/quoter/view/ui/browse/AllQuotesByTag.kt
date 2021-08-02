@@ -1,7 +1,6 @@
 package com.dayaonweb.quoter.view.ui.browse
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,7 +12,7 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.dayaonweb.quoter.R
 import com.dayaonweb.quoter.databinding.FragmentAllQuotesByTagBinding
-import com.dayaonweb.quoter.view.ui.browseatag.BrowseTagArgs
+import com.dayaonweb.quoter.view.ui.browsetag.BrowseTagArgs
 
 class AllQuotesByTag : Fragment() {
 

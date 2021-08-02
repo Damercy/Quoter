@@ -1,4 +1,4 @@
-package com.dayaonweb.quoter.view.ui.browseatag
+package com.dayaonweb.quoter.view.ui.browsetag
 
 import android.util.Log
 import androidx.lifecycle.LiveData
