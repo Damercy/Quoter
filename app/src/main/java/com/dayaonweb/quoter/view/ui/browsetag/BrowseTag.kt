@@ -2,9 +2,8 @@ package com.dayaonweb.quoter.view.ui.browsetag
 
 import android.os.Bundle
 import android.util.TypedValue
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import android.widget.PopupMenu
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
@@ -15,7 +14,7 @@ import com.dayaonweb.quoter.R
 import com.dayaonweb.quoter.databinding.FragmentBrowseTagBinding
 import com.dayaonweb.quoter.service.model.Quote
 
-class BrowseTag : Fragment() {
+class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
 
     private var bi: FragmentBrowseTagBinding? = null
     private val viewModel: BrowseTagViewModel by viewModels()
@@ -57,6 +56,9 @@ class BrowseTag : Fragment() {
             shareImageView.setOnClickListener {
 
             }
+            optionsImageView.setOnClickListener {
+                showPopup(it)
+            }
             backImageView.setOnClickListener {
                 requireActivity().onBackPressed()
             }
@@ -95,10 +97,32 @@ class BrowseTag : Fragment() {
         bi?.shareImageView?.isVisible = true
         bi?.backImageView?.isVisible = true
         bi?.quoteImageView?.isVisible = true
+        bi?.optionsImageView?.isVisible = true
+    }
+
+    private fun showPopup(anchorView: View){
+        val wrapper = ContextThemeWrapper(requireContext(),R.style.BasePopupMenu)
+        PopupMenu(wrapper,anchorView).apply {
+            setOnMenuItemClickListener(this@BrowseTag)
+            gravity = Gravity.END
+            inflate(R.menu.options_menu)
+            show()
+        }
+
     }
 
     override fun onDestroy() {
         bi = null
         super.onDestroy()
+    }
+
+    override fun onMenuItemClick(item: MenuItem?): Boolean {
+        return when(item?.itemId){
+            R.id.copy_quote -> {
+                // copy text
+                true
+            }
+            else -> false
+        }
     }
 }
