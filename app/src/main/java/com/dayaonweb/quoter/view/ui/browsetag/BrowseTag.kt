@@ -74,6 +74,7 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
                 quoteTextView.text = currentQuote.content
                 authorTextView.text = quoteToAuthor.values.toTypedArray()[newVal]
                 serialTextView.text = String.format("%s", "$currentQuoteNumber/$currentPageCount")
+                fadeInViews()
                 quoteTextView.setTextSize(
                     TypedValue.COMPLEX_UNIT_SP,
                     if (currentQuote.length > 150) 24f else 32f
@@ -87,6 +88,17 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
 
         }
 
+    }
+
+    private fun fadeInViews() {
+        bi?.apply {
+            authorTextView.alpha = 0.0f
+            quoteTextView.alpha = 0.0f
+            quoteImageView.alpha = 0.0f
+            authorTextView.animate().alpha(1.0f).setDuration(200).start()
+            quoteTextView.animate().alpha(1.0f).setDuration(200).start()
+            quoteImageView.animate().alpha(1.0f).setDuration(200).start()
+        }
     }
 
     private fun initNumberPicker() {
@@ -105,6 +117,7 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
         bi?.backImageView?.isVisible = true
         bi?.quoteImageView?.isVisible = true
         bi?.optionsImageView?.isVisible = true
+        bi?.loader?.isVisible = false
     }
 
     private fun showPopup(anchorView: View) {

@@ -39,6 +39,8 @@ class AllQuotesByTag : Fragment() {
 
     private fun attachObservers() {
         viewModel.allQuotesByTag.observe({ lifecycle }) {
+            bi?.textView?.isVisible = true
+            bi?.loader?.isVisible = false
             if (it.isNotEmpty()) {
                 it.filter { item ->
                     item.quoteCount != 0

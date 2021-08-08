@@ -123,16 +123,28 @@
         <ImageView
             android:id="@+id/options_image_view"
             android:layout_width="wrap_content"
-            android:background="?attr/selectableItemBackgroundBorderless"
             android:layout_height="wrap_content"
-            android:visibility="invisible"
-            tools:visibility="visible"
             android:layout_margin="16dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@null"
+            android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="@+id/back_image_view"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/back_image_view"
-            app:srcCompat="@drawable/ic_more_horizontal" />
+            app:srcCompat="@drawable/ic_more_horizontal"
+            tools:visibility="visible" />
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/loader"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:lottie_autoPlay="true"
+            app:lottie_loop="true"
+            app:lottie_rawRes="@raw/loading" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

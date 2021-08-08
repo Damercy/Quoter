@@ -9,10 +9,14 @@
 
 
     <com.airbnb.lottie.LottieAnimationView
-        app:lottie_rawRes="@raw/quote_splash"
+        android:id="@+id/lottie_view"
+        android:alpha="0"
+        app:srcCompat="@drawable/ic_quote"
+        app:tint="@color/white"
         app:lottie_autoPlay="true"
+        android:layout_gravity="center"
         app:lottie_loop="true"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_width="200dp"
+        android:layout_height="200dp"/>
 
 </FrameLayout>
