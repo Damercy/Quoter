@@ -87,9 +87,4 @@ class AllQuotesByTag : Fragment() {
         super.onDestroy()
     }
 
-    companion object {
-        private const val TAG = "AllQuotesByTag"
-    }
-
-
 }

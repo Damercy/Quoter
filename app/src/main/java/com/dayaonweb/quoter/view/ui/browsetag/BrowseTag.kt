@@ -18,6 +18,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
 import com.dayaonweb.quoter.R
+import com.dayaonweb.quoter.analytics.Analytics
 import com.dayaonweb.quoter.databinding.FragmentBrowseTagBinding
 import com.dayaonweb.quoter.service.model.Quote
 import com.google.android.material.snackbar.Snackbar
@@ -34,6 +35,10 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
     private var currentPageCount = 0
     private var currentQuoteNumber = 1
     private val args: BrowseTagArgs by navArgs()
+
+    /**************ANALYTICS********************/
+    private var currentQuoteId: String = ""
+    private lateinit var currentQuoteTag: List<String>
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -85,6 +90,11 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
     private fun attachListeners() {
         bi?.apply {
             shareImageView.setOnClickListener {
+                Analytics.trackQuoteShare(
+                    bi?.quoteTextView?.text.toString(),
+                    currentQuoteId,
+                    currentQuoteTag
+                )
                 bi?.screenshotView?.let { containerView ->
                     viewModel.takeScreenShot(
                         containerView,
@@ -120,6 +130,10 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
                     if (pageToFetch <= totalPages && !viewModel.isFetchingQuotes)
                         viewModel.fetchQuotesByTag(args.tag, pageToFetch)
                 }
+
+                /**************ANALYTICS********************/
+                currentQuoteId = currentQuote.id
+                currentQuoteTag = currentQuote.tags
             }
 
         }
@@ -156,6 +170,10 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
         bi?.quoteImageView?.isVisible = true
         bi?.optionsImageView?.isVisible = true
         bi?.loader?.isVisible = false
+
+        /**************ANALYTICS********************/
+        currentQuoteId = quoteToAuthor.keys.toTypedArray()[0].id
+        currentQuoteTag = quoteToAuthor.keys.toTypedArray()[0].tags
     }
 
     private fun showPopup(anchorView: View) {
@@ -179,6 +197,7 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
             R.id.copy_quote -> {
                 bi?.quoteTextView?.text?.let { quote ->
                     bi?.authorTextView?.text?.let { author ->
+                        Analytics.trackQuoteCopy(quote.toString(), currentQuoteId,currentQuoteTag)
                         copyText(String.format("%s\n\n~ %s", quote, author))
                     }
                 }

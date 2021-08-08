@@ -2,16 +2,13 @@ package com.dayaonweb.quoter.view.ui.browsetag
 
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.util.Log
 import android.view.View
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.bumptech.glide.util.Util
 import com.dayaonweb.quoter.service.model.Quotes
 import com.dayaonweb.quoter.service.repository.QuotesRepo
-import com.github.dhaval2404.imagepicker.util.ImageUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -34,14 +31,12 @@ class BrowseTagViewModel : ViewModel() {
             isFetchingQuotes = true
             withContext(Dispatchers.IO) {
                 try {
-                    val response = QuotesRepo.getQuotesByTags(listOf(tag),pageNo)
-                    Log.d(TAG, "fetchQuotesByTag: response: $response")
+                    val response = QuotesRepo.getQuotesByTags(listOf(tag), pageNo)
                     _quotes.postValue(response)
                     isFetchingQuotes = false
 
                 } catch (exception: Exception) {
                     isFetchingQuotes = false
-                    Log.e(TAG, "fetchQuotesByTag: ${exception.message}", exception.cause)
                 }
             }
         }
@@ -54,18 +49,13 @@ class BrowseTagViewModel : ViewModel() {
         var fos: FileOutputStream? = null
         try {
             fos = FileOutputStream(file)
-            bitmap.compress(Bitmap.CompressFormat.JPEG,100,fos)
-            Log.d(TAG, "takeScreenShot: filePath: ${file.absolutePath}")
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos)
             _ssFile.postValue(file)
-        }catch (exception:Exception){
-            Log.e(TAG, "takeScreenShot: ${exception.message}",exception.cause)
-        }finally {
+        } catch (exception: Exception) {
+        } finally {
             fos?.flush()
             fos?.close()
         }
     }
 
-    companion object {
-        private const val TAG = "BrowseTagViewModel"
-    }
 }
