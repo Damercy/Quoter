@@ -71,7 +71,7 @@ class BrowseTag : Fragment() {
                 )
                 if (currentPageCount - (newVal + 1) <= 4) {
                     pageToFetch++
-                    if (pageToFetch <= totalPages)
+                    if (pageToFetch <= totalPages && !viewModel.isFetchingQuotes)
                         viewModel.fetchQuotesByTag(args.tag, pageToFetch)
                 }
             }
@@ -100,9 +100,5 @@ class BrowseTag : Fragment() {
     override fun onDestroy() {
         bi = null
         super.onDestroy()
-    }
-
-    companion object {
-        private const val TAG = "BrowseTag"
     }
 }

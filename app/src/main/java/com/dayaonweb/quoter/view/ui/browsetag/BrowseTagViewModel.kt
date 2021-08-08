@@ -13,18 +13,23 @@ import kotlinx.coroutines.withContext
 
 class BrowseTagViewModel : ViewModel() {
 
+    var isFetchingQuotes = false
+
     private val _quotes = MutableLiveData<Quotes>()
     val quotes: LiveData<Quotes> = _quotes
 
     fun fetchQuotesByTag(tag: String, pageNo: Int) {
         viewModelScope.launch {
+            isFetchingQuotes = true
             withContext(Dispatchers.IO) {
                 try {
                     val response = QuotesRepo.getQuotesByTags(listOf(tag),pageNo)
                     Log.d(TAG, "fetchQuotesByTag: response: $response")
                     _quotes.postValue(response)
+                    isFetchingQuotes = false
 
                 } catch (exception: Exception) {
+                    isFetchingQuotes = false
                     Log.e(TAG, "fetchQuotesByTag: ${exception.message}", exception.cause)
                 }
             }
