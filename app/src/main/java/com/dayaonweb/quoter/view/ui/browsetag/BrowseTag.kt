@@ -79,7 +79,7 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
     private fun shareScreenshot(fileUri: Uri) {
         val sendIntent: Intent = Intent().apply {
             action = Intent.ACTION_SEND
-            putExtra(Intent.EXTRA_TEXT, "Sent via Quoter")
+            putExtra(Intent.EXTRA_TEXT, "Sent via Quoter. Download now: https://play.google.com/store/apps/details?id=com.dayaonweb.quoter")
             putExtra(Intent.EXTRA_STREAM, fileUri)
             type = "image/jpg"
         }
@@ -197,7 +197,7 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
             R.id.copy_quote -> {
                 bi?.quoteTextView?.text?.let { quote ->
                     bi?.authorTextView?.text?.let { author ->
-                        Analytics.trackQuoteCopy(quote.toString(), currentQuoteId,currentQuoteTag)
+                        Analytics.trackQuoteCopy(quote.toString(), currentQuoteId, currentQuoteTag)
                         copyText(String.format("%s\n\n~ %s", quote, author))
                     }
                 }
