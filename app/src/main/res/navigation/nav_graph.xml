@@ -3,34 +3,27 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/home">
+    app:startDestination="@id/allQuotesByTag">
     <fragment
-        android:id="@+id/home"
-        android:name="com.dayaonweb.quoter.view.ui.home.Home"
-        android:label="fragment_home"
-        tools:layout="@layout/fragment_home" >
+        android:id="@+id/allQuotesByTag"
+        tools:layout="@layout/fragment_all_quotes_by_tag"
+        android:name="com.dayaonweb.quoter.view.ui.browse.AllQuotesByTag"
+        android:label="AllQuotesByTag" >
         <action
-            android:id="@+id/action_home_to_homeQuoteDetail"
-            app:destination="@id/homeQuoteDetail" />
+            android:id="@+id/action_allQuotesByTag_to_browseTag"
+            app:destination="@id/browseTag"
+            app:enterAnim="@android:anim/fade_in"
+            app:exitAnim="@android:anim/fade_out"
+            app:popEnterAnim="@android:anim/fade_in"
+            app:popExitAnim="@android:anim/fade_out" />
     </fragment>
     <fragment
-        android:id="@+id/profile"
-        android:name="com.dayaonweb.quoter.view.ui.profile.Profile"
-        android:label="fragment_profile"
-        tools:layout="@layout/fragment_profile" />
-    <fragment
-        android:id="@+id/homeQuoteDetail"
-        android:name="com.dayaonweb.quoter.view.ui.home.HomeQuoteDetail"
-        tools:layout="@layout/fragment_quote_detail"
-        android:label="HomeQuoteDetail" >
+        android:id="@+id/browseTag"
+        tools:layout="@layout/fragment_browse_tag"
+        android:name="com.dayaonweb.quoter.view.ui.browsetag.BrowseTag"
+        android:label="BrowseTag" >
         <argument
-            android:name="authorSlug"
-            app:argType="string" />
-        <argument
-            android:name="authorName"
-            app:argType="string" />
-        <argument
-            android:name="authorQuote"
+            android:name="tag"
             app:argType="string" />
     </fragment>
 </navigation>

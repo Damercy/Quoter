@@ -1,16 +1,9 @@
 package com.dayaonweb.quoter.extensions
 
 import android.app.Activity
-import android.content.Context
 import android.os.Build
 import android.view.View
 import android.view.WindowInsets
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
-import kotlinx.coroutines.flow.first
 
 fun Activity.hideSystemUI() {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -47,21 +40,3 @@ fun Activity.showSystemUI() {
         window.decorView.systemUiVisibility = 0
     }
 }
-
-val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "user")
-
-suspend fun Context.writeToPreferences(key: String, value: String?) {
-    if(value.isNullOrEmpty())
-        return
-    val dataStoreKey = stringPreferencesKey(key)
-    dataStore.edit { user ->
-        user[dataStoreKey] = value
-    }
-}
-
-suspend fun Context.readFromPreferences(key: String): String? {
-    val dataStoreKey = stringPreferencesKey(key)
-    val preferences = dataStore.data.first()
-    return preferences[dataStoreKey]
-}
-
