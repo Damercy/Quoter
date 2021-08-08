@@ -24,6 +24,72 @@
             app:srcCompat="@drawable/ic_back"
             tools:visibility="visible" />
 
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/screenshot_view"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@color/white"
+            android:elevation="1dp"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="@+id/author_text_view"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/quoteScroller">
+
+            <ImageView
+                android:id="@+id/ss_quote_image_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@null"
+                android:paddingStart="48dp"
+                android:paddingEnd="0dp"
+                app:layout_constraintBottom_toBottomOf="@+id/ss_quote_text_view"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/ss_quote_text_view"
+                app:layout_constraintVertical_bias="0.0"
+                app:srcCompat="@drawable/ic_quote"
+                tools:visibility="visible" />
+
+            <TextView
+                android:id="@+id/ss_quote_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/main_bold"
+                android:gravity="center"
+                android:padding="48dp"
+                android:textAlignment="textStart"
+                android:textColor="@color/black"
+                android:textSize="32sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="RtlCompat"
+                tools:text="To be or not to be, that is the question." />
+
+
+            <TextView
+                android:id="@+id/ss_author_text_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="56dp"
+                android:layout_marginBottom="32dp"
+                android:fontFamily="@font/main_regular"
+                android:textAllCaps="true"
+                android:textColor="@color/cardview_dark_background"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/ss_quote_text_view"
+                app:layout_constraintVertical_bias="1.0"
+                tools:text="Shakespeare" />
+
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
 
         <com.shawnlin.numberpicker.NumberPicker
             android:id="@+id/quoteScroller"

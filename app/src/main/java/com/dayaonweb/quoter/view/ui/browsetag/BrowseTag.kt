@@ -2,12 +2,15 @@ package com.dayaonweb.quoter.view.ui.browsetag
 
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.*
 import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
@@ -18,6 +21,8 @@ import com.dayaonweb.quoter.R
 import com.dayaonweb.quoter.databinding.FragmentBrowseTagBinding
 import com.dayaonweb.quoter.service.model.Quote
 import com.google.android.material.snackbar.Snackbar
+import java.io.File
+import java.util.*
 
 class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
 
@@ -55,12 +60,37 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
             }
             initNumberPicker()
         }
+        viewModel.ssFile.observe({ lifecycle }) {
+            shareScreenshot(
+                FileProvider.getUriForFile(
+                    requireContext(),
+                    requireContext().applicationContext.packageName + ".provider",
+                    it
+                )
+            )
+        }
+    }
+
+    private fun shareScreenshot(fileUri: Uri) {
+        val sendIntent: Intent = Intent().apply {
+            action = Intent.ACTION_SEND
+            putExtra(Intent.EXTRA_TEXT, "Sent via Quoter")
+            putExtra(Intent.EXTRA_STREAM, fileUri)
+            type = "image/jpg"
+        }
+        val shareIntent = Intent.createChooser(sendIntent, "Share this quote with...")
+        startActivity(shareIntent)
     }
 
     private fun attachListeners() {
         bi?.apply {
             shareImageView.setOnClickListener {
-
+                bi?.screenshotView?.let { containerView ->
+                    viewModel.takeScreenShot(
+                        containerView,
+                        File(requireContext().externalCacheDir, "quoter_${UUID.randomUUID()}.jpg")
+                    )
+                }
             }
             optionsImageView.setOnClickListener {
                 showPopup(it)
@@ -69,15 +99,21 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
                 requireActivity().onBackPressed()
             }
             quoteScroller.setOnValueChangedListener { _, _, newVal ->
-                currentQuoteNumber = newVal+1
+                currentQuoteNumber = newVal + 1
                 val currentQuote = quoteToAuthor.keys.toTypedArray()[newVal]
                 quoteTextView.text = currentQuote.content
+                ssQuoteTextView.text = currentQuote.content
                 authorTextView.text = quoteToAuthor.values.toTypedArray()[newVal]
+                ssAuthorTextView.text = quoteToAuthor.values.toTypedArray()[newVal]
                 serialTextView.text = String.format("%s", "$currentQuoteNumber/$currentPageCount")
                 fadeInViews()
                 quoteTextView.setTextSize(
                     TypedValue.COMPLEX_UNIT_SP,
                     if (currentQuote.length > 150) 24f else 32f
+                )
+                ssQuoteTextView.setTextSize(
+                    TypedValue.COMPLEX_UNIT_SP,
+                    if (currentQuote.length > 150) 18f else 28f
                 )
                 if (currentPageCount - (newVal + 1) <= 4) {
                     pageToFetch++
@@ -111,7 +147,9 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
             displayedValues = Array(quoteToAuthor.size) { "" }
         }
         bi?.quoteTextView?.text = quoteToAuthor.keys.toTypedArray()[0].content
+        bi?.ssQuoteTextView?.text = quoteToAuthor.keys.toTypedArray()[0].content
         bi?.authorTextView?.text = quoteToAuthor.values.toTypedArray()[0]
+        bi?.ssAuthorTextView?.text = quoteToAuthor.values.toTypedArray()[0]
         bi?.serialTextView?.text = String.format("%s", "$currentQuoteNumber/$currentPageCount")
         bi?.shareImageView?.isVisible = true
         bi?.backImageView?.isVisible = true
