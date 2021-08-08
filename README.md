@@ -7,19 +7,20 @@ Browse &amp; copy quotes to share among your socials!
  </p>
 
 #### Features
-📸  Upload profile picture & change username  
-©️  Copy quotes  
-🖊️ View quote details including author detail & image  
-🌗   Dark mode  
+©️  Copy quotes as text  
+📱  Share quotes as image  
+🖊️  Revamped minimalist UI
 
 <p float="left">
-<img src="screenshots/Screenshot_main'.png" width=200 height=400 />
-<img src="screenshots/Screenshot_main_detailed.png" width=200 height=400 />
-<img src="screenshots/Screenshot_profile.png" width=200 height=400 />
-<img src="screenshots/Screenshot_main_dark.png" width=200 height=400 />
+<img src="screenshots/ss-0-splash.png" width=200 height=400 />
+<img src="screenshots/ss-1.png" width=200 height=400 />
+<img src="screenshots/ss-2.png" width=200 height=400 />
+<img src="screenshots/ss-3.png" width=200 height=400 />
 </p>
 
-### Current release (Alpha v0.1.0)
-Currently, share feature is not enabled. To try the app, you can download the APK that's attached in the artifacts with the release. However if you're looking to help me out regarding feedback or PR's, kindly mail me at the id mentioned below and I'll add you to my testers group for early feedback & tests!
+### Current release (v1.0.0)
+First production release since `alpha v0.1.0`! 🎉 🎊  
 
- Please share your feedback regarding the app at: adhikaridayamoy@gmail.com.
+Revamped the entire UI & added simple transitions for a quote sharing app with minimalist design. Download it from playstore from above [link!](https://play.google.com/store/apps/details?id=com.dayaonweb.quoter&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1')
+
+Please share your feedback regarding the app at: adhikaridayamoy@gmail.com.
