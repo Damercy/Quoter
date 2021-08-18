@@ -11,8 +11,7 @@ object Analytics {
 
     fun init(context: Context) {
         analytics = FirebaseAnalytics.getInstance(context.applicationContext)
-        if (BuildConfig.DEBUG)
-            analytics?.setAnalyticsCollectionEnabled(false)
+        analytics?.setAnalyticsCollectionEnabled(!BuildConfig.DEBUG)
     }
 
     fun setUserId(userId: String) = analytics?.setUserId(userId)
