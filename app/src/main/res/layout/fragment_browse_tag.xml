@@ -189,6 +189,8 @@
             android:id="@+id/speak_image_view"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:layout_width="wrap_content"
+            android:visibility="invisible"
+            tools:visibility="visible"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             android:contentDescription="@null"

@@ -76,14 +76,14 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
                     override fun onDone(utteranceId: String?) {
                         requireActivity().runOnUiThread {
                             speakerAnimation.stop()
-                            bi?.speakImageView?.setImageDrawable(speakerAnimation.getFrame(0))
+                            speakerAnimation.selectDrawable(0)
                         }
                     }
 
                     override fun onError(utteranceId: String?) {
                         requireActivity().runOnUiThread {
                             speakerAnimation.stop()
-                            bi?.speakImageView?.setImageDrawable(speakerAnimation.getFrame(0))
+                            speakerAnimation.selectDrawable(0)
                             showSnack("Unable to synthesize text")
                         }
                     }
@@ -213,6 +213,7 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
         bi?.backImageView?.isVisible = true
         bi?.quoteImageView?.isVisible = true
         bi?.optionsImageView?.isVisible = true
+        bi?.speakImageView?.isVisible = true
         bi?.loader?.isVisible = false
 
         /**************ANALYTICS********************/
