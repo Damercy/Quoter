@@ -3,8 +3,11 @@ package com.dayaonweb.quoter.view.ui.browsetag
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Intent
+import android.graphics.drawable.AnimationDrawable
 import android.net.Uri
 import android.os.Bundle
+import android.speech.tts.TextToSpeech
+import android.speech.tts.UtteranceProgressListener
 import android.util.TypedValue
 import android.view.*
 import android.widget.PopupMenu
@@ -21,6 +24,7 @@ import com.dayaonweb.quoter.R
 import com.dayaonweb.quoter.analytics.Analytics
 import com.dayaonweb.quoter.databinding.FragmentBrowseTagBinding
 import com.dayaonweb.quoter.service.model.Quote
+import com.dayaonweb.quoter.tts.Quoter
 import com.google.android.material.snackbar.Snackbar
 import java.io.File
 import java.util.*
@@ -34,7 +38,9 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
     private var pageToFetch = 1
     private var currentPageCount = 0
     private var currentQuoteNumber = 1
+    private lateinit var quoterSpeaker: Quoter
     private val args: BrowseTagArgs by navArgs()
+    private lateinit var speakerAnimation: AnimationDrawable
 
     /**************ANALYTICS********************/
     private var currentQuoteId: String = ""
@@ -51,9 +57,38 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        initQuoter()
         attachListeners()
         attachObservers()
         viewModel.fetchQuotesByTag(args.tag, pageToFetch)
+    }
+
+    private fun initQuoter() {
+        quoterSpeaker = Quoter(context = requireContext()) { initStatus ->
+            if (initStatus == TextToSpeech.SUCCESS)
+                quoterSpeaker.init(object : UtteranceProgressListener() {
+                    override fun onStart(utteranceId: String?) {
+                        requireActivity().runOnUiThread {
+                            speakerAnimation.start()
+                        }
+                    }
+
+                    override fun onDone(utteranceId: String?) {
+                        requireActivity().runOnUiThread {
+                            speakerAnimation.stop()
+                            bi?.speakImageView?.setImageDrawable(speakerAnimation.getFrame(0))
+                        }
+                    }
+
+                    override fun onError(utteranceId: String?) {
+                        requireActivity().runOnUiThread {
+                            speakerAnimation.stop()
+                            bi?.speakImageView?.setImageDrawable(speakerAnimation.getFrame(0))
+                            showSnack("Unable to synthesize text")
+                        }
+                    }
+                })
+        }
     }
 
     private fun attachObservers() {
@@ -79,7 +114,10 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
     private fun shareScreenshot(fileUri: Uri) {
         val sendIntent: Intent = Intent().apply {
             action = Intent.ACTION_SEND
-            putExtra(Intent.EXTRA_TEXT, "Sent via Quoter. Download now: https://play.google.com/store/apps/details?id=com.dayaonweb.quoter")
+            putExtra(
+                Intent.EXTRA_TEXT,
+                "Sent via Quoter. Download now: https://play.google.com/store/apps/details?id=com.dayaonweb.quoter"
+            )
             putExtra(Intent.EXTRA_STREAM, fileUri)
             type = "image/jpg"
         }
@@ -136,8 +174,14 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
                 currentQuoteTag = currentQuote.tags
             }
 
+            speakImageView.apply {
+                setBackgroundResource(R.drawable.speaking_anim)
+                speakerAnimation = background as AnimationDrawable
+                setOnClickListener {
+                    quoterSpeaker.speakText(bi?.quoteTextView?.text.toString(), currentQuoteId)
+                }
+            }
         }
-
     }
 
     private fun fadeInViews() {
@@ -211,11 +255,11 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
         val clipboard = requireActivity().getSystemService(ClipboardManager::class.java)
         val clip = ClipData.newPlainText("quote", text)
         clipboard.setPrimaryClip(clip)
-        showSnack()
+        showSnack("Copied")
     }
 
-    private fun showSnack() {
-        val snack = Snackbar.make(requireView(), "Copied", Snackbar.LENGTH_SHORT)
+    private fun showSnack(text: String) {
+        val snack = Snackbar.make(requireView(), text, Snackbar.LENGTH_SHORT)
         val snackView = snack.view
         snackView.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.black))
         val snackText =
@@ -223,6 +267,15 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
         snackText.typeface = ResourcesCompat.getFont(requireContext(), R.font.main_bold)
         snack.animationMode = Snackbar.ANIMATION_MODE_SLIDE
         snack.show()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        quoterSpeaker.deInit()
+    }
+
+    companion object {
+        private const val TAG = "BrowseTag"
     }
 
 }

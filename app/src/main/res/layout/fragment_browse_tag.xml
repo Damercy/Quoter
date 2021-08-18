@@ -185,20 +185,6 @@
             app:srcCompat="@drawable/ic_share"
             tools:visibility="visible" />
 
-        <com.google.android.material.progressindicator.CircularProgressIndicator
-            android:id="@+id/speaker_loader"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="invisible"
-            tools:visibility="visible"
-            android:indeterminateOnly="true"
-            app:indicatorColor="@color/black"
-            app:layout_constraintBottom_toBottomOf="@+id/speak_image_view"
-            app:layout_constraintEnd_toEndOf="@+id/speak_image_view"
-            app:layout_constraintStart_toStartOf="@+id/speak_image_view"
-            app:layout_constraintTop_toTopOf="@+id/speak_image_view"
-            app:trackColor="@color/white" />
-
         <ImageView
             android:id="@+id/speak_image_view"
             android:background="?attr/selectableItemBackgroundBorderless"
@@ -209,8 +195,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.2"
-            app:layout_constraintStart_toEndOf="@+id/share_image_view"
-            app:srcCompat="@drawable/ic_speaker_2" />
+            app:layout_constraintStart_toEndOf="@+id/share_image_view" />
 
         <ImageView
             android:id="@+id/options_image_view"
