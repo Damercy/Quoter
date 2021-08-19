@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
@@ -28,6 +29,14 @@ class AllQuotesByTag : Fragment() {
         bi =
             DataBindingUtil.inflate(inflater, R.layout.fragment_all_quotes_by_tag, container, false)
         return bi?.root
+    }
+
+    override fun onResume() {
+        super.onResume()
+        requireActivity().window.apply {
+            statusBarColor = ContextCompat.getColor(requireContext(),R.color.white)
+            navigationBarColor = ContextCompat.getColor(requireContext(),R.color.white)
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
