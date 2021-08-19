@@ -17,11 +17,9 @@
             android:layout_margin="16dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@null"
-            android:visibility="invisible"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_menu"
-            tools:visibility="visible" />
+            app:srcCompat="@drawable/ic_menu" />
 
         <TextView
             android:id="@+id/textView"

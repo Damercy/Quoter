@@ -76,7 +76,7 @@ class AllQuotesByTag : Fragment() {
                 findNavController().navigate(R.id.action_allQuotesByTag_to_browseTag,arg)
             }
             menuImageView.setOnClickListener {
-
+                findNavController().navigate(R.id.action_allQuotesByTag_to_menuFragment)
             }
         }
 
