@@ -40,7 +40,16 @@ class MenuFragment : Fragment() {
     private fun attachListeners() {
         bi?.apply {
             settingsTextView.setOnClickListener {
-                Toast.makeText(requireContext(),"Settings",Toast.LENGTH_SHORT).show()
+
+            }
+            rateTextView.setOnClickListener {
+
+            }
+            helpTextView.setOnClickListener {
+
+            }
+            aboutTextView.setOnClickListener {
+
             }
             closeImageView.setOnClickListener {
                 requireActivity().onBackPressed()

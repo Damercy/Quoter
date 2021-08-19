@@ -22,9 +22,9 @@
             app:tint="@color/white" />
 
         <TextView
+            android:theme="@style/ClickableView"
             android:id="@+id/settings_text_view"
             android:layout_width="0dp"
-            android:background="?attr/selectableItemBackground"
             android:layout_height="wrap_content"
             android:fontFamily="@font/main_regular"
             android:paddingHorizontal="48dp"
@@ -38,6 +38,7 @@
             app:layout_constraintVertical_bias="0.08" />
 
         <TextView
+            android:theme="@style/ClickableView"
             android:id="@+id/rate_text_view"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -53,6 +54,7 @@
             app:layout_constraintVertical_bias="0.08" />
 
         <TextView
+            android:theme="@style/ClickableView"
             android:id="@+id/help_text_view"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -68,6 +70,7 @@
             app:layout_constraintVertical_bias="0.4" />
 
         <TextView
+            android:theme="@style/ClickableView"
             android:id="@+id/about_text_view"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
