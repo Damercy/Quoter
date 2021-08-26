@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:animateLayoutChanges="true">
+
+        <ImageView
+            android:id="@+id/back_image_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@null"
+            android:visibility="invisible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_back"
+            tools:visibility="visible" />
+
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/main_bold"
+            android:text="@string/customize"
+            android:textColor="@color/black"
+            android:textSize="24sp"
+            app:layout_constraintBottom_toBottomOf="@+id/back_image_view"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/back_image_view"
+            app:layout_constraintTop_toTopOf="@+id/back_image_view" />
+
+        <TextView
+            android:id="@+id/theme_header_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:fontFamily="@font/main_bold"
+            android:text="Theme"
+            android:textColor="@color/black"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toEndOf="@+id/back_image_view"
+            app:layout_constraintTop_toBottomOf="@+id/textView" />
+
+        <View
+            android:id="@+id/divider_theme"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginHorizontal="40dp"
+            android:layout_marginTop="8dp"
+            android:background="?android:attr/listDivider"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/theme_header_text_view" />
+
+
+        <TextView
+            android:id="@+id/theme_option_1_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:fontFamily="@font/main_regular"
+            android:text="Dark mode"
+            android:textColor="@color/black"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toEndOf="@+id/back_image_view"
+            app:layout_constraintTop_toBottomOf="@+id/divider_theme" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/dark_mode_switch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:enabled="false"
+            app:layout_constraintBottom_toBottomOf="@+id/theme_option_1_text_view"
+            app:layout_constraintEnd_toEndOf="@+id/divider_theme"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toEndOf="@+id/theme_option_1_text_view"
+            app:layout_constraintTop_toTopOf="@+id/theme_option_1_text_view" />
+
+        <TextView
+            android:id="@+id/tts_header_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:fontFamily="@font/main_bold"
+            android:text="Voice"
+            android:textColor="@color/black"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toEndOf="@+id/back_image_view"
+            app:layout_constraintTop_toBottomOf="@+id/theme_option_1_text_view" />
+
+        <View
+            android:id="@+id/voice_theme"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginHorizontal="40dp"
+            android:layout_marginTop="8dp"
+            android:background="?android:attr/listDivider"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tts_header_text_view" />
+
+
+        <TextView
+            android:id="@+id/voice_subtitle_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:fontFamily="@font/main_regular"
+            android:text="Customize your speech engine's parameters"
+            android:textColor="@color/cardview_dark_background"
+            app:layout_constraintEnd_toEndOf="@+id/voice_theme"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toEndOf="@+id/back_image_view"
+            app:layout_constraintTop_toBottomOf="@+id/voice_theme" />
+
+        <TextView
+            android:id="@+id/voice_option_1_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:fontFamily="@font/main_regular"
+            android:text="Male voice"
+            android:textColor="@color/black"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toEndOf="@+id/back_image_view"
+            app:layout_constraintTop_toBottomOf="@+id/voice_subtitle_text_view" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/male_voice_switch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="@+id/voice_option_1_text_view"
+            app:layout_constraintEnd_toEndOf="@+id/divider_theme"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toEndOf="@+id/voice_option_1_text_view"
+            app:layout_constraintTop_toTopOf="@+id/voice_option_1_text_view" />
+
+        <TextView
+            android:id="@+id/voice_option_2_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:fontFamily="@font/main_regular"
+            android:text="Language"
+            android:textColor="@color/black"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toEndOf="@+id/back_image_view"
+            app:layout_constraintTop_toBottomOf="@+id/voice_option_1_text_view" />
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/language_chip_group"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:layout_constraintEnd_toEndOf="@+id/male_voice_switch"
+            app:layout_constraintStart_toEndOf="@+id/back_image_view"
+            app:layout_constraintTop_toBottomOf="@+id/voice_option_2_text_view"
+            app:singleSelection="true">
+
+            <com.google.android.material.chip.Chip
+                style="@style/ChipStyle"
+                android:checked="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkable="true"
+                android:clickable="true"
+                android:focusable="true"
+                android:text="English"
+                android:textAppearance="@style/ChipTextStyleSelected" />
+
+            <com.google.android.material.chip.Chip
+                style="@style/ChipStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkable="true"
+                android:clickable="true"
+                android:focusable="true"
+                android:text="French"
+                android:textAppearance="@style/ChipTextStyleSelected" />
+
+        </com.google.android.material.chip.ChipGroup>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

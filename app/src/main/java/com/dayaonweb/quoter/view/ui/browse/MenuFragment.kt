@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.dayaonweb.quoter.R
 import com.dayaonweb.quoter.databinding.FragmentMenuBinding
 

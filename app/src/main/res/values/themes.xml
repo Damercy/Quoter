@@ -28,4 +28,20 @@
         <item name="colorControlHighlight">@color/cardview_dark_background</item>
         <item name="android:background">?selectableItemBackground</item>
     </style>
+
+    <style name="ChipTextStyleSelected" parent="TextAppearance.MaterialComponents.Chip">
+        <item name="android:fontFamily">@font/main_bold</item>
+    </style>
+
+    <style name="ChipTextStyleUnSelected" parent="TextAppearance.MaterialComponents.Chip">
+        <item name="android:fontFamily">@font/main_regular</item>
+    </style>
+
+    <style name="ChipStyle" parent="Widget.MaterialComponents.Chip.Choice">
+        <item name="chipSurfaceColor">@color/chip_surface_color</item>
+        <item name="android:textColor">@color/chip_text_color</item>
+        <item name="rippleColor">@color/cardview_dark_background</item>
+        <item name="chipCornerRadius">8dp</item>
+        <item name="chipMinHeight">40dp</item>
+    </style>
 </resources>
