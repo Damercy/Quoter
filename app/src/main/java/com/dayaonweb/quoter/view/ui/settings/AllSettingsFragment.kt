@@ -6,6 +6,7 @@ import android.speech.tts.UtteranceProgressListener
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -21,7 +22,7 @@ class AllSettingsFragment : Fragment() {
 
     private var bi: FragmentAllSettingsBinding? = null
     private val viewModel: AllSettingsViewModel by viewModels()
-    private lateinit var quoterSpeaker: Quoter
+    private var quoterSpeaker: Quoter? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -34,8 +35,16 @@ class AllSettingsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initializeQuoterTts()
+        // initializeQuoterTts()
         setupListeners()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        requireActivity().window.apply {
+            statusBarColor = ContextCompat.getColor(requireContext(), R.color.white)
+            navigationBarColor = ContextCompat.getColor(requireContext(), R.color.white)
+        }
     }
 
     private fun setupListeners() {
@@ -44,18 +53,18 @@ class AllSettingsFragment : Fragment() {
                 findNavController().popBackStack()
             }
             languageChipGroup.setOnCheckedChangeListener { _, checkedId ->
-                val availableLanguages = quoterSpeaker.getSupportedLanguages()
+                val availableLanguages = quoterSpeaker?.getSupportedLanguages()
                 val selectedLanguage = availableLanguages?.first {
                     it.hashCode() == checkedId
                 }
                 selectedLanguage?.let {
-                    quoterSpeaker.setEngineLocale(it)
-                    quoterSpeaker.speakText("This is a sample text in ${it.displayLanguage}", "")
+                    quoterSpeaker?.setEngineLocale(it)
+                    quoterSpeaker?.speakText("This is a sample text in ${it.displayLanguage}", "")
                 }
             }
             speechRateSlider.addOnChangeListener { slider, value, fromUser ->
-                quoterSpeaker.setSpeechRateSpeed(value)
-                quoterSpeaker.speakText("This is the current speech rate","")
+                quoterSpeaker?.setSpeechRateSpeed(value)
+                quoterSpeaker?.speakText("This is the current speech rate", "")
             }
         }
     }
@@ -63,7 +72,7 @@ class AllSettingsFragment : Fragment() {
     private fun initializeQuoterTts() {
         quoterSpeaker = Quoter(context = requireContext()) { initStatus ->
             if (initStatus == TextToSpeech.SUCCESS)
-                quoterSpeaker.init(object : UtteranceProgressListener() {
+                quoterSpeaker?.init(object : UtteranceProgressListener() {
                     override fun onStart(utteranceId: String?) {}
                     override fun onDone(utteranceId: String?) {}
                     override fun onError(utteranceId: String?) {}
@@ -83,8 +92,8 @@ class AllSettingsFragment : Fragment() {
     }
 
     private fun setupAvailableLanguages(rootChipGroup: ChipGroup) {
-        val supportedLanguages = quoterSpeaker.getSupportedLanguages()
-        val currentSelectedLanguage = quoterSpeaker.getCurrentVoice()?.locale
+        val supportedLanguages = quoterSpeaker?.getSupportedLanguages()
+        val currentSelectedLanguage = quoterSpeaker?.getCurrentVoice()?.locale
         supportedLanguages?.forEach {
             // setup basic chip style
             val chip = layoutInflater.inflate(R.layout.language_chip, rootChipGroup, false) as Chip

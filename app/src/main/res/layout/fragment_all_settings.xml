@@ -115,19 +115,6 @@
 
 
             <TextView
-                android:id="@+id/voice_subtitle_text_view"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:fontFamily="@font/main_regular"
-                android:text="Customize your speech engine's parameters"
-                android:textColor="@color/cardview_dark_background"
-                app:layout_constraintEnd_toEndOf="@+id/voice_theme"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toEndOf="@+id/back_image_view"
-                app:layout_constraintTop_toBottomOf="@+id/voice_theme" />
-
-            <TextView
                 android:id="@+id/voice_option_1_text_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -138,7 +125,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toEndOf="@+id/back_image_view"
-                app:layout_constraintTop_toBottomOf="@+id/voice_subtitle_text_view" />
+                app:layout_constraintTop_toBottomOf="@+id/voice_theme" />
 
             <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/male_voice_switch"
