@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <androidx.core.widget.NestedScrollView
@@ -150,6 +151,18 @@
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toEndOf="@+id/back_image_view"
                 app:layout_constraintTop_toBottomOf="@+id/voice_option_1_text_view" />
+
+            <com.airbnb.lottie.LottieAnimationView
+                android:id="@+id/loader"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                app:layout_constraintBottom_toBottomOf="@+id/language_chip_group"
+                app:layout_constraintEnd_toEndOf="@+id/voice_theme"
+                app:layout_constraintStart_toStartOf="@+id/voice_option_2_text_view"
+                app:layout_constraintTop_toBottomOf="@+id/voice_option_2_text_view"
+                app:lottie_autoPlay="true"
+                app:lottie_loop="true"
+                app:lottie_rawRes="@raw/loading" />
 
             <com.google.android.material.chip.ChipGroup
                 android:id="@+id/language_chip_group"

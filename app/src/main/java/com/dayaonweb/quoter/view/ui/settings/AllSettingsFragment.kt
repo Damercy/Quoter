@@ -16,12 +16,17 @@ import com.dayaonweb.quoter.databinding.FragmentAllSettingsBinding
 import com.dayaonweb.quoter.tts.Quoter
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
-
+import android.os.Handler
+import android.os.Looper
+import androidx.core.view.isVisible
 
 class AllSettingsFragment : Fragment() {
 
     private var bi: FragmentAllSettingsBinding? = null
     private val viewModel: AllSettingsViewModel by viewModels()
+    private val handler by lazy {
+        Handler(Looper.getMainLooper())
+    }
     private var quoterSpeaker: Quoter? = null
 
     override fun onCreateView(
@@ -35,9 +40,12 @@ class AllSettingsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        // initializeQuoterTts()
+        handler.postDelayed({
+            initializeQuoterTts()
+        },1000)
         setupListeners()
     }
+
 
     override fun onResume() {
         super.onResume()
@@ -109,6 +117,12 @@ class AllSettingsFragment : Fragment() {
         currentSelectedLanguage?.hashCode()?.let {
             rootChipGroup.check(it)
         }
+        bi?.loader?.isVisible = false
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        handler.removeCallbacksAndMessages(null)
     }
 
 
