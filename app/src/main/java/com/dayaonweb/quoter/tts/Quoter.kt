@@ -4,6 +4,8 @@ import android.content.Context
 import android.media.AudioAttributes
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
+import android.speech.tts.Voice
+import android.util.Log
 import java.util.*
 
 class Quoter(context: Context, onInit: (status: Int) -> Unit) {
@@ -13,8 +15,6 @@ class Quoter(context: Context, onInit: (status: Int) -> Unit) {
         }, DEFAULT_ENGINE)
 
     fun init(listener: UtteranceProgressListener): Boolean{
-        if(tts?.defaultEngine!= DEFAULT_ENGINE)
-            return false
         tts?.setOnUtteranceProgressListener(listener)
         setupAudioAttributes()
         if(tts?.voice?.locale!=Locale("en"))
@@ -48,8 +48,11 @@ class Quoter(context: Context, onInit: (status: Int) -> Unit) {
     }
 
     fun setEngineVoice() {
-        // TODO: Set different voices
     }
+
+    fun getSupportedLanguages() =tts?.availableLanguages
+
+    fun getSupportedVoices() = tts?.voices
 
 
     private fun isLanguageAvailable(languageLocale: Locale): Boolean {
@@ -65,6 +68,7 @@ class Quoter(context: Context, onInit: (status: Int) -> Unit) {
 
     companion object {
         private const val DEFAULT_ENGINE = "com.google.android.tts"
+        private const val TAG = "Quoter"
     }
 
 }
