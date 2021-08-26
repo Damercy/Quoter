@@ -7,6 +7,7 @@ buildscript {
     ext.moshi_version = "1.12.0"
     ext.paging_version = "3.0.1"
     ext.lottie_version = "4.0.0"
+    ext.datastore_version = "1.0.0"
     repositories {
         google()
         mavenCentral()

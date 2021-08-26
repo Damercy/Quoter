@@ -41,7 +41,7 @@ class MenuFragment : Fragment() {
     private fun attachListeners() {
         bi?.apply {
             settingsTextView.setOnClickListener {
-
+                findNavController().navigate(R.id.action_menuFragment_to_allSettingsFragment)
             }
             rateTextView.setOnClickListener {
 

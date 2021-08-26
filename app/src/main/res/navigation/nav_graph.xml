@@ -37,5 +37,14 @@
         android:id="@+id/menuFragment"
         android:name="com.dayaonweb.quoter.view.ui.browse.MenuFragment"
         android:label="MenuFragment"
-        tools:layout="@layout/fragment_menu" />
+        tools:layout="@layout/fragment_menu" >
+        <action
+            android:id="@+id/action_menuFragment_to_allSettingsFragment"
+            app:destination="@id/allSettingsFragment" />
+    </fragment>
+    <fragment
+        tools:layout="@layout/fragment_all_settings"
+        android:id="@+id/allSettingsFragment"
+        android:name="com.dayaonweb.quoter.view.ui.settings.AllSettingsFragment"
+        android:label="AllSettingsFragment" />
 </navigation>

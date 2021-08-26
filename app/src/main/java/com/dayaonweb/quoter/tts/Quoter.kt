@@ -47,12 +47,18 @@ class Quoter(context: Context, onInit: (status: Int) -> Unit) {
         }
     }
 
+    fun setPitch(pitchRate: Float) = tts?.setPitch(pitchRate)
+
+    fun setSpeechRateSpeed(speechRate:Float) = tts?.setSpeechRate(speechRate)
+
     fun setEngineVoice() {
     }
 
     fun getSupportedLanguages() =tts?.availableLanguages
 
     fun getSupportedVoices() = tts?.voices
+
+    fun getCurrentVoice() = tts?.voice
 
 
     private fun isLanguageAvailable(languageLocale: Locale): Boolean {
