@@ -61,7 +61,7 @@ class MenuFragment : Fragment() {
     }
 
     private fun showAboutDialog() {
-        MaterialAlertDialogBuilder(requireContext())
+        MaterialAlertDialogBuilder(requireContext(),R.style.AlertDialogStyle)
             .setTitle("Quoter: Minimalistic quotes app")
             .setMessage(getString(R.string.quoter_message))
             .setPositiveButton("Rate app") { dialog, _ ->
