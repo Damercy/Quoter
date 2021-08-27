@@ -59,6 +59,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:fontFamily="@font/main_regular"
+            android:visibility="gone"
             android:paddingHorizontal="48dp"
             android:text="Help"
             android:textColor="@color/white"

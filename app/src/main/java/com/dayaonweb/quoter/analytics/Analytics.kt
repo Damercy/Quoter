@@ -31,4 +31,10 @@ object Analytics {
             param("copied_quote_tags", quoteTags.toString())
         }
     }
+
+    fun trackAppReview(){
+        analytics?.logEvent(FirebaseAnalytics.Event.POST_SCORE){
+            param("rated","true")
+        }
+    }
 }

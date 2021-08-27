@@ -4,13 +4,15 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.dayaonweb.quoter.R
+import com.dayaonweb.quoter.analytics.Analytics
 import com.dayaonweb.quoter.databinding.FragmentMenuBinding
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.play.core.review.ReviewManagerFactory
 
 class MenuFragment : Fragment() {
 
@@ -28,8 +30,8 @@ class MenuFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         requireActivity().window.apply {
-            statusBarColor = ContextCompat.getColor(requireContext(),R.color.black)
-            navigationBarColor = ContextCompat.getColor(requireContext(),R.color.black)
+            statusBarColor = ContextCompat.getColor(requireContext(), R.color.black)
+            navigationBarColor = ContextCompat.getColor(requireContext(), R.color.black)
         }
     }
 
@@ -44,16 +46,46 @@ class MenuFragment : Fragment() {
                 findNavController().navigate(R.id.action_menuFragment_to_allSettingsFragment)
             }
             rateTextView.setOnClickListener {
-
+                rateApp()
             }
             helpTextView.setOnClickListener {
 
             }
             aboutTextView.setOnClickListener {
-
+                showAboutDialog()
             }
             closeImageView.setOnClickListener {
                 requireActivity().onBackPressed()
+            }
+        }
+    }
+
+    private fun showAboutDialog() {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Quoter: Minimalistic quotes app")
+            .setMessage(getString(R.string.quoter_message))
+            .setPositiveButton("Rate app") { dialog, _ ->
+                rateApp()
+                dialog.dismiss()
+            }
+            .setOnDismissListener { 
+                requireActivity().onBackPressed()
+            }
+            .show()
+    }
+
+    private fun rateApp() {
+        val manager = ReviewManagerFactory.create(requireContext())
+        //val manager = FakeReviewManager(requireContext())
+        val request = manager.requestReviewFlow()
+        request.addOnCompleteListener { request ->
+            if (request.isSuccessful) {
+                // We got the ReviewInfo object
+                val reviewInfo = request.result
+                val flow = manager.launchReviewFlow(requireActivity(), reviewInfo)
+                flow.addOnCompleteListener { _ ->
+                    Analytics.trackAppReview()
+                }
             }
         }
     }
