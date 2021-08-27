@@ -33,7 +33,9 @@ interface QuoteService {
     suspend fun getAllTags(): List<QuotesTagsResponseItem>
 
     @GET("random")
-    suspend fun getRandomQuote():Quote
+    suspend fun getRandomQuote(
+        @Query("maxLength") maxLength: Int = 500
+    ):Quote
 
     // Only to be called from wikiApi
     @GET("api.php")

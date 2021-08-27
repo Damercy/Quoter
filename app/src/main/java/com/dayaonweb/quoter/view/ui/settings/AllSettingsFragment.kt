@@ -20,7 +20,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.dayaonweb.quoter.R
-import com.dayaonweb.quoter.constants.Constants.IS_IMAGE_NOTIFICATION_STYLE
 import com.dayaonweb.quoter.constants.Constants.PENDING_INTENT_REQ_CODE
 import com.dayaonweb.quoter.databinding.FragmentAllSettingsBinding
 import com.dayaonweb.quoter.extensions.showSnack
@@ -71,11 +70,13 @@ class AllSettingsFragment : Fragment() {
             }, 1000)
             bi?.notifSwitch?.isChecked = it.isNotificationOn
             bi?.speechRateSlider?.value = it.speechRate
-            val time = it.notificationTime.split(":")
-            bi?.notifTimeBtn?.text = getTime(time[0].toInt(), time[1].toInt())
-            val checkBtnId =
-                if (it.isImageStyleNotification) R.id.image_style_btn else R.id.text_style_btn
-            bi?.notifStyleButtonToggleGroup?.check(checkBtnId)
+            if (it.isNotificationOn) {
+                val time = it.notificationTime.split(":")
+                bi?.notifTimeBtn?.text = getTime(time[0].toInt(), time[1].toInt())
+                val checkBtnId =
+                    if (it.isImageStyleNotification) R.id.image_style_btn else R.id.text_style_btn
+                bi?.notifStyleButtonToggleGroup?.check(checkBtnId)
+            }
         }
     }
 
@@ -100,12 +101,12 @@ class AllSettingsFragment : Fragment() {
                 }
                 selectedLanguage?.let {
                     quoterSpeaker?.setEngineLocale(it)
-                    viewModel.updateTtsLanguage(requireContext(),it)
+                    viewModel.updateTtsLanguage(requireContext(), it)
                     quoterSpeaker?.speakText("This is a sample text in ${it.displayLanguage}", "")
                 }
             }
             speechRateSlider.addOnChangeListener { _, value, _ ->
-                viewModel.updateTtsSpeechRate(requireContext(),value)
+                viewModel.updateTtsSpeechRate(requireContext(), value)
                 quoterSpeaker?.setSpeechRateSpeed(value)
                 quoterSpeaker?.speakText("This is the current speech rate", "")
             }
@@ -135,7 +136,7 @@ class AllSettingsFragment : Fragment() {
                 notifOption3TextView.isVisible = isChecked
                 notifTimeBtn.isVisible = isChecked
                 notifStyleButtonToggleGroup.isVisible = isChecked
-                viewModel.toggleNotification(requireContext(),isChecked)
+                viewModel.toggleNotification(requireContext(), isChecked)
                 if (!isChecked)
                     cancelAlarm()
                 else {
@@ -163,6 +164,8 @@ class AllSettingsFragment : Fragment() {
             broadcastIntent,
             0
         )
+        if (calendar.before(Calendar.getInstance()))
+            calendar.add(Calendar.DATE, 1)
         alarmManager.setRepeating(
             AlarmManager.RTC_WAKEUP,
             calendar.timeInMillis,
@@ -204,7 +207,7 @@ class AllSettingsFragment : Fragment() {
                     override fun onError(utteranceId: String?) {}
                 })
             quoterSpeaker?.setEngineLocale(ttsLanguage)
-            quoterSpeaker?.setSpeechRateSpeed(viewModel.preferences.value?.speechRate?:1.0f)
+            quoterSpeaker?.setSpeechRateSpeed(viewModel.preferences.value?.speechRate ?: 1.0f)
             val engineLocale = quoterSpeaker?.getCurrentVoice()?.locale ?: ttsLanguage
             viewModel.updateTtsLanguage(requireContext(), engineLocale)
             setupSettingValues()

@@ -37,7 +37,8 @@ class QuoteBroadcast : BroadcastReceiver() {
             try {
                 isImageTypeNotification =
                     DataStoreManager.getBooleanValue(context, IS_IMAGE_NOTIFICATION_STYLE, true)
-                randomQuote = QuotesClient().api.getRandomQuote()
+                randomQuote =
+                    QuotesClient().api.getRandomQuote(maxLength = if (isImageTypeNotification) 40 else 500)
                 if (isImageTypeNotification) {
                     val authorImageResponse =
                         QuotesClient().wikiApi.getAuthorImage(
