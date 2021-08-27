@@ -4,10 +4,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <androidx.core.widget.NestedScrollView
-        android:fillViewport="true"
-        android:animateLayoutChanges="true"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:animateLayoutChanges="true"
+        android:fillViewport="true">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -168,12 +168,12 @@
                 android:id="@+id/language_chip_group"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:textAlignment="textStart"
                 android:layout_marginTop="16dp"
-                app:selectionRequired="true"
+                android:textAlignment="textStart"
                 app:layout_constraintEnd_toEndOf="@+id/male_voice_switch"
                 app:layout_constraintStart_toEndOf="@+id/back_image_view"
                 app:layout_constraintTop_toBottomOf="@+id/voice_option_2_text_view"
+                app:selectionRequired="true"
                 app:singleSelection="true" />
 
 
@@ -256,6 +256,31 @@
                 app:layout_constraintStart_toEndOf="@+id/notif_option_1_text_view"
                 app:layout_constraintTop_toTopOf="@+id/notif_option_1_text_view"
                 app:trackTint="@color/switch_track_color" />
+
+            <TextView
+                android:id="@+id/notif_option_2_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:fontFamily="@font/main_regular"
+                android:text="Send me a quote everyday at"
+                android:textColor="@color/black"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toEndOf="@+id/back_image_view"
+                app:layout_constraintTop_toBottomOf="@+id/notif_option_1_text_view" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/notif_time_btn"
+                android:layout_width="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/main_bold"
+                android:text="9:00 am"
+                app:layout_constraintEnd_toEndOf="@+id/notif_option_2_text_view"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="@+id/notif_option_2_text_view"
+                app:layout_constraintTop_toBottomOf="@+id/notif_option_2_text_view" />
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>

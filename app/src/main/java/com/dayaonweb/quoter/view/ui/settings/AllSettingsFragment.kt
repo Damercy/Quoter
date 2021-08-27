@@ -1,12 +1,15 @@
 package com.dayaonweb.quoter.view.ui.settings
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -16,9 +19,11 @@ import com.dayaonweb.quoter.databinding.FragmentAllSettingsBinding
 import com.dayaonweb.quoter.tts.Quoter
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
-import android.os.Handler
-import android.os.Looper
-import androidx.core.view.isVisible
+import com.google.android.material.timepicker.MaterialTimePicker
+import com.google.android.material.timepicker.TimeFormat
+import java.text.Format
+import java.text.SimpleDateFormat
+import java.util.*
 
 class AllSettingsFragment : Fragment() {
 
@@ -42,7 +47,7 @@ class AllSettingsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         handler.postDelayed({
             initializeQuoterTts()
-        },1000)
+        }, 1000)
         setupListeners()
     }
 
@@ -74,7 +79,32 @@ class AllSettingsFragment : Fragment() {
                 quoterSpeaker?.setSpeechRateSpeed(value)
                 quoterSpeaker?.speakText("This is the current speech rate", "")
             }
+            notifTimeBtn.setOnClickListener {
+                val timePicker = MaterialTimePicker.Builder()
+                    .setTimeFormat(TimeFormat.CLOCK_12H)
+                    .setTitleText("Receive notifications at")
+                    .build()
+
+                timePicker.addOnPositiveButtonClickListener {
+                    // Make cal instance & put in sharedpref
+                    notifTimeBtn.text = getTime(timePicker.hour, timePicker.minute)
+                }
+                timePicker.show(requireActivity().supportFragmentManager, null)
+            }
+            notifSwitch.setOnCheckedChangeListener { _, isChecked ->
+                notifOption2TextView.isVisible = isChecked
+                notifTimeBtn.isVisible = isChecked
+            }
         }
+    }
+
+    private fun getTime(hr: Int, min: Int): String? {
+        val cal: Calendar = Calendar.getInstance()
+        cal.set(Calendar.HOUR_OF_DAY, hr)
+        cal.set(Calendar.MINUTE, min)
+        val formatter: Format
+        formatter = SimpleDateFormat("h:mm a", Locale.getDefault())
+        return formatter.format(cal.time)
     }
 
     private fun initializeQuoterTts() {
@@ -95,9 +125,6 @@ class AllSettingsFragment : Fragment() {
         }
     }
 
-    private fun setupSpeechRate() {
-
-    }
 
     private fun setupAvailableLanguages(rootChipGroup: ChipGroup) {
         val supportedLanguages = quoterSpeaker?.getSupportedLanguages()
