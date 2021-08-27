@@ -9,6 +9,7 @@ import android.os.Handler
 import android.os.Looper
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -57,10 +58,24 @@ class AllSettingsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        handler.postDelayed({
-            initializeQuoterTts()
-        }, 1000)
+        attachObservers()
         setupListeners()
+        viewModel.getAllPreferences(requireContext())
+    }
+
+    private fun attachObservers() {
+        viewModel.preferences.observe({ lifecycle }) {
+            Log.d("PREFS", "attachObservers: $it")
+            handler.postDelayed({
+                initializeQuoterTts(it.ttsLanguage)
+            }, 1000)
+            bi?.notifSwitch?.isChecked = it.isNotificationOn
+            val time = it.notificationTime.split(":")
+            bi?.notifTimeBtn?.text = getTime(time[0].toInt(), time[1].toInt())
+            val checkBtnId =
+                if (it.isImageStyleNotification) R.id.image_style_btn else R.id.text_style_btn
+            bi?.notifStyleButtonToggleGroup?.check(checkBtnId)
+        }
     }
 
 
@@ -99,17 +114,32 @@ class AllSettingsFragment : Fragment() {
 
                 timePicker.addOnPositiveButtonClickListener {
                     // Make cal instance & put in sharedpref
+                    viewModel.updateNotifTime(
+                        requireContext(),
+                        "${timePicker.hour}:${timePicker.minute}"
+                    )
                     setAlarm(timePicker.hour, timePicker.minute)
                 }
                 timePicker.show(requireActivity().supportFragmentManager, null)
             }
+            notifStyleButtonToggleGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->
+                val isImageStyled = checkedId == R.id.image_style_btn && isChecked
+                viewModel.toggleNotificationStyle(requireContext(), isImageStyled)
+                showSnack("You'll receive ${if (isImageStyled) "image" else "text"} styled notification quote")
+            }
             notifSwitch.setOnCheckedChangeListener { _, isChecked ->
                 notifOption2TextView.isVisible = isChecked
+                notifOption3TextView.isVisible = isChecked
                 notifTimeBtn.isVisible = isChecked
-                if(!isChecked)
+                notifStyleButtonToggleGroup.isVisible = isChecked
+                viewModel.toggleNotification(requireContext(),isChecked)
+                if (!isChecked)
                     cancelAlarm()
-                else
-                    setAlarm(15,16) // get from prefs
+                else {
+                    val timePrefs = viewModel.preferences.value ?: return@setOnCheckedChangeListener
+                    val time = timePrefs.notificationTime.split(":")
+                    setAlarm(time[0].toInt(), time[1].toInt())
+                }
             }
         }
     }
@@ -124,7 +154,10 @@ class AllSettingsFragment : Fragment() {
         }
         alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val broadcastIntent = Intent(requireContext(), QuoteBroadcast::class.java)
-        broadcastIntent.putExtra(IS_IMAGE_NOTIFICATION_STYLE,false)
+        broadcastIntent.putExtra(
+            IS_IMAGE_NOTIFICATION_STYLE,
+            bi?.notifStyleButtonToggleGroup?.checkedButtonId == R.id.image_style_btn
+        )
         pendingIntent = PendingIntent.getBroadcast(
             requireContext(),
             PENDING_INTENT_REQ_CODE,
@@ -142,7 +175,7 @@ class AllSettingsFragment : Fragment() {
         showSnack("Next quote scheduled at $scheduledTime")
     }
 
-    private fun cancelAlarm(){
+    private fun cancelAlarm() {
         val broadcastIntent = Intent(requireContext(), QuoteBroadcast::class.java)
         pendingIntent = PendingIntent.getBroadcast(
             requireContext(),
@@ -163,7 +196,7 @@ class AllSettingsFragment : Fragment() {
         return formatter.format(cal.time)
     }
 
-    private fun initializeQuoterTts() {
+    private fun initializeQuoterTts(ttsLanguage: Locale) {
         quoterSpeaker = Quoter(context = requireContext()) { initStatus ->
             if (initStatus == TextToSpeech.SUCCESS)
                 quoterSpeaker?.init(object : UtteranceProgressListener() {
@@ -171,6 +204,9 @@ class AllSettingsFragment : Fragment() {
                     override fun onDone(utteranceId: String?) {}
                     override fun onError(utteranceId: String?) {}
                 })
+            quoterSpeaker?.setEngineLocale(ttsLanguage)
+            val engineLocale = quoterSpeaker?.getCurrentVoice()?.locale ?: ttsLanguage
+            viewModel.updateTtsLanguage(requireContext(), engineLocale)
             setupSettingValues()
         }
     }
