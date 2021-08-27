@@ -12,4 +12,5 @@ object Constants {
     const val IS_NOTIFICATION_ON = "IsNotificationOn"
     const val NOTIFICATION_TIME = "NotificationTime"
     const val TTS_LANGUAGE = "TtsLanguage"
+    const val TTS_SPEECH_RATE = "TtsSpeechRate"
 }

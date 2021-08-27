@@ -70,6 +70,7 @@ class AllSettingsFragment : Fragment() {
                 initializeQuoterTts(it.ttsLanguage)
             }, 1000)
             bi?.notifSwitch?.isChecked = it.isNotificationOn
+            bi?.speechRateSlider?.value = it.speechRate
             val time = it.notificationTime.split(":")
             bi?.notifTimeBtn?.text = getTime(time[0].toInt(), time[1].toInt())
             val checkBtnId =
@@ -99,10 +100,12 @@ class AllSettingsFragment : Fragment() {
                 }
                 selectedLanguage?.let {
                     quoterSpeaker?.setEngineLocale(it)
+                    viewModel.updateTtsLanguage(requireContext(),it)
                     quoterSpeaker?.speakText("This is a sample text in ${it.displayLanguage}", "")
                 }
             }
-            speechRateSlider.addOnChangeListener { slider, value, fromUser ->
+            speechRateSlider.addOnChangeListener { _, value, _ ->
+                viewModel.updateTtsSpeechRate(requireContext(),value)
                 quoterSpeaker?.setSpeechRateSpeed(value)
                 quoterSpeaker?.speakText("This is the current speech rate", "")
             }
@@ -154,10 +157,6 @@ class AllSettingsFragment : Fragment() {
         }
         alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val broadcastIntent = Intent(requireContext(), QuoteBroadcast::class.java)
-        broadcastIntent.putExtra(
-            IS_IMAGE_NOTIFICATION_STYLE,
-            bi?.notifStyleButtonToggleGroup?.checkedButtonId == R.id.image_style_btn
-        )
         pendingIntent = PendingIntent.getBroadcast(
             requireContext(),
             PENDING_INTENT_REQ_CODE,
@@ -205,6 +204,7 @@ class AllSettingsFragment : Fragment() {
                     override fun onError(utteranceId: String?) {}
                 })
             quoterSpeaker?.setEngineLocale(ttsLanguage)
+            quoterSpeaker?.setSpeechRateSpeed(viewModel.preferences.value?.speechRate?:1.0f)
             val engineLocale = quoterSpeaker?.getCurrentVoice()?.locale ?: ttsLanguage
             viewModel.updateTtsLanguage(requireContext(), engineLocale)
             setupSettingValues()

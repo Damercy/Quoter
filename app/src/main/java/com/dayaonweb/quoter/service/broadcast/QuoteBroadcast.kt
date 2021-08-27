@@ -18,6 +18,7 @@ import com.dayaonweb.quoter.constants.Constants.CHANNEL_ID
 import com.dayaonweb.quoter.constants.Constants.CHANNEL_NAME
 import com.dayaonweb.quoter.constants.Constants.IS_IMAGE_NOTIFICATION_STYLE
 import com.dayaonweb.quoter.constants.Constants.NOTIFICATION_ID
+import com.dayaonweb.quoter.data.local.DataStoreManager
 import com.dayaonweb.quoter.service.QuotesClient
 import com.dayaonweb.quoter.view.ui.MainActivity
 import kotlinx.coroutines.CoroutineScope
@@ -31,10 +32,16 @@ class QuoteBroadcast : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         CoroutineScope(Dispatchers.IO).launch {
             val randomQuote = QuotesClient().api.getRandomQuote()
-            val isImageTypeNotification = intent.getBooleanExtra(IS_IMAGE_NOTIFICATION_STYLE,true)
-            if(isImageTypeNotification) {
+            val isImageTypeNotification = DataStoreManager.getBooleanValue(
+                context,
+                IS_IMAGE_NOTIFICATION_STYLE, true
+            )
+            if (isImageTypeNotification) {
                 val authorImageResponse =
-                    QuotesClient().wikiApi.getAuthorImage(authorName = randomQuote.author,thumbnailSize = 500).query
+                    QuotesClient().wikiApi.getAuthorImage(
+                        authorName = randomQuote.author,
+                        thumbnailSize = 500
+                    ).query
                 val authorImage =
                     authorImageResponse?.pages?.entries?.first()?.value?.original?.source ?: ""
 
@@ -56,16 +63,15 @@ class QuoteBroadcast : BroadcastReceiver() {
                 .setContentText(quote)
                 .setAutoCancel(true)
                 .setStyle(
-                    if(isImageTypeNotification) {
+                    if (isImageTypeNotification) {
                         NotificationCompat.BigPictureStyle()
                             .setBigContentTitle(title)
                             .setSummaryText(quote)
                             .bigPicture(authorImageBitmap)
-                    }
-                else{
-                    NotificationCompat.BigTextStyle()
-                        .setBigContentTitle(title)
-                        .bigText(quote)
+                    } else {
+                        NotificationCompat.BigTextStyle()
+                            .setBigContentTitle(title)
+                            .bigText(quote)
                     }
                 )
                 .setContentIntent(getPendingIntent(context))

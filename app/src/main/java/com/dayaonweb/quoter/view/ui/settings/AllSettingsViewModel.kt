@@ -33,12 +33,15 @@ class AllSettingsViewModel : ViewModel() {
                         .split("_")
                 val notifTime =
                     DataStoreManager.getStringValue(context, Constants.NOTIFICATION_TIME, "9:00")
+                val speechRate =
+                    DataStoreManager.getFloatValue(context, Constants.TTS_SPEECH_RATE, 1.0f)
                 _preferences.postValue(
                     Preferences(
                         isNotificationOn = isNotificationOn,
                         isImageStyleNotification = isImageStyled,
                         notificationTime = notifTime,
-                        ttsLanguage = Locale(selectedTtsLanguage[0], selectedTtsLanguage[1])
+                        ttsLanguage = Locale(selectedTtsLanguage[0], selectedTtsLanguage[1]),
+                        speechRate = speechRate
                     )
                 )
             }
@@ -65,9 +68,7 @@ class AllSettingsViewModel : ViewModel() {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 DataStoreManager.saveValue(
-                    context,
-                    Constants.TTS_LANGUAGE,
-                    "${locale.language}_${locale.country}"
+                    context, Constants.TTS_LANGUAGE, "${locale.language}_${locale.country}"
                 )
             }
         }
@@ -77,6 +78,14 @@ class AllSettingsViewModel : ViewModel() {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 DataStoreManager.saveValue(context, Constants.NOTIFICATION_TIME, newTime)
+            }
+        }
+    }
+
+    fun updateTtsSpeechRate(context: Context, rate: Float) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                DataStoreManager.saveValue(context, Constants.TTS_SPEECH_RATE, rate)
             }
         }
     }

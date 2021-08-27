@@ -20,6 +20,9 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
 import com.dayaonweb.quoter.R
 import com.dayaonweb.quoter.analytics.Analytics
+import com.dayaonweb.quoter.constants.Constants
+import com.dayaonweb.quoter.data.local.DataStoreManager
+import com.dayaonweb.quoter.data.local.settingsDatastore
 import com.dayaonweb.quoter.databinding.FragmentBrowseTagBinding
 import com.dayaonweb.quoter.extensions.showSnack
 import com.dayaonweb.quoter.service.model.Quote
@@ -55,13 +58,13 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initQuoter()
         attachListeners()
         attachObservers()
         viewModel.fetchQuotesByTag(args.tag, pageToFetch)
+        viewModel.getAllPreferences(requireContext())
     }
 
-    private fun initQuoter() {
+    private fun initQuoter(ttsLanguage: Locale) {
         quoterSpeaker = Quoter(context = requireContext()) { initStatus ->
             if (initStatus == TextToSpeech.SUCCESS)
                 quoterSpeaker.init(object : UtteranceProgressListener() {
@@ -86,10 +89,17 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
                         }
                     }
                 })
+            quoterSpeaker.setEngineLocale(ttsLanguage)
+            quoterSpeaker.setSpeechRateSpeed(viewModel.preferences.value?.speechRate?:1.0f)
+            val engineLocale = quoterSpeaker.getCurrentVoice()?.locale ?: ttsLanguage
+            viewModel.updateTtsLanguage(requireContext(), engineLocale)
         }
     }
 
     private fun attachObservers() {
+        viewModel.preferences.observe({lifecycle}){
+            initQuoter(it.ttsLanguage)
+        }
         viewModel.quotes.observe({ lifecycle }) {
             currentPageCount += it.count
             totalPages = it.totalPages
