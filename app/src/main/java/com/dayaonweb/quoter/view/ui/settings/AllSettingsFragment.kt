@@ -1,5 +1,9 @@
 package com.dayaonweb.quoter.view.ui.settings
 
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -15,7 +19,11 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.dayaonweb.quoter.R
+import com.dayaonweb.quoter.constants.Constants.IS_IMAGE_NOTIFICATION_STYLE
+import com.dayaonweb.quoter.constants.Constants.PENDING_INTENT_REQ_CODE
 import com.dayaonweb.quoter.databinding.FragmentAllSettingsBinding
+import com.dayaonweb.quoter.extensions.showSnack
+import com.dayaonweb.quoter.service.broadcast.QuoteBroadcast
 import com.dayaonweb.quoter.tts.Quoter
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
@@ -29,6 +37,10 @@ class AllSettingsFragment : Fragment() {
 
     private var bi: FragmentAllSettingsBinding? = null
     private val viewModel: AllSettingsViewModel by viewModels()
+    private lateinit var calendar: Calendar
+    private lateinit var alarmManager: AlarmManager
+    private lateinit var pendingIntent: PendingIntent
+
     private val handler by lazy {
         Handler(Looper.getMainLooper())
     }
@@ -88,6 +100,7 @@ class AllSettingsFragment : Fragment() {
                 timePicker.addOnPositiveButtonClickListener {
                     // Make cal instance & put in sharedpref
                     notifTimeBtn.text = getTime(timePicker.hour, timePicker.minute)
+                    setAlarm(timePicker.hour, timePicker.minute)
                 }
                 timePicker.show(requireActivity().supportFragmentManager, null)
             }
@@ -96,6 +109,32 @@ class AllSettingsFragment : Fragment() {
                 notifTimeBtn.isVisible = isChecked
             }
         }
+    }
+
+    private fun setAlarm(hour: Int, minute: Int) {
+        calendar = Calendar.getInstance()
+        calendar.apply {
+            set(Calendar.HOUR_OF_DAY, hour)
+            set(Calendar.MINUTE, minute)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val broadcastIntent = Intent(requireContext(), QuoteBroadcast::class.java)
+        broadcastIntent.putExtra(IS_IMAGE_NOTIFICATION_STYLE,true)
+        pendingIntent = PendingIntent.getBroadcast(
+            requireContext(),
+            PENDING_INTENT_REQ_CODE,
+            broadcastIntent,
+            0
+        )
+        alarmManager.setRepeating(
+            AlarmManager.RTC_WAKEUP,
+            calendar.timeInMillis,
+            AlarmManager.INTERVAL_DAY,
+            pendingIntent
+        )
+        showSnack("Next quote scheduled at ${getTime(hour, minute)}")
     }
 
     private fun getTime(hr: Int, min: Int): String? {
@@ -150,6 +189,7 @@ class AllSettingsFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         handler.removeCallbacksAndMessages(null)
+        quoterSpeaker?.deInit()
     }
 
 

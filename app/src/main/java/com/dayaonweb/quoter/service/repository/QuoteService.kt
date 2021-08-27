@@ -1,6 +1,7 @@
 package com.dayaonweb.quoter.service.repository
 
 import com.dayaonweb.quoter.service.model.AuthorBySlugResponse
+import com.dayaonweb.quoter.service.model.Quote
 import com.dayaonweb.quoter.service.model.Quotes
 import com.dayaonweb.quoter.service.model.QuotesTagsResponseItem
 import com.dayaonweb.quoter.service.model.wikiAPI.WikiApiImageResponse
@@ -30,6 +31,9 @@ interface QuoteService {
 
     @GET("tags")
     suspend fun getAllTags(): List<QuotesTagsResponseItem>
+
+    @GET("random")
+    suspend fun getRandomQuote():Quote
 
     // Only to be called from wikiApi
     @GET("api.php")

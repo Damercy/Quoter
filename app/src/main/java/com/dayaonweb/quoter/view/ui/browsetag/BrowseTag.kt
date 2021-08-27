@@ -11,8 +11,6 @@ import android.speech.tts.UtteranceProgressListener
 import android.util.TypedValue
 import android.view.*
 import android.widget.PopupMenu
-import android.widget.TextView
-import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isVisible
@@ -23,9 +21,9 @@ import androidx.navigation.fragment.navArgs
 import com.dayaonweb.quoter.R
 import com.dayaonweb.quoter.analytics.Analytics
 import com.dayaonweb.quoter.databinding.FragmentBrowseTagBinding
+import com.dayaonweb.quoter.extensions.showSnack
 import com.dayaonweb.quoter.service.model.Quote
 import com.dayaonweb.quoter.tts.Quoter
-import com.google.android.material.snackbar.Snackbar
 import java.io.File
 import java.util.*
 
@@ -257,17 +255,6 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
         val clip = ClipData.newPlainText("quote", text)
         clipboard.setPrimaryClip(clip)
         showSnack("Copied")
-    }
-
-    private fun showSnack(text: String) {
-        val snack = Snackbar.make(requireView(), text, Snackbar.LENGTH_SHORT)
-        val snackView = snack.view
-        snackView.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.black))
-        val snackText =
-            snackView.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
-        snackText.typeface = ResourcesCompat.getFont(requireContext(), R.font.main_bold)
-        snack.animationMode = Snackbar.ANIMATION_MODE_SLIDE
-        snack.show()
     }
 
     override fun onDestroyView() {
