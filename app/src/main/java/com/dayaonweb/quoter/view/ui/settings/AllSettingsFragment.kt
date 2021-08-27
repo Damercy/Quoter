@@ -99,7 +99,6 @@ class AllSettingsFragment : Fragment() {
 
                 timePicker.addOnPositiveButtonClickListener {
                     // Make cal instance & put in sharedpref
-                    notifTimeBtn.text = getTime(timePicker.hour, timePicker.minute)
                     setAlarm(timePicker.hour, timePicker.minute)
                 }
                 timePicker.show(requireActivity().supportFragmentManager, null)
@@ -107,6 +106,10 @@ class AllSettingsFragment : Fragment() {
             notifSwitch.setOnCheckedChangeListener { _, isChecked ->
                 notifOption2TextView.isVisible = isChecked
                 notifTimeBtn.isVisible = isChecked
+                if(!isChecked)
+                    cancelAlarm()
+                else
+                    setAlarm(15,16) // get from prefs
             }
         }
     }
@@ -121,7 +124,7 @@ class AllSettingsFragment : Fragment() {
         }
         alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val broadcastIntent = Intent(requireContext(), QuoteBroadcast::class.java)
-        broadcastIntent.putExtra(IS_IMAGE_NOTIFICATION_STYLE,true)
+        broadcastIntent.putExtra(IS_IMAGE_NOTIFICATION_STYLE,false)
         pendingIntent = PendingIntent.getBroadcast(
             requireContext(),
             PENDING_INTENT_REQ_CODE,
@@ -134,7 +137,21 @@ class AllSettingsFragment : Fragment() {
             AlarmManager.INTERVAL_DAY,
             pendingIntent
         )
-        showSnack("Next quote scheduled at ${getTime(hour, minute)}")
+        val scheduledTime = getTime(hour, minute)
+        bi?.notifTimeBtn?.text = scheduledTime
+        showSnack("Next quote scheduled at $scheduledTime")
+    }
+
+    private fun cancelAlarm(){
+        val broadcastIntent = Intent(requireContext(), QuoteBroadcast::class.java)
+        pendingIntent = PendingIntent.getBroadcast(
+            requireContext(),
+            PENDING_INTENT_REQ_CODE,
+            broadcastIntent,
+            0
+        )
+        alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        alarmManager.cancel(pendingIntent)
     }
 
     private fun getTime(hr: Int, min: Int): String? {

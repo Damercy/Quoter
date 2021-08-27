@@ -34,7 +34,7 @@ class QuoteBroadcast : BroadcastReceiver() {
             val isImageTypeNotification = intent.getBooleanExtra(IS_IMAGE_NOTIFICATION_STYLE,true)
             if(isImageTypeNotification) {
                 val authorImageResponse =
-                    QuotesClient().wikiApi.getAuthorImage(authorName = randomQuote.author,thumbnailSize = 200).query
+                    QuotesClient().wikiApi.getAuthorImage(authorName = randomQuote.author,thumbnailSize = 500).query
                 val authorImage =
                     authorImageResponse?.pages?.entries?.first()?.value?.original?.source ?: ""
 
@@ -46,8 +46,8 @@ class QuoteBroadcast : BroadcastReceiver() {
                     .get()
             }
 
-            val quote = "${randomQuote.content}\n~ ${randomQuote.author}"
-            val title = getRandomTitle()
+            val quote = randomQuote.content
+            val title = "${randomQuote.author} says"
             createNotificationChannel(context)
             val notification = NotificationCompat.Builder(context, CHANNEL_ID)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -99,14 +99,13 @@ class QuoteBroadcast : BroadcastReceiver() {
         }
     }
 
-    private fun getRandomTitle(): String {
-        val titles = listOf(
-            "A great man once said \uD83E\uDDD4\uD83C\uDFFC",
-            "Did you know? ❔",
-            "Always remember \uD83D\uDD8B️",
-            "Here's your daily dose of motivation \uD83D\uDD25",
-            "It was once said \uD83D\uDCDC"
+    private fun getRandomTitleEmoji(): String {
+        val emojis = listOf(
+            "\uD83E\uDDD4\uD83C\uDFFC",
+            "\uD83D\uDD8B️",
+            "\uD83D\uDD25",
+            "\uD83D\uDCDC"
         )
-        return titles.random()
+        return emojis.random()
     }
 }
