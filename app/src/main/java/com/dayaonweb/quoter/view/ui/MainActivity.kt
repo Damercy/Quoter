@@ -6,14 +6,13 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.databinding.DataBindingUtil
 import com.dayaonweb.quoter.R
 import com.dayaonweb.quoter.analytics.Analytics
 import com.dayaonweb.quoter.constants.Constants
 import com.dayaonweb.quoter.data.local.DataStoreManager
-import com.dayaonweb.quoter.data.local.settingsDatastore
 import com.dayaonweb.quoter.databinding.ActivityMainBinding
-import com.dayaonweb.quoter.extensions.showSnack
 import com.dayaonweb.quoter.service.broadcast.QuoteBroadcast
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -29,10 +28,19 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         binding.lifecycleOwner = this
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         Analytics.init(this)
+        initNotifications()
+    }
+
+    private fun initNotifications() {
         CoroutineScope(Dispatchers.IO).launch {
-            val isNotificationOn = DataStoreManager.getBooleanValue(this@MainActivity, Constants.IS_NOTIFICATION_ON, true)
-            if(isNotificationOn) {
+            val isNotificationOn = DataStoreManager.getBooleanValue(
+                this@MainActivity,
+                Constants.IS_NOTIFICATION_ON,
+                true
+            )
+            if (isNotificationOn) {
                 val notificationTime = DataStoreManager.getStringValue(
                     this@MainActivity,
                     Constants.NOTIFICATION_TIME,

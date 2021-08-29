@@ -1,5 +1,8 @@
 package com.dayaonweb.quoter.view.ui.browse
 
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,10 +12,8 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.dayaonweb.quoter.R
-import com.dayaonweb.quoter.analytics.Analytics
 import com.dayaonweb.quoter.databinding.FragmentMenuBinding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.play.core.review.ReviewManagerFactory
 
 class MenuFragment : Fragment() {
 
@@ -61,32 +62,36 @@ class MenuFragment : Fragment() {
     }
 
     private fun showAboutDialog() {
-        MaterialAlertDialogBuilder(requireContext(),R.style.AlertDialogStyle)
+        MaterialAlertDialogBuilder(requireContext(), R.style.AlertDialogStyle)
             .setTitle("Quoter: Minimalistic quotes app")
             .setMessage(getString(R.string.quoter_message))
             .setPositiveButton("Rate app") { dialog, _ ->
                 rateApp()
                 dialog.dismiss()
             }
-            .setOnDismissListener { 
+            .setOnDismissListener {
                 requireActivity().onBackPressed()
             }
             .show()
     }
 
     private fun rateApp() {
-        val manager = ReviewManagerFactory.create(requireContext())
-        //val manager = FakeReviewManager(requireContext())
-        val request = manager.requestReviewFlow()
-        request.addOnCompleteListener { request ->
-            if (request.isSuccessful) {
-                // We got the ReviewInfo object
-                val reviewInfo = request.result
-                val flow = manager.launchReviewFlow(requireActivity(), reviewInfo)
-                flow.addOnCompleteListener { _ ->
-                    Analytics.trackAppReview()
-                }
-            }
+        val uri: Uri = Uri.parse("market://details?id=${requireContext().packageName}")
+        val goToMarket = Intent(Intent.ACTION_VIEW, uri)
+        goToMarket.addFlags(
+            Intent.FLAG_ACTIVITY_NO_HISTORY or
+                    Intent.FLAG_ACTIVITY_NEW_DOCUMENT or
+                    Intent.FLAG_ACTIVITY_MULTIPLE_TASK
+        )
+        try {
+            startActivity(goToMarket)
+        } catch (e: ActivityNotFoundException) {
+            startActivity(
+                Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse("http://play.google.com/store/apps/details?id=${requireContext().packageName}")
+                )
+            )
         }
     }
 
