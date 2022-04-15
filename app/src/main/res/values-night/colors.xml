@@ -6,9 +6,9 @@
     <color name="primaryVariant">@color/white</color>
     <color name="onPrimary">@color/black</color>
     <color name="secondary">@color/white</color>
+    <color name="primaryDark">@color/black</color>
     <color name="secondaryVariant">@color/white</color>
     <color name="onSecondary">@color/black</color>
     <color name="text">@color/white</color>
-    <color name="systemBars">@color/black</color>
     <color name="controlNormal">@color/white</color>
 </resources>

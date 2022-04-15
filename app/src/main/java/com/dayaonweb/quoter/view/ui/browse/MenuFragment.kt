@@ -28,15 +28,7 @@ class MenuFragment : Fragment() {
         bi = DataBindingUtil.inflate(inflater, R.layout.fragment_menu, container, false)
         return bi?.root
     }
-
-    override fun onResume() {
-        super.onResume()
-        requireActivity().window.apply {
-            statusBarColor = ContextCompat.getColor(requireContext(), R.color.black)
-            navigationBarColor = ContextCompat.getColor(requireContext(), R.color.black)
-        }
-    }
-
+    
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         attachListeners()

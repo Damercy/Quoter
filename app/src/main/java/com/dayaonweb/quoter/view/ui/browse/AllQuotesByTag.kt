@@ -31,14 +31,6 @@ class AllQuotesByTag : Fragment() {
         return bi?.root
     }
 
-    override fun onResume() {
-        super.onResume()
-        requireActivity().window.apply {
-            statusBarColor = ContextCompat.getColor(requireContext(),R.color.white)
-            navigationBarColor = ContextCompat.getColor(requireContext(),R.color.white)
-        }
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         attachListeners()

@@ -81,15 +81,6 @@ class AllSettingsFragment : Fragment() {
         }
     }
 
-
-    override fun onResume() {
-        super.onResume()
-        requireActivity().window.apply {
-            statusBarColor = ContextCompat.getColor(requireContext(), R.color.white)
-            navigationBarColor = ContextCompat.getColor(requireContext(), R.color.white)
-        }
-    }
-
     private fun setupListeners() {
         bi?.apply {
             backImageView.setOnClickListener {

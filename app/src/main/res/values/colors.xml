@@ -5,10 +5,10 @@
     <color name="primary">@color/black</color>
     <color name="primaryVariant">@color/black</color>
     <color name="onPrimary">@color/white</color>
+    <color name="primaryDark">@color/white</color>
     <color name="secondary">@color/black</color>
     <color name="secondaryVariant">@color/black</color>
     <color name="onSecondary">@color/white</color>
     <color name="text">@color/black</color>
-    <color name="systemBars">@color/white</color>
     <color name="controlNormal">@color/black</color>
 </resources>

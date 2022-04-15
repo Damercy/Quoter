@@ -1,25 +1,26 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Theme.Quoter" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryVariant">@color/primaryVariant</item>
         <item name="colorOnPrimary">@color/onPrimary</item>
+        <item name="colorPrimaryDark">@color/primaryDark</item>
         <!-- Secondary brand color. -->
         <item name="colorSecondary">@color/secondary</item>
         <item name="colorSecondaryVariant">@color/secondaryVariant</item>
         <item name="colorOnSecondary">@color/onSecondary</item>
         <item name="colorControlNormal">@color/controlNormal</item>
-        <!-- Status bar color. -->
-        <item name="android:navigationBarColor">@color/systemBars</item>
-        <item name="android:statusBarColor">@color/systemBars</item>
+        <!-- System bars -->
+        <item name="android:windowLightStatusBar">@bool/isLightStatusBar</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">@bool/isLightNavBar</item>
+        <item name="android:navigationBarColor">@color/onPrimary</item>
         <item name="android:fontFamily">@font/main_bold</item>
     </style>
 
     <style name="TextStyle">
         <item name="android:textColor">@color/text</item>
     </style>
-    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
     <style name="BasePopupMenu" parent="Widget.AppCompat.PopupMenu">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_gravity">center</item>
