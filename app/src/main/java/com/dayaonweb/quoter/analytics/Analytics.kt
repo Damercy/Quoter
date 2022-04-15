@@ -14,8 +14,6 @@ object Analytics {
         analytics?.setAnalyticsCollectionEnabled(!BuildConfig.DEBUG)
     }
 
-    fun setUserId(userId: String) = analytics?.setUserId(userId)
-
     fun trackQuoteShare(quote: String, quoteId: String, quoteTags: List<String>) {
         analytics?.logEvent(FirebaseAnalytics.Event.SHARE) {
             param("shared_quote", if (quote.length >= 145) quote.substring(0, 100) else quote)

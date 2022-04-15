@@ -4,8 +4,6 @@ import android.content.Context
 import android.media.AudioAttributes
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
-import android.speech.tts.Voice
-import android.util.Log
 import java.util.*
 
 class Quoter(context: Context, onInit: (status: Int) -> Unit) {
@@ -14,25 +12,30 @@ class Quoter(context: Context, onInit: (status: Int) -> Unit) {
             onInit(status)
         }, DEFAULT_ENGINE)
 
-    fun init(listener: UtteranceProgressListener): Boolean{
-        tts?.setOnUtteranceProgressListener(listener)
+
+    fun init(listener: UtteranceProgressListener? = null): Boolean {
+        listener?.let {
+            tts?.setOnUtteranceProgressListener(it)
+        }
         setupAudioAttributes()
-        if(tts?.voice?.locale!=Locale("en"))
-            setEngineLocale(Locale("en","IN"))
+        if (tts?.voice?.locale != Locale("en"))
+            setEngineLocale(Locale("en", "IN"))
         return true
     }
 
-    fun deInit()=
+    fun deInit() {
+        stopSpeaking()
         tts?.shutdown()
+    }
 
 
     fun speakText(text: String, utteranceId: String) {
-        tts?.speak(text,TextToSpeech.QUEUE_FLUSH,null,utteranceId)
+        tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, utteranceId)
     }
 
-    fun stopSpeaking() = tts?.stop()
+    private fun stopSpeaking() = tts?.stop()
 
-    private fun setupAudioAttributes(){
+    private fun setupAudioAttributes() {
         val audioAttributes = AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY)
             .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
@@ -47,16 +50,9 @@ class Quoter(context: Context, onInit: (status: Int) -> Unit) {
         }
     }
 
-    fun setPitch(pitchRate: Float) = tts?.setPitch(pitchRate)
+    fun setSpeechRateSpeed(speechRate: Float) = tts?.setSpeechRate(speechRate)
 
-    fun setSpeechRateSpeed(speechRate:Float) = tts?.setSpeechRate(speechRate)
-
-    fun setEngineVoice() {
-    }
-
-    fun getSupportedLanguages() =tts?.availableLanguages
-
-    fun getSupportedVoices() = tts?.voices
+    fun getSupportedLanguages() = tts?.availableLanguages
 
     fun getCurrentVoice() = tts?.voice
 

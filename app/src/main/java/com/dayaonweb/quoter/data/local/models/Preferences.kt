@@ -7,5 +7,6 @@ data class Preferences(
     val isImageStyleNotification: Boolean,
     val notificationTime: String,
     val ttsLanguage: Locale,
-    val speechRate: Float
+    val speechRate: Float,
+    val isDarkMode: Boolean
 )

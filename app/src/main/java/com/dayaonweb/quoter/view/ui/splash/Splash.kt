@@ -44,8 +44,6 @@ class Splash : AppCompatActivity() {
 
     override fun onStop() {
         super.onStop()
-        window.statusBarColor =
-            ContextCompat.getColor(this, R.color.design_default_color_primary_variant)
         handler.removeCallbacksAndMessages(null)
     }
 }

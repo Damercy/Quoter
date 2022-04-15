@@ -8,6 +8,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.lifecycleScope
 import com.dayaonweb.quoter.R
 import com.dayaonweb.quoter.analytics.Analytics
 import com.dayaonweb.quoter.constants.Constants
@@ -28,9 +29,20 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         binding.lifecycleOwner = this
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         Analytics.init(this)
         initNotifications()
+        initAppTheme()
+    }
+
+    private fun initAppTheme() {
+        lifecycleScope.launch {
+            val isDarkMode = DataStoreManager.getBooleanValue(
+                this@MainActivity,
+                Constants.IS_DARK_MODE,
+                AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES
+            )
+            AppCompatDelegate.setDefaultNightMode(if (isDarkMode) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO)
+        }
     }
 
     private fun initNotifications() {

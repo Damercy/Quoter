@@ -2,17 +2,22 @@
     <!-- Base application theme. -->
     <style name="Theme.Quoter" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/black</item>
-        <item name="colorPrimaryVariant">@color/black</item>
-        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryVariant">@color/primaryVariant</item>
+        <item name="colorOnPrimary">@color/onPrimary</item>
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/white</item>
-        <item name="colorSecondaryVariant">@color/white</item>
-        <item name="colorOnSecondary">@color/black</item>
+        <item name="colorSecondary">@color/secondary</item>
+        <item name="colorSecondaryVariant">@color/secondaryVariant</item>
+        <item name="colorOnSecondary">@color/onSecondary</item>
+        <item name="colorControlNormal">@color/controlNormal</item>
         <!-- Status bar color. -->
-        <item name="android:navigationBarColor">@color/white</item>
-        <item name="android:statusBarColor">@color/white</item>
+        <item name="android:navigationBarColor">@color/systemBars</item>
+        <item name="android:statusBarColor">@color/systemBars</item>
         <item name="android:fontFamily">@font/main_bold</item>
+    </style>
+
+    <style name="TextStyle">
+        <item name="android:textColor">@color/text</item>
     </style>
 
     <style name="BasePopupMenu" parent="Widget.AppCompat.PopupMenu">
@@ -21,8 +26,14 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textSize">12sp</item>
         <item name="android:dropDownHorizontalOffset">16dp</item>
-        <item name="android:textColor">@color/black</item>
+        <item name="android:textColor">@color/text</item>
         <item name="android:fontFamily">@font/main_regular</item>
+    </style>
+
+    <style name="Theme.AppCompat.Slider">
+        <item name="thumbColor">@color/primary</item>
+        <item name="tickColorInactive">@color/onPrimary</item>
+        <item name="trackColorActive">@color/primary</item>
     </style>
 
     <style name="ClickableView">

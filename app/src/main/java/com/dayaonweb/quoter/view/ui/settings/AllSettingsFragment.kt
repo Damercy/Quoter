@@ -8,11 +8,11 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.speech.tts.TextToSpeech
-import android.speech.tts.UtteranceProgressListener
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
@@ -69,6 +69,7 @@ class AllSettingsFragment : Fragment() {
                 initializeQuoterTts(it.ttsLanguage)
             }, 1000)
             bi?.notifSwitch?.isChecked = it.isNotificationOn
+            bi?.darkModeSwitch?.isChecked = it.isDarkMode
             bi?.speechRateSlider?.value = it.speechRate
             if (it.isNotificationOn) {
                 val time = it.notificationTime.split(":")
@@ -145,6 +146,10 @@ class AllSettingsFragment : Fragment() {
                     setAlarm(time[0].toInt(), time[1].toInt())
                 }
             }
+            darkModeSwitch.setOnCheckedChangeListener { _, isChecked ->
+                viewModel.toggleDarkMode(requireContext(), isChecked)
+                AppCompatDelegate.setDefaultNightMode(if (isChecked) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO)
+            }
         }
     }
 
@@ -201,11 +206,7 @@ class AllSettingsFragment : Fragment() {
     private fun initializeQuoterTts(ttsLanguage: Locale) {
         quoterSpeaker = Quoter(context = requireContext()) { initStatus ->
             if (initStatus == TextToSpeech.SUCCESS)
-                quoterSpeaker?.init(object : UtteranceProgressListener() {
-                    override fun onStart(utteranceId: String?) {}
-                    override fun onDone(utteranceId: String?) {}
-                    override fun onError(utteranceId: String?) {}
-                })
+                quoterSpeaker?.init()
             quoterSpeaker?.setEngineLocale(ttsLanguage)
             quoterSpeaker?.setSpeechRateSpeed(viewModel.preferences.value?.speechRate ?: 1.0f)
             val engineLocale = quoterSpeaker?.getCurrentVoice()?.locale ?: ttsLanguage

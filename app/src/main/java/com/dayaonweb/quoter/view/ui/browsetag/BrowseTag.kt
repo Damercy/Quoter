@@ -20,9 +20,6 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
 import com.dayaonweb.quoter.R
 import com.dayaonweb.quoter.analytics.Analytics
-import com.dayaonweb.quoter.constants.Constants
-import com.dayaonweb.quoter.data.local.DataStoreManager
-import com.dayaonweb.quoter.data.local.settingsDatastore
 import com.dayaonweb.quoter.databinding.FragmentBrowseTagBinding
 import com.dayaonweb.quoter.extensions.showSnack
 import com.dayaonweb.quoter.service.model.Quote
@@ -66,7 +63,7 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
 
     private fun initQuoter(ttsLanguage: Locale) {
         quoterSpeaker = Quoter(context = requireContext()) { initStatus ->
-            if (initStatus == TextToSpeech.SUCCESS)
+            if (initStatus == TextToSpeech.SUCCESS) {
                 quoterSpeaker.init(object : UtteranceProgressListener() {
                     override fun onStart(utteranceId: String?) {
                         requireActivity().runOnUiThread {
@@ -89,15 +86,16 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
                         }
                     }
                 })
-            quoterSpeaker.setEngineLocale(ttsLanguage)
-            quoterSpeaker.setSpeechRateSpeed(viewModel.preferences.value?.speechRate?:1.0f)
-            val engineLocale = quoterSpeaker.getCurrentVoice()?.locale ?: ttsLanguage
-            viewModel.updateTtsLanguage(requireContext(), engineLocale)
+                quoterSpeaker.setEngineLocale(ttsLanguage)
+                quoterSpeaker.setSpeechRateSpeed(viewModel.preferences.value?.speechRate ?: 1.0f)
+                val engineLocale = quoterSpeaker.getCurrentVoice()?.locale ?: ttsLanguage
+                viewModel.updateTtsLanguage(requireContext(), engineLocale)
+            }
         }
     }
 
     private fun attachObservers() {
-        viewModel.preferences.observe({lifecycle}){
+        viewModel.preferences.observe({ lifecycle }) {
             initQuoter(it.ttsLanguage)
         }
         viewModel.quotes.observe({ lifecycle }) {
@@ -141,7 +139,7 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
                     currentQuoteId,
                     currentQuoteTag
                 )
-                bi?.screenshotView?.let { containerView ->
+                screenshotView.let { containerView ->
                     viewModel.takeScreenShot(
                         containerView,
                         File(requireContext().externalCacheDir, "quoter_${UUID.randomUUID()}.jpg")
@@ -186,7 +184,8 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
                 setBackgroundResource(R.drawable.speaking_anim)
                 speakerAnimation = background as AnimationDrawable
                 setOnClickListener {
-                    quoterSpeaker.speakText(bi?.quoteTextView?.text.toString(), currentQuoteId)
+                    if (::quoterSpeaker.isInitialized)
+                        quoterSpeaker.speakText(bi?.quoteTextView?.text.toString(), currentQuoteId)
                 }
             }
         }
@@ -269,7 +268,8 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        quoterSpeaker.deInit()
+        if (::quoterSpeaker.isInitialized)
+            quoterSpeaker.deInit()
     }
 
     companion object {

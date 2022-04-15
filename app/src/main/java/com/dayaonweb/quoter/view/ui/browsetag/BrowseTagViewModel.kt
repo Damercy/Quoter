@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.view.View
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -38,13 +39,13 @@ class BrowseTagViewModel : ViewModel() {
         viewModelScope.launch {
             isFetchingQuotes = true
             withContext(Dispatchers.IO) {
-                try {
+                isFetchingQuotes = try {
                     val response = QuotesRepo.getQuotesByTags(listOf(tag), pageNo)
                     _quotes.postValue(response)
-                    isFetchingQuotes = false
+                    false
 
                 } catch (exception: Exception) {
-                    isFetchingQuotes = false
+                    false
                 }
             }
         }
@@ -83,13 +84,20 @@ class BrowseTagViewModel : ViewModel() {
                     DataStoreManager.getStringValue(context, Constants.NOTIFICATION_TIME, "9:00")
                 val speechRate =
                     DataStoreManager.getFloatValue(context, Constants.TTS_SPEECH_RATE, 1.0f)
+                val isDarkMode =
+                    DataStoreManager.getBooleanValue(
+                        context,
+                        Constants.IS_DARK_MODE,
+                        AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES
+                    )
                 _preferences.postValue(
                     Preferences(
                         isNotificationOn = isNotificationOn,
                         isImageStyleNotification = isImageStyled,
                         notificationTime = notifTime,
                         ttsLanguage = Locale(selectedTtsLanguage[0], selectedTtsLanguage[1]),
-                        speechRate = speechRate
+                        speechRate = speechRate,
+                        isDarkMode = isDarkMode
                     )
                 )
             }

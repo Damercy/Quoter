@@ -12,6 +12,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.dayaonweb.quoter.R
+import com.dayaonweb.quoter.analytics.Analytics
 import com.dayaonweb.quoter.databinding.FragmentMenuBinding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
@@ -76,6 +77,7 @@ class MenuFragment : Fragment() {
     }
 
     private fun rateApp() {
+        Analytics.trackAppReview()
         val uri: Uri = Uri.parse("market://details?id=${requireContext().packageName}")
         val goToMarket = Intent(Intent.ACTION_VIEW, uri)
         goToMarket.addFlags(

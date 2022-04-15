@@ -29,13 +29,13 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
         </provider>
-        <activity android:name=".view.ui.splash.Splash">
+        <activity android:name=".view.ui.splash.Splash" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".view.ui.MainActivity" />
+        <activity android:name=".view.ui.MainActivity" android:exported="false" />
         <receiver android:name=".service.broadcast.QuoteBroadcast" android:exported="false"/>
     </application>
 
