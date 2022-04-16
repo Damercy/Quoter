@@ -7,15 +7,15 @@ plugins {
 }
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 32
     buildToolsVersion "30.0.3"
 
     defaultConfig {
         applicationId "com.dayaonweb.quoter"
         minSdkVersion 23
-        targetSdkVersion 30
-        versionCode 100
-        versionName "1.0.0"
+        targetSdkVersion 32
+        versionCode 12000
+        versionName "1.20.00"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -23,7 +23,7 @@ android {
         release {
             minifyEnabled true
             shrinkResources true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
     compileOptions {
@@ -41,10 +41,10 @@ android {
 dependencies {
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation "androidx.core:core-ktx:1.6.0"
-    implementation "androidx.appcompat:appcompat:1.3.1"
-    implementation "com.google.android.material:material:1.4.0"
-    implementation "androidx.constraintlayout:constraintlayout:2.1.0"
+    implementation "androidx.core:core-ktx:1.7.0"
+    implementation "androidx.appcompat:appcompat:1.4.1"
+    implementation "com.google.android.material:material:1.5.0"
+    implementation "androidx.constraintlayout:constraintlayout:2.1.3"
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
 
     // Testing
@@ -60,11 +60,18 @@ dependencies {
     implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
     implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
 
+    // Datastore
+    implementation "androidx.datastore:datastore-preferences:$datastore_version"
+
     // Retrofit & Moshi
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
     implementation "com.squareup.retrofit2:converter-moshi:$retrofit_version"
     implementation "com.squareup.moshi:moshi:$moshi_version"
     kapt "com.squareup.moshi:moshi-kotlin-codegen:$moshi_version"
+
+    // Glide
+    implementation "com.github.bumptech.glide:glide:$glide_version"
+    annotationProcessor "com.github.bumptech.glide:compiler:$glide_version"
 
     // Firebase (base)
     implementation platform("com.google.firebase:firebase-bom:28.0.1")
@@ -74,5 +81,5 @@ dependencies {
     implementation "com.airbnb.android:lottie:$lottie_version"
 
     // Number picker
-    implementation 'io.github.ShawnLin013:number-picker:2.4.13'
+    implementation "io.github.ShawnLin013:number-picker:2.4.13"
 }

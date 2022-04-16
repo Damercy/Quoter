@@ -3,13 +3,14 @@ package com.dayaonweb.quoter.view.ui.browsetag
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Intent
+import android.graphics.drawable.AnimationDrawable
 import android.net.Uri
 import android.os.Bundle
+import android.speech.tts.TextToSpeech
+import android.speech.tts.UtteranceProgressListener
 import android.util.TypedValue
 import android.view.*
 import android.widget.PopupMenu
-import android.widget.TextView
-import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isVisible
@@ -20,8 +21,9 @@ import androidx.navigation.fragment.navArgs
 import com.dayaonweb.quoter.R
 import com.dayaonweb.quoter.analytics.Analytics
 import com.dayaonweb.quoter.databinding.FragmentBrowseTagBinding
+import com.dayaonweb.quoter.extensions.showSnack
 import com.dayaonweb.quoter.service.model.Quote
-import com.google.android.material.snackbar.Snackbar
+import com.dayaonweb.quoter.tts.Quoter
 import java.io.File
 import java.util.*
 
@@ -34,7 +36,9 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
     private var pageToFetch = 1
     private var currentPageCount = 0
     private var currentQuoteNumber = 1
+    private lateinit var quoterSpeaker: Quoter
     private val args: BrowseTagArgs by navArgs()
+    private lateinit var speakerAnimation: AnimationDrawable
 
     /**************ANALYTICS********************/
     private var currentQuoteId: String = ""
@@ -54,9 +58,46 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
         attachListeners()
         attachObservers()
         viewModel.fetchQuotesByTag(args.tag, pageToFetch)
+        viewModel.getAllPreferences(requireContext())
+    }
+
+    private fun initQuoter(ttsLanguage: Locale) {
+        quoterSpeaker = Quoter(context = requireContext()) { initStatus ->
+            if (initStatus == TextToSpeech.SUCCESS) {
+                quoterSpeaker.init(object : UtteranceProgressListener() {
+                    override fun onStart(utteranceId: String?) {
+                        requireActivity().runOnUiThread {
+                            speakerAnimation.start()
+                        }
+                    }
+
+                    override fun onDone(utteranceId: String?) {
+                        requireActivity().runOnUiThread {
+                            speakerAnimation.stop()
+                            speakerAnimation.selectDrawable(0)
+                        }
+                    }
+
+                    override fun onError(utteranceId: String?) {
+                        requireActivity().runOnUiThread {
+                            speakerAnimation.stop()
+                            speakerAnimation.selectDrawable(0)
+                            showSnack("Unable to synthesize text")
+                        }
+                    }
+                })
+                quoterSpeaker.setEngineLocale(ttsLanguage)
+                quoterSpeaker.setSpeechRateSpeed(viewModel.preferences.value?.speechRate ?: 1.0f)
+                val engineLocale = quoterSpeaker.getCurrentVoice()?.locale ?: ttsLanguage
+                viewModel.updateTtsLanguage(requireContext(), engineLocale)
+            }
+        }
     }
 
     private fun attachObservers() {
+        viewModel.preferences.observe({ lifecycle }) {
+            initQuoter(it.ttsLanguage)
+        }
         viewModel.quotes.observe({ lifecycle }) {
             currentPageCount += it.count
             totalPages = it.totalPages
@@ -79,7 +120,10 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
     private fun shareScreenshot(fileUri: Uri) {
         val sendIntent: Intent = Intent().apply {
             action = Intent.ACTION_SEND
-            putExtra(Intent.EXTRA_TEXT, "Sent via Quoter. Download now: https://play.google.com/store/apps/details?id=com.dayaonweb.quoter")
+            putExtra(
+                Intent.EXTRA_TEXT,
+                "Sent via Quoter. Download now: https://play.google.com/store/apps/details?id=com.dayaonweb.quoter"
+            )
             putExtra(Intent.EXTRA_STREAM, fileUri)
             type = "image/jpg"
         }
@@ -95,7 +139,7 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
                     currentQuoteId,
                     currentQuoteTag
                 )
-                bi?.screenshotView?.let { containerView ->
+                screenshotView.let { containerView ->
                     viewModel.takeScreenShot(
                         containerView,
                         File(requireContext().externalCacheDir, "quoter_${UUID.randomUUID()}.jpg")
@@ -136,8 +180,15 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
                 currentQuoteTag = currentQuote.tags
             }
 
+            speakImageView.apply {
+                setBackgroundResource(R.drawable.speaking_anim)
+                speakerAnimation = background as AnimationDrawable
+                setOnClickListener {
+                    if (::quoterSpeaker.isInitialized)
+                        quoterSpeaker.speakText(bi?.quoteTextView?.text.toString(), currentQuoteId)
+                }
+            }
         }
-
     }
 
     private fun fadeInViews() {
@@ -169,6 +220,7 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
         bi?.backImageView?.isVisible = true
         bi?.quoteImageView?.isVisible = true
         bi?.optionsImageView?.isVisible = true
+        bi?.speakImageView?.isVisible = true
         bi?.loader?.isVisible = false
 
         /**************ANALYTICS********************/
@@ -211,18 +263,17 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
         val clipboard = requireActivity().getSystemService(ClipboardManager::class.java)
         val clip = ClipData.newPlainText("quote", text)
         clipboard.setPrimaryClip(clip)
-        showSnack()
+        showSnack("Copied")
     }
 
-    private fun showSnack() {
-        val snack = Snackbar.make(requireView(), "Copied", Snackbar.LENGTH_SHORT)
-        val snackView = snack.view
-        snackView.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.black))
-        val snackText =
-            snackView.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
-        snackText.typeface = ResourcesCompat.getFont(requireContext(), R.font.main_bold)
-        snack.animationMode = Snackbar.ANIMATION_MODE_SLIDE
-        snack.show()
+    override fun onDestroyView() {
+        super.onDestroyView()
+        if (::quoterSpeaker.isInitialized)
+            quoterSpeaker.deInit()
+    }
+
+    companion object {
+        private const val TAG = "BrowseTag"
     }
 
 }

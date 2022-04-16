@@ -28,7 +28,7 @@
             android:id="@+id/screenshot_view"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:background="@color/white"
+            android:background="@color/onPrimary"
             android:elevation="1dp"
             android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="@+id/author_text_view"
@@ -60,7 +60,7 @@
                 android:gravity="center"
                 android:padding="48dp"
                 android:textAlignment="textStart"
-                android:textColor="@color/black"
+                style="@style/TextStyle"
                 android:textSize="32sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -132,7 +132,7 @@
             android:gravity="center"
             android:padding="48dp"
             android:textAlignment="textStart"
-            android:textColor="@color/black"
+            style="@style/TextStyle"
             android:textSize="32sp"
             app:layout_constraintBottom_toBottomOf="@+id/quoteScroller"
             app:layout_constraintEnd_toEndOf="parent"
@@ -162,7 +162,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
             android:fontFamily="@font/main_bold"
-            android:textColor="@color/black"
+            style="@style/TextStyle"
             android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="@+id/share_image_view"
             app:layout_constraintEnd_toEndOf="parent"
@@ -184,6 +184,20 @@
             app:layout_constraintStart_toStartOf="@+id/author_text_view"
             app:srcCompat="@drawable/ic_share"
             tools:visibility="visible" />
+
+        <ImageView
+            android:id="@+id/speak_image_view"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:layout_width="wrap_content"
+            android:visibility="invisible"
+            tools:visibility="visible"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:contentDescription="@null"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.2"
+            app:layout_constraintStart_toEndOf="@+id/share_image_view" />
 
         <ImageView
             android:id="@+id/options_image_view"

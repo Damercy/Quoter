@@ -1,5 +1,16 @@
 package com.dayaonweb.quoter.constants
 
 object Constants {
-    const val USER_ID="userId"
+
+    const val IS_DARK_MODE="IS_DARK_MODE"
+    const val IS_IMAGE_NOTIFICATION_STYLE="IS_IMAGE_NOTIFICATION_STYLE"
+    const val CHANNEL_ID="QUOTE PREFERENCES"
+    const val CHANNEL_NAME="QUOTE PREFERENCE"
+    const val NOTIFICATION_ID=69
+    const val IS_NOTIFICATION_ON="IS_NOTIFICATION_ON"
+    const val TTS_LANGUAGE="TTS_LANGUAGE"
+    const val NOTIFICATION_TIME="NOTIFICATION_TIME"
+    const val TTS_SPEECH_RATE="TTS_SPEECH_RATE"
+    const val PENDING_INTENT_REQ_CODE=6969
+
 }
