@@ -10,7 +10,7 @@ import com.google.android.material.snackbar.Snackbar
 fun Fragment.showSnack(text: String) {
     val snack = Snackbar.make(requireView(), text, Snackbar.LENGTH_SHORT)
     val snackView = snack.view
-    snackView.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.black))
+    snackView.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.primary))
     val snackText =
         snackView.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
     snackText.typeface = ResourcesCompat.getFont(requireContext(), R.font.main_bold)

@@ -3,6 +3,7 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="app/src/main/res/drawable-night/ic_quote.xml" value="0.16" />
         <entry key="app/src/main/res/drawable/ic_back.xml" value="0.1155" />
         <entry key="app/src/main/res/drawable/ic_close.xml" value="0.1155" />
         <entry key="app/src/main/res/drawable/ic_launcher_foreground.xml" value="0.1155" />

@@ -7,14 +7,19 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.dayaonweb.quoter.R
 import com.dayaonweb.quoter.analytics.Analytics
+import com.dayaonweb.quoter.constants.Constants
+import com.dayaonweb.quoter.data.local.DataStoreManager
 import com.dayaonweb.quoter.databinding.FragmentMenuBinding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.launch
 
 class MenuFragment : Fragment() {
 
@@ -28,10 +33,26 @@ class MenuFragment : Fragment() {
         bi = DataBindingUtil.inflate(inflater, R.layout.fragment_menu, container, false)
         return bi?.root
     }
-    
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         attachListeners()
+        updateSystemBars(resetColors = false)
+    }
+
+    private fun updateSystemBars(resetColors: Boolean) {
+        if (!resetColors) {
+            setSystemBarColors(R.color.black)
+            return
+        }
+        setSystemBarColors(R.color.onPrimary)
+    }
+
+    private fun setSystemBarColors(color: Int) {
+        requireActivity().window.apply {
+            statusBarColor = ContextCompat.getColor(requireContext(), color)
+            navigationBarColor = ContextCompat.getColor(requireContext(), color)
+        }
     }
 
     private fun attachListeners() {
@@ -66,6 +87,11 @@ class MenuFragment : Fragment() {
                 requireActivity().onBackPressed()
             }
             .show()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        updateSystemBars(resetColors = true)
     }
 
     private fun rateApp() {
