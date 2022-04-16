@@ -5,4 +5,5 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="customize">Customize</string>
     <string name="quoter_message"><![CDATA[Quoter is a simple quotes app with minimalist design that you can use to copy, share & read aloud the quotes. Notifications can also be set to receive quotes at specified time.\n\nNOTE: Quoter does not collect any personal information. Special thanks to Luke Peavey for providing free quotes API.]]></string>
+    <string name="app_version">Version\n%s</string>
 </resources>

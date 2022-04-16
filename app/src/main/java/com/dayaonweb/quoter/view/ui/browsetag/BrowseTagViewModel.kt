@@ -52,19 +52,22 @@ class BrowseTagViewModel : ViewModel() {
     }
 
     fun takeScreenShot(view: View, file: File) {
-        val bitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(bitmap)
-        view.draw(canvas)
-        var fos: FileOutputStream? = null
-        try {
-            fos = FileOutputStream(file)
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos)
-            _ssFile.postValue(file)
-        } catch (exception: Exception) {
-        } finally {
-            fos?.flush()
-            fos?.close()
+        viewModelScope.launch(Dispatchers.IO) {
+            val bitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
+            val canvas = Canvas(bitmap)
+            view.draw(canvas)
+            var fos: FileOutputStream? = null
+            try {
+                fos = FileOutputStream(file)
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos)
+                _ssFile.postValue(file)
+            } catch (exception: Exception) {
+            } finally {
+                fos?.flush()
+                fos?.close()
+            }
         }
+
     }
 
     fun getAllPreferences(context: Context) {

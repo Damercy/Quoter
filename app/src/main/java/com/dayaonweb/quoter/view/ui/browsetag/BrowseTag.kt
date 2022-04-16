@@ -62,8 +62,11 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
     }
 
     private fun initQuoter(ttsLanguage: Locale) {
+        bi?.ttsLoader?.isVisible = true
         quoterSpeaker = Quoter(context = requireContext()) { initStatus ->
+            bi?.ttsLoader?.isVisible = false
             if (initStatus == TextToSpeech.SUCCESS) {
+                bi?.speakImageView?.isVisible = true
                 quoterSpeaker.init(object : UtteranceProgressListener() {
                     override fun onStart(utteranceId: String?) {
                         requireActivity().runOnUiThread {
@@ -90,6 +93,9 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
                 quoterSpeaker.setSpeechRateSpeed(viewModel.preferences.value?.speechRate ?: 1.0f)
                 val engineLocale = quoterSpeaker.getCurrentVoice()?.locale ?: ttsLanguage
                 viewModel.updateTtsLanguage(requireContext(), engineLocale)
+            } else if (initStatus == TextToSpeech.ERROR) {
+                showSnack("Unable to initialize text to speech")
+                bi?.speakImageView?.isVisible = false
             }
         }
     }

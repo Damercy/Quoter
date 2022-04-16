@@ -13,6 +13,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.dayaonweb.quoter.BuildConfig
 import com.dayaonweb.quoter.R
 import com.dayaonweb.quoter.analytics.Analytics
 import com.dayaonweb.quoter.constants.Constants
@@ -36,6 +37,7 @@ class MenuFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        bi?.tvVersion?.text = getString(R.string.app_version,BuildConfig.VERSION_NAME)
         attachListeners()
         updateSystemBars(resetColors = false)
     }

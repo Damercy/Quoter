@@ -88,12 +88,11 @@
 
 
         <TextView
-            android:id="@+id/textView3"
+            android:id="@+id/tv_version"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="48dp"
             android:fontFamily="@font/main_regular"
-            android:text="Version\n1.10.00"
             tools:text="Version\n1.10.00"
             android:textAllCaps="true"
             android:textColor="@color/cardview_dark_background"

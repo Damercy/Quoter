@@ -4,13 +4,20 @@ import android.content.Context
 import android.media.AudioAttributes
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
+import kotlinx.coroutines.*
 import java.util.*
 
 class Quoter(context: Context, onInit: (status: Int) -> Unit) {
-    private var tts: TextToSpeech? =
-        TextToSpeech(context.applicationContext, { status ->
-            onInit(status)
-        }, DEFAULT_ENGINE)
+    private var tts: TextToSpeech? = null
+    private val scope: CoroutineScope = CoroutineScope(context = Dispatchers.IO + Job())
+
+    init {
+        scope.launch {
+            tts = TextToSpeech(context.applicationContext, { status ->
+                onInit(status)
+            }, DEFAULT_ENGINE)
+        }
+    }
 
 
     fun init(listener: UtteranceProgressListener? = null): Boolean {
