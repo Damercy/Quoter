@@ -11,11 +11,8 @@ object Analytics {
 
     fun init(context: Context) {
         analytics = FirebaseAnalytics.getInstance(context.applicationContext)
-        if (BuildConfig.DEBUG)
-            analytics?.setAnalyticsCollectionEnabled(false)
+        analytics?.setAnalyticsCollectionEnabled(!BuildConfig.DEBUG)
     }
-
-    fun setUserId(userId: String) = analytics?.setUserId(userId)
 
     fun trackQuoteShare(quote: String, quoteId: String, quoteTags: List<String>) {
         analytics?.logEvent(FirebaseAnalytics.Event.SHARE) {
@@ -30,6 +27,12 @@ object Analytics {
             param("copied_quote", if (quote.length >= 145) quote.substring(0, 100) else quote)
             param("copied_quote_id", quoteId)
             param("copied_quote_tags", quoteTags.toString())
+        }
+    }
+
+    fun trackAppReview(){
+        analytics?.logEvent(FirebaseAnalytics.Event.POST_SCORE){
+            param("rated","true")
         }
     }
 }

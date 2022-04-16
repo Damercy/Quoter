@@ -6,9 +6,9 @@
     app:startDestination="@id/allQuotesByTag">
     <fragment
         android:id="@+id/allQuotesByTag"
-        tools:layout="@layout/fragment_all_quotes_by_tag"
         android:name="com.dayaonweb.quoter.view.ui.browse.AllQuotesByTag"
-        android:label="AllQuotesByTag" >
+        android:label="AllQuotesByTag"
+        tools:layout="@layout/fragment_all_quotes_by_tag">
         <action
             android:id="@+id/action_allQuotesByTag_to_browseTag"
             app:destination="@id/browseTag"
@@ -16,14 +16,40 @@
             app:exitAnim="@android:anim/fade_out"
             app:popEnterAnim="@android:anim/fade_in"
             app:popExitAnim="@android:anim/fade_out" />
+        <action
+            android:id="@+id/action_allQuotesByTag_to_menuFragment"
+            app:destination="@id/menuFragment"
+            app:enterAnim="@anim/slide_in_from_right"
+            app:exitAnim="@android:anim/fade_out"
+            app:popEnterAnim="@android:anim/fade_in"
+            app:popExitAnim="@android:anim/slide_out_right" />
     </fragment>
     <fragment
         android:id="@+id/browseTag"
-        tools:layout="@layout/fragment_browse_tag"
         android:name="com.dayaonweb.quoter.view.ui.browsetag.BrowseTag"
-        android:label="BrowseTag" >
+        android:label="BrowseTag"
+        tools:layout="@layout/fragment_browse_tag">
         <argument
             android:name="tag"
             app:argType="string" />
     </fragment>
+    <fragment
+        android:id="@+id/menuFragment"
+        android:name="com.dayaonweb.quoter.view.ui.browse.MenuFragment"
+        android:label="MenuFragment"
+        tools:layout="@layout/fragment_menu" >
+        <action
+            android:id="@+id/action_menuFragment_to_allSettingsFragment"
+            app:destination="@id/allSettingsFragment"
+            app:enterAnim="@anim/slide_in_from_right"
+            app:exitAnim="@android:anim/fade_out"
+            app:popEnterAnim="@android:anim/slide_in_left"
+            app:popExitAnim="@android:anim/fade_out"
+            app:popUpTo="@id/allQuotesByTag" />
+    </fragment>
+    <fragment
+        tools:layout="@layout/fragment_all_settings"
+        android:id="@+id/allSettingsFragment"
+        android:name="com.dayaonweb.quoter.view.ui.settings.AllSettingsFragment"
+        android:label="AllSettingsFragment" />
 </navigation>

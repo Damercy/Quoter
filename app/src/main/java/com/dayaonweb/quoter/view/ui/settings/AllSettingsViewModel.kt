@@ -1,9 +1,6 @@
-package com.dayaonweb.quoter.view.ui.browsetag
+package com.dayaonweb.quoter.view.ui.settings
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.view.View
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -12,60 +9,15 @@ import androidx.lifecycle.viewModelScope
 import com.dayaonweb.quoter.constants.Constants
 import com.dayaonweb.quoter.data.local.DataStoreManager
 import com.dayaonweb.quoter.data.local.models.Preferences
-import com.dayaonweb.quoter.service.model.Quotes
-import com.dayaonweb.quoter.service.repository.QuotesRepo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.File
-import java.io.FileOutputStream
 import java.util.*
 
-
-class BrowseTagViewModel : ViewModel() {
-
-    var isFetchingQuotes = false
-
-    private val _quotes = MutableLiveData<Quotes>()
-    val quotes: LiveData<Quotes> = _quotes
-
-    private val _ssFile = MutableLiveData<File>()
-    val ssFile: LiveData<File> = _ssFile
+class AllSettingsViewModel : ViewModel() {
 
     private val _preferences = MutableLiveData<Preferences>()
     val preferences: LiveData<Preferences> = _preferences
-
-    fun fetchQuotesByTag(tag: String, pageNo: Int) {
-        viewModelScope.launch {
-            isFetchingQuotes = true
-            withContext(Dispatchers.IO) {
-                isFetchingQuotes = try {
-                    val response = QuotesRepo.getQuotesByTags(listOf(tag), pageNo)
-                    _quotes.postValue(response)
-                    false
-
-                } catch (exception: Exception) {
-                    false
-                }
-            }
-        }
-    }
-
-    fun takeScreenShot(view: View, file: File) {
-        val bitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(bitmap)
-        view.draw(canvas)
-        var fos: FileOutputStream? = null
-        try {
-            fos = FileOutputStream(file)
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos)
-            _ssFile.postValue(file)
-        } catch (exception: Exception) {
-        } finally {
-            fos?.flush()
-            fos?.close()
-        }
-    }
 
     fun getAllPreferences(context: Context) {
         viewModelScope.launch {
@@ -104,16 +56,53 @@ class BrowseTagViewModel : ViewModel() {
         }
     }
 
+    fun toggleNotification(context: Context, isOn: Boolean) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                DataStoreManager.saveValue(context, Constants.IS_NOTIFICATION_ON, isOn)
+            }
+        }
+    }
+
+    fun toggleDarkMode(context: Context, wantDarkMode: Boolean){
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                DataStoreManager.saveValue(context, Constants.IS_DARK_MODE, wantDarkMode)
+            }
+        }
+    }
+
+    fun toggleNotificationStyle(context: Context, isImage: Boolean) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                DataStoreManager.saveValue(context, Constants.IS_IMAGE_NOTIFICATION_STYLE, isImage)
+            }
+        }
+    }
+
     fun updateTtsLanguage(context: Context, locale: Locale) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 DataStoreManager.saveValue(
-                    context,
-                    Constants.TTS_LANGUAGE,
-                    "${locale.language}_${locale.country}"
+                    context, Constants.TTS_LANGUAGE, "${locale.language}_${locale.country}"
                 )
             }
         }
     }
 
+    fun updateNotifTime(context: Context, newTime: String) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                DataStoreManager.saveValue(context, Constants.NOTIFICATION_TIME, newTime)
+            }
+        }
+    }
+
+    fun updateTtsSpeechRate(context: Context, rate: Float) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                DataStoreManager.saveValue(context, Constants.TTS_SPEECH_RATE, rate)
+            }
+        }
+    }
 }

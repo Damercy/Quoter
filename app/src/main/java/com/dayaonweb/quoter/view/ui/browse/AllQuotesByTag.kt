@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
@@ -40,6 +41,7 @@ class AllQuotesByTag : Fragment() {
     private fun attachObservers() {
         viewModel.allQuotesByTag.observe({ lifecycle }) {
             bi?.textView?.isVisible = true
+            bi?.menuImageView?.isVisible = true
             bi?.loader?.isVisible = false
             if (it.isNotEmpty()) {
                 it.filter { item ->
@@ -76,7 +78,7 @@ class AllQuotesByTag : Fragment() {
                 findNavController().navigate(R.id.action_allQuotesByTag_to_browseTag,arg)
             }
             menuImageView.setOnClickListener {
-
+                findNavController().navigate(R.id.action_allQuotesByTag_to_menuFragment)
             }
         }
 
