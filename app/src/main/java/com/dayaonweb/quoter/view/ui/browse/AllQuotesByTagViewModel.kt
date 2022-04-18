@@ -16,6 +16,10 @@ class AllQuotesByTagViewModel : ViewModel() {
     private val _allQuotesByTags = MutableLiveData<Array<QuotesTagsResponseItem>>()
     val allQuotesByTag: LiveData<Array<QuotesTagsResponseItem>> = _allQuotesByTags
 
+    init {
+        getAllQuotes()
+    }
+
     fun getAllQuotes() {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {

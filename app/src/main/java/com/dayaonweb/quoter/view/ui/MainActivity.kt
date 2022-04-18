@@ -4,6 +4,7 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
@@ -81,7 +82,7 @@ class MainActivity : AppCompatActivity() {
             this,
             Constants.PENDING_INTENT_REQ_CODE,
             broadcastIntent,
-            0
+            PendingIntent.FLAG_IMMUTABLE
         )
         if (calendar.before(Calendar.getInstance()))
             calendar.add(Calendar.DATE, 1)

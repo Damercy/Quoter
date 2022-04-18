@@ -18,6 +18,7 @@ import com.dayaonweb.quoter.view.ui.browsetag.BrowseTagArgs
 class AllQuotesByTag : Fragment() {
 
     private var bi: FragmentAllQuotesByTagBinding? = null
+    private var scrollPositionIndex = -1
     private val viewModel: AllQuotesByTagViewModel by viewModels()
     private var quoteCountToName = mutableMapOf<Int, String>()
 
@@ -35,7 +36,6 @@ class AllQuotesByTag : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         attachListeners()
         attachObservers()
-        viewModel.getAllQuotes()
     }
 
     private fun attachObservers() {
@@ -51,6 +51,16 @@ class AllQuotesByTag : Fragment() {
                 }
                 initNumberPicker()
             }
+        }
+    }
+
+
+    override fun onResume() {
+        super.onResume()
+        if (scrollPositionIndex != -1) {
+            bi?.numberPicker?.value = scrollPositionIndex
+            bi?.quoteTagTextView?.text =
+                viewModel.getFormattedQuoteNameTag(quoteCountToName.values.toTypedArray()[scrollPositionIndex])
         }
     }
 
@@ -70,12 +80,14 @@ class AllQuotesByTag : Fragment() {
     private fun attachListeners() {
         bi?.apply {
             numberPicker.setOnValueChangedListener { _, _, newVal ->
+                scrollPositionIndex = newVal
                 quoteTagTextView.text =
                     viewModel.getFormattedQuoteNameTag(quoteCountToName.values.toTypedArray()[newVal])
             }
             numberPicker.setOnClickListener {
-                val arg = BrowseTagArgs(quoteCountToName.values.toTypedArray()[numberPicker.value]).toBundle()
-                findNavController().navigate(R.id.action_allQuotesByTag_to_browseTag,arg)
+                val arg =
+                    BrowseTagArgs(quoteCountToName.values.toTypedArray()[numberPicker.value]).toBundle()
+                findNavController().navigate(R.id.action_allQuotesByTag_to_browseTag, arg)
             }
             menuImageView.setOnClickListener {
                 findNavController().navigate(R.id.action_allQuotesByTag_to_menuFragment)

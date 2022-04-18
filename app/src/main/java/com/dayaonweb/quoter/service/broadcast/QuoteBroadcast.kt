@@ -98,7 +98,10 @@ private fun getPendingIntent(context: Context): PendingIntent? {
     val intent = Intent(context, MainActivity::class.java)
     return TaskStackBuilder.create(context).run {
         addNextIntentWithParentStack(intent)
-        getPendingIntent(NOTIFICATION_ID, PendingIntent.FLAG_UPDATE_CURRENT)
+        getPendingIntent(
+            NOTIFICATION_ID,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
     }
 }
 

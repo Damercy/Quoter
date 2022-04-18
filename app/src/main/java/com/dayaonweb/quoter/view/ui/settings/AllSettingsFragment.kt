@@ -6,9 +6,12 @@ import android.app.UiModeManager
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.provider.Settings
 import android.speech.tts.TextToSpeech
 import android.util.Log
 import android.view.LayoutInflater
@@ -21,10 +24,12 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import com.dayaonweb.quoter.BuildConfig
 import com.dayaonweb.quoter.R
 import com.dayaonweb.quoter.constants.Constants.PENDING_INTENT_REQ_CODE
 import com.dayaonweb.quoter.databinding.FragmentAllSettingsBinding
 import com.dayaonweb.quoter.extensions.showSnack
+import com.dayaonweb.quoter.extensions.showSnackWithAction
 import com.dayaonweb.quoter.service.broadcast.QuoteBroadcast
 import com.dayaonweb.quoter.tts.Quoter
 import com.google.android.material.chip.Chip
@@ -160,10 +165,29 @@ class AllSettingsFragment : Fragment() {
             requireContext(),
             PENDING_INTENT_REQ_CODE,
             broadcastIntent,
-            0
+            PendingIntent.FLAG_IMMUTABLE
         )
         if (calendar.before(Calendar.getInstance()))
             calendar.add(Calendar.DATE, 1)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (!alarmManager.canScheduleExactAlarms()) {
+                showSnackWithAction(
+                    text = "Please grant scheduling exact alarm permission to get notifications",
+                    actionText = "Grant permission",
+                    action = {
+                        val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM)
+                        intent.data = Uri.parse("package:" + requireActivity().packageName)
+                        startActivity(intent)
+                    }
+                )
+            } else
+                setAlarmManager(hour = hour, minute = minute)
+        }
+        setAlarmManager(hour = hour, minute = minute)
+    }
+
+
+    private fun setAlarmManager(hour: Int, minute: Int) {
         alarmManager.setRepeating(
             AlarmManager.RTC_WAKEUP,
             calendar.timeInMillis,
@@ -181,7 +205,7 @@ class AllSettingsFragment : Fragment() {
             requireContext(),
             PENDING_INTENT_REQ_CODE,
             broadcastIntent,
-            0
+            PendingIntent.FLAG_IMMUTABLE
         )
         alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
         alarmManager.cancel(pendingIntent)

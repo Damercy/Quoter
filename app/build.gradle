@@ -8,7 +8,7 @@ plugins {
 
 android {
     compileSdkVersion 32
-    buildToolsVersion "30.0.3"
+    buildToolsVersion "33.0.0-rc2"
 
     defaultConfig {
         applicationId "com.dayaonweb.quoter"
