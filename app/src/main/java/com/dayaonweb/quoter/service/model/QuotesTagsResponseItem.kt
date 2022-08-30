@@ -17,5 +17,5 @@ data class QuotesTagsResponseItem(
     @Json(name = "quoteCount")
     val quoteCount: Int,
     @Json(name = "__v")
-    val v: Int
+    val v: Int? = null
 )

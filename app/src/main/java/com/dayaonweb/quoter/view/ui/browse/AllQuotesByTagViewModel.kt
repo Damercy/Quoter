@@ -20,7 +20,7 @@ class AllQuotesByTagViewModel : ViewModel() {
         getAllQuotes()
     }
 
-    fun getAllQuotes() {
+    private fun getAllQuotes() {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 try {
