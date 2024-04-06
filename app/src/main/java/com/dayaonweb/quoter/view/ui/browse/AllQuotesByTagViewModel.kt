@@ -5,7 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.dayaonweb.quoter.service.model.QuotesTagsResponseItem
+import com.dayaonweb.quoter.service.model.AllQuotesGenreResponse
 import com.dayaonweb.quoter.service.repository.QuotesRepo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -13,8 +13,9 @@ import kotlinx.coroutines.withContext
 
 class AllQuotesByTagViewModel : ViewModel() {
 
-    private val _allQuotesByTags = MutableLiveData<Array<QuotesTagsResponseItem>>()
-    val allQuotesByTag: LiveData<Array<QuotesTagsResponseItem>> = _allQuotesByTags
+    private val _allQuotesByTags = MutableLiveData<AllQuotesGenreResponse>()
+    val allQuotesByTag: LiveData<AllQuotesGenreResponse> = _allQuotesByTags
+
 
     init {
         getAllQuotes()
@@ -22,22 +23,13 @@ class AllQuotesByTagViewModel : ViewModel() {
 
     private fun getAllQuotes() {
         viewModelScope.launch {
-            withContext(Dispatchers.IO) {
                 try {
                     val response = QuotesRepo.getAllQuoteTags()
-                    _allQuotesByTags.postValue(response.toTypedArray())
+                    _allQuotesByTags.postValue(response)
                 } catch (exception: Exception) {
                     Log.e(TAG, "getAllQuotes: ${exception.message}", exception.cause)
                 }
-            }
         }
-    }
-
-    fun getFormattedQuoteNameTag(tag: String): String {
-        return if (!tag.contains("-"))
-            tag.plus(" quotes")
-        else
-            tag.replace("-", " ", true)
     }
 
 

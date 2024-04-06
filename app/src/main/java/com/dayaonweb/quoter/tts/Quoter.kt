@@ -77,7 +77,6 @@ class Quoter(context: Context, onInit: (status: Int) -> Unit) {
 
     companion object {
         private const val DEFAULT_ENGINE = "com.google.android.tts"
-        private const val TAG = "Quoter"
     }
 
 }

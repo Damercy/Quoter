@@ -1,15 +1,19 @@
 package com.dayaonweb.quoter.service.repository
 
 import com.dayaonweb.quoter.service.QuotesClient
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 
 object QuotesRepo {
     private val api = QuotesClient().api
 
+    suspend fun getAllQuoteTags() = withContext(Dispatchers.IO){
+        api.getAllGenres()
+    }
 
-    suspend fun getAllQuoteTags() = api.getAllTags()
-
-    suspend fun getQuotesByTags(tags: List<String>, pageNo: Int) =
-        api.getQuotes(tags = tags, page = pageNo)
+    suspend fun getQuotesByTags(tags: List<String>, pageNo: Int) = withContext(Dispatchers.IO){
+        api.getQuotes(page = pageNo, genre = tags.joinToString())
+    }
 
 }

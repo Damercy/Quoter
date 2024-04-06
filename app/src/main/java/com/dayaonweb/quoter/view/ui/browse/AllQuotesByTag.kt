@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
@@ -20,7 +20,6 @@ class AllQuotesByTag : Fragment() {
     private var bi: FragmentAllQuotesByTagBinding? = null
     private var scrollPositionIndex = -1
     private val viewModel: AllQuotesByTagViewModel by viewModels()
-    private var quoteCountToName = mutableMapOf<Int, String>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -39,18 +38,11 @@ class AllQuotesByTag : Fragment() {
     }
 
     private fun attachObservers() {
-        viewModel.allQuotesByTag.observe({ lifecycle }) {
+        viewModel.allQuotesByTag.observe(viewLifecycleOwner) { apiResponse ->
             bi?.textView?.isVisible = true
             bi?.menuImageView?.isVisible = true
             bi?.loader?.isVisible = false
-            if (it.isNotEmpty()) {
-                it.filter { item ->
-                    item.quoteCount != 0
-                }.forEach { item ->
-                    quoteCountToName[item.quoteCount] = item.name
-                }
-                initNumberPicker()
-            }
+            initNumberPicker(apiResponse.data ?: emptyList())
         }
     }
 
@@ -59,34 +51,30 @@ class AllQuotesByTag : Fragment() {
         super.onResume()
         if (scrollPositionIndex != -1) {
             bi?.numberPicker?.value = scrollPositionIndex
-            bi?.quoteTagTextView?.text =
-                viewModel.getFormattedQuoteNameTag(quoteCountToName.values.toTypedArray()[scrollPositionIndex])
         }
     }
 
-    private fun initNumberPicker() {
+    private fun initNumberPicker(quoteTags: List<String>) {
         bi?.numberPicker?.apply {
             isVisible = true
             typeface = ResourcesCompat.getFont(requireContext(), R.font.main_bold)
             setSelectedTypeface(ResourcesCompat.getFont(requireContext(), R.font.main_bold))
             minValue = 0
-            maxValue = quoteCountToName.size - 1
-            displayedValues = quoteCountToName.keys.map { it.toString() }.toTypedArray()
+            maxValue = quoteTags.size - 1
+            displayedValues = quoteTags.toTypedArray()
         }
-        bi?.quoteTagTextView?.text =
-            viewModel.getFormattedQuoteNameTag(quoteCountToName.values.toTypedArray()[0])
     }
 
     private fun attachListeners() {
         bi?.apply {
             numberPicker.setOnValueChangedListener { _, _, newVal ->
                 scrollPositionIndex = newVal
-                quoteTagTextView.text =
-                    viewModel.getFormattedQuoteNameTag(quoteCountToName.values.toTypedArray()[newVal])
             }
             numberPicker.setOnClickListener {
+                val displayedValue =
+                    numberPicker.displayedValues[if (scrollPositionIndex == -1) 0 else scrollPositionIndex]
                 val arg =
-                    BrowseTagArgs(quoteCountToName.values.toTypedArray()[numberPicker.value]).toBundle()
+                    BrowseTagArgs(displayedValue).toBundle()
                 findNavController().navigate(R.id.action_allQuotesByTag_to_browseTag, arg)
             }
             menuImageView.setOnClickListener {

@@ -10,7 +10,7 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 class QuotesClient {
 
     private val retrofit = Retrofit.Builder()
-        .baseUrl("http://api.quotable.io/")
+        .baseUrl("https://quote-garden.onrender.com/api/v3/")
         .client(getClient())
         .addConverterFactory(MoshiConverterFactory.create())
         .build()

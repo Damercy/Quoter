@@ -70,7 +70,7 @@ class AllSettingsFragment : Fragment() {
     }
 
     private fun attachObservers() {
-        viewModel.preferences.observe({ lifecycle }) {
+        viewModel.preferences.observe(viewLifecycleOwner) {
             Log.d("PREFS", "attachObservers: $it")
             handler.postDelayed({
                 initializeQuoterTts(it.ttsLanguage)
@@ -101,7 +101,7 @@ class AllSettingsFragment : Fragment() {
                 selectedLanguage?.let {
                     quoterSpeaker?.setEngineLocale(it)
                     viewModel.updateTtsLanguage(requireContext(), it)
-                    quoterSpeaker?.speakText("This is a sample text in ${it.displayLanguage}", "")
+                    quoterSpeaker?.speakText("Hi. Your quotes voice is set to ${it.displayLanguage}", "")
                 }
             }
             speechRateSlider.addOnChangeListener { _, value, _ ->
@@ -165,35 +165,16 @@ class AllSettingsFragment : Fragment() {
             requireContext(),
             PENDING_INTENT_REQ_CODE,
             broadcastIntent,
-            PendingIntent.FLAG_IMMUTABLE
+            PendingIntent.FLAG_MUTABLE
         )
         if (calendar.before(Calendar.getInstance()))
             calendar.add(Calendar.DATE, 1)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            if (!alarmManager.canScheduleExactAlarms()) {
-                showSnackWithAction(
-                    text = "Please grant scheduling exact alarm permission to get notifications",
-                    actionText = "Grant permission",
-                    action = {
-                        val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM)
-                        intent.data = Uri.parse("package:" + requireActivity().packageName)
-                        startActivity(intent)
-                    }
-                )
-            } else
-                setAlarmManager(hour = hour, minute = minute)
-        }
         setAlarmManager(hour = hour, minute = minute)
     }
 
 
     private fun setAlarmManager(hour: Int, minute: Int) {
-        alarmManager.setRepeating(
-            AlarmManager.RTC_WAKEUP,
-            calendar.timeInMillis,
-            AlarmManager.INTERVAL_DAY,
-            pendingIntent
-        )
+        alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP,calendar.timeInMillis,pendingIntent)
         val scheduledTime = getTime(hour, minute)
         bi?.notifTimeBtn?.text = scheduledTime
         showSnack("Next quote scheduled at $scheduledTime")
@@ -205,7 +186,7 @@ class AllSettingsFragment : Fragment() {
             requireContext(),
             PENDING_INTENT_REQ_CODE,
             broadcastIntent,
-            PendingIntent.FLAG_IMMUTABLE
+            PendingIntent.FLAG_MUTABLE
         )
         alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
         alarmManager.cancel(pendingIntent)
