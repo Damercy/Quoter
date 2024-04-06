@@ -123,16 +123,11 @@ class MainActivity : AppCompatActivity() {
             this,
             Constants.PENDING_INTENT_REQ_CODE,
             broadcastIntent,
-            PendingIntent.FLAG_IMMUTABLE
+            PendingIntent.FLAG_MUTABLE
         )
         if (calendar.before(Calendar.getInstance()))
             calendar.add(Calendar.DATE, 1)
-        alarmManager.setRepeating(
-            AlarmManager.RTC_WAKEUP,
-            calendar.timeInMillis,
-            AlarmManager.INTERVAL_DAY,
-            pendingIntent
-        )
+        alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP,calendar.timeInMillis,pendingIntent)
     }
 
 

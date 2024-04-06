@@ -1,6 +1,7 @@
 package com.dayaonweb.quoter.service.broadcast
 
 import android.Manifest
+import android.app.AlarmManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -15,19 +16,23 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.TaskStackBuilder
+import androidx.core.content.ContentProviderCompat.requireContext
 import com.bumptech.glide.Glide
 import com.dayaonweb.quoter.R
+import com.dayaonweb.quoter.constants.Constants
 import com.dayaonweb.quoter.constants.Constants.CHANNEL_ID
 import com.dayaonweb.quoter.constants.Constants.CHANNEL_NAME
 import com.dayaonweb.quoter.constants.Constants.IS_IMAGE_NOTIFICATION_STYLE
 import com.dayaonweb.quoter.constants.Constants.NOTIFICATION_ID
 import com.dayaonweb.quoter.data.local.DataStoreManager
+import com.dayaonweb.quoter.extensions.showSnack
 import com.dayaonweb.quoter.service.QuotesClient
 import com.dayaonweb.quoter.service.model.Data
 import com.dayaonweb.quoter.view.ui.MainActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.Calendar
 
 class QuoteBroadcast : BroadcastReceiver() {
 
@@ -98,9 +103,40 @@ class QuoteBroadcast : BroadcastReceiver() {
                     if (notificationManager.areNotificationsEnabled())
                         notificationManager.notify(NOTIFICATION_ID, notification)
                 }
+                val time =
+                    DataStoreManager.getStringValue(context, Constants.NOTIFICATION_TIME, "9:00")
+                val timeHrMin = time.split(":")
+                setAlarm(
+                    context = context,
+                    hour = timeHrMin[0].toInt(),
+                    minute = timeHrMin[1].toInt()
+                )
             }
         }
     }
+
+
+}
+
+private fun setAlarm(context: Context, hour: Int, minute: Int) {
+    val calendar = Calendar.getInstance()
+    calendar.apply {
+        set(Calendar.HOUR_OF_DAY, hour)
+        set(Calendar.MINUTE, minute)
+        set(Calendar.SECOND, 0)
+        set(Calendar.MILLISECOND, 0)
+    }
+    val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+    val broadcastIntent = Intent(context, QuoteBroadcast::class.java)
+    val pendingIntent = PendingIntent.getBroadcast(
+        context,
+        Constants.PENDING_INTENT_REQ_CODE,
+        broadcastIntent,
+        PendingIntent.FLAG_MUTABLE
+    )
+    if (calendar.before(Calendar.getInstance()))
+        calendar.add(Calendar.DATE, 1)
+    alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent)
 }
 
 private fun getPendingIntent(context: Context): PendingIntent? {
