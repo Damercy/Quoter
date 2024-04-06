@@ -116,7 +116,7 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
             currentPageCount += it.size
             totalPages = it.size
             for (quote in it) {
-                quoteToAuthor[quote] = quote.quoteAuthor?:""
+                quoteToAuthor[quote] = quote.quoteAuthor ?: ""
             }
             initNumberPicker()
         }
@@ -136,10 +136,11 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
             action = Intent.ACTION_SEND
             putExtra(
                 Intent.EXTRA_TEXT,
-                "Sent via Quoter. Download now: https://play.google.com/store/apps/details?id=com.dayaonweb.quoter"
+                "Checkout this cool quote.\nDownload app: https://play.google.com/store/apps/details?id=com.dayaonweb.quoter"
             )
             putExtra(Intent.EXTRA_STREAM, fileUri)
-            type = "image/jpg"
+            data = fileUri
+            setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
         val shareIntent = Intent.createChooser(sendIntent, "Share this quote with...")
         startActivity(shareIntent)
@@ -238,8 +239,8 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
         bi?.loader?.isVisible = false
 
         /**************ANALYTICS********************/
-        currentQuoteId = quoteToAuthor.keys.toTypedArray()[0].id?:UUID.randomUUID().toString()
-        currentQuoteTag = listOf(quoteToAuthor.keys.toTypedArray()[0].quoteGenre?:"")
+        currentQuoteId = quoteToAuthor.keys.toTypedArray()[0].id ?: UUID.randomUUID().toString()
+        currentQuoteTag = listOf(quoteToAuthor.keys.toTypedArray()[0].quoteGenre ?: "")
     }
 
     private fun showPopup(anchorView: View) {

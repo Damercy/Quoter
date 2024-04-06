@@ -101,7 +101,7 @@ class AllSettingsFragment : Fragment() {
                 selectedLanguage?.let {
                     quoterSpeaker?.setEngineLocale(it)
                     viewModel.updateTtsLanguage(requireContext(), it)
-                    quoterSpeaker?.speakText("This is a sample text in ${it.displayLanguage}", "")
+                    quoterSpeaker?.speakText("Hi. Your quotes voice is set to ${it.displayLanguage}", "")
                 }
             }
             speechRateSlider.addOnChangeListener { _, value, _ ->
