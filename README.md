@@ -7,9 +7,12 @@ Browse &amp; copy quotes to share among your socials!
  </p>
 
 #### Features
-©️  Copy quotes as text  
-📱  Share quotes as image  
-🖊️  Revamped minimalist UI
+🔊  Read aloud quotes using on-device Text-to-Speech engine.
+©️  Copy quotes.
+📱  Share quotes.
+🖊️  Minimalist UI.
+🔔  Set notifications at specified time to get quotes periodically.
+🌚  Dark mode support.
 
 <p float="left">
 <img src="screenshots/ss-0-splash.png" width=200 height=400 />
@@ -18,9 +21,5 @@ Browse &amp; copy quotes to share among your socials!
 <img src="screenshots/ss-3.png" width=200 height=400 />
 </p>
 
-### Current release (v1.0.0)
-First production release since `alpha v0.1.0`! 🎉 🎊  
 
-Revamped the entire UI & added simple transitions for a quote sharing app with minimalist design. Download it from playstore from above [link!](https://play.google.com/store/apps/details?id=com.dayaonweb.quoter&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1')
-
-Please share your feedback regarding the app at: adhikaridayamoy@gmail.com.
+Share feedback at: adhikaridayamoy@gmail.com.
