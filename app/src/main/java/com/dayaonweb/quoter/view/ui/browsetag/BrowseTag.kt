@@ -22,7 +22,7 @@ import com.dayaonweb.quoter.R
 import com.dayaonweb.quoter.analytics.Analytics
 import com.dayaonweb.quoter.databinding.FragmentBrowseTagBinding
 import com.dayaonweb.quoter.extensions.showSnack
-import com.dayaonweb.quoter.service.model.Quote
+import com.dayaonweb.quoter.service.model.Data
 import com.dayaonweb.quoter.tts.Quoter
 import java.io.File
 import java.util.*
@@ -31,7 +31,7 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
 
     private var bi: FragmentBrowseTagBinding? = null
     private val viewModel: BrowseTagViewModel by viewModels()
-    private var quoteToAuthor = mutableMapOf<Quote, String>()
+    private var quoteToAuthor = mutableMapOf<Data, String>()
     private var totalPages = -1
     private var pageToFetch = 1
     private var currentPageCount = 0
@@ -88,6 +88,14 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
                             showSnack("Unable to synthesize text")
                         }
                     }
+
+                    override fun onError(utteranceId: String, errorCode: Int) {
+                        requireActivity().runOnUiThread {
+                            speakerAnimation.stop()
+                            speakerAnimation.selectDrawable(0)
+                            showSnack("Unable to synthesize text")
+                        }
+                    }
                 })
                 quoterSpeaker.setEngineLocale(ttsLanguage)
                 quoterSpeaker.setSpeechRateSpeed(viewModel.preferences.value?.speechRate ?: 1.0f)
@@ -101,18 +109,18 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
     }
 
     private fun attachObservers() {
-        viewModel.preferences.observe({ lifecycle }) {
+        viewModel.preferences.observe(viewLifecycleOwner) {
             initQuoter(it.ttsLanguage)
         }
-        viewModel.quotes.observe({ lifecycle }) {
-            currentPageCount += it.count
-            totalPages = it.totalPages
-            for (result in it.results) {
-                quoteToAuthor[result] = result.author
+        viewModel.quotes.observe(viewLifecycleOwner) {
+            currentPageCount += it.size
+            totalPages = it.size
+            for (quote in it) {
+                quoteToAuthor[quote] = quote.quoteAuthor?:""
             }
             initNumberPicker()
         }
-        viewModel.ssFile.observe({ lifecycle }) {
+        viewModel.ssFile.observe(viewLifecycleOwner) {
             shareScreenshot(
                 FileProvider.getUriForFile(
                     requireContext(),
@@ -161,19 +169,19 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
             quoteScroller.setOnValueChangedListener { _, _, newVal ->
                 currentQuoteNumber = newVal + 1
                 val currentQuote = quoteToAuthor.keys.toTypedArray()[newVal]
-                quoteTextView.text = currentQuote.content
-                ssQuoteTextView.text = currentQuote.content
+                quoteTextView.text = currentQuote.quoteText
+                ssQuoteTextView.text = currentQuote.quoteText
                 authorTextView.text = quoteToAuthor.values.toTypedArray()[newVal]
                 ssAuthorTextView.text = quoteToAuthor.values.toTypedArray()[newVal]
                 serialTextView.text = String.format("%s", "$currentQuoteNumber/$currentPageCount")
                 fadeInViews()
                 quoteTextView.setTextSize(
                     TypedValue.COMPLEX_UNIT_SP,
-                    if (currentQuote.length > 150) 24f else 32f
+                    if ((currentQuote.quoteText?.length ?: 0) > 150) 24f else 32f
                 )
                 ssQuoteTextView.setTextSize(
                     TypedValue.COMPLEX_UNIT_SP,
-                    if (currentQuote.length > 150) 18f else 28f
+                    if ((currentQuote.quoteText?.length ?: 0) > 150) 18f else 28f
                 )
                 if (currentPageCount - (newVal + 1) <= 4) {
                     pageToFetch++
@@ -182,8 +190,8 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
                 }
 
                 /**************ANALYTICS********************/
-                currentQuoteId = currentQuote.id
-                currentQuoteTag = currentQuote.tags
+                currentQuoteId = currentQuote.id ?: UUID.randomUUID().toString()
+                currentQuoteTag = listOf(currentQuote.quoteGenre ?: "")
             }
 
             speakImageView.apply {
@@ -217,8 +225,8 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
             maxValue = currentPageCount - 1
             displayedValues = Array(quoteToAuthor.size) { "" }
         }
-        bi?.quoteTextView?.text = quoteToAuthor.keys.toTypedArray()[0].content
-        bi?.ssQuoteTextView?.text = quoteToAuthor.keys.toTypedArray()[0].content
+        bi?.quoteTextView?.text = quoteToAuthor.keys.toTypedArray()[0].quoteText
+        bi?.ssQuoteTextView?.text = quoteToAuthor.keys.toTypedArray()[0].quoteText
         bi?.authorTextView?.text = quoteToAuthor.values.toTypedArray()[0]
         bi?.ssAuthorTextView?.text = quoteToAuthor.values.toTypedArray()[0]
         bi?.serialTextView?.text = String.format("%s", "$currentQuoteNumber/$currentPageCount")
@@ -230,8 +238,8 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
         bi?.loader?.isVisible = false
 
         /**************ANALYTICS********************/
-        currentQuoteId = quoteToAuthor.keys.toTypedArray()[0].id
-        currentQuoteTag = quoteToAuthor.keys.toTypedArray()[0].tags
+        currentQuoteId = quoteToAuthor.keys.toTypedArray()[0].id?:UUID.randomUUID().toString()
+        currentQuoteTag = listOf(quoteToAuthor.keys.toTypedArray()[0].quoteGenre?:"")
     }
 
     private fun showPopup(anchorView: View) {
@@ -261,6 +269,7 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
                 }
                 true
             }
+
             else -> false
         }
     }

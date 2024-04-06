@@ -22,14 +22,17 @@ class Splash : AppCompatActivity() {
         supportActionBar?.hide()
         val view = findViewById<LottieAnimationView>(R.id.lottie_view)
         view.animate().alpha(1.0f).setDuration(1000L).setListener(object : Animator.AnimatorListener{
-            override fun onAnimationStart(animation: Animator?) {
+            override fun onAnimationStart(animation: Animator) {
             }
-            override fun onAnimationEnd(animation: Animator?) {
+
+            override fun onAnimationEnd(animation: Animator) {
                 view.animate().alpha(0.0f).start()
             }
-            override fun onAnimationCancel(animation: Animator?) {
+
+            override fun onAnimationCancel(animation: Animator) {
             }
-            override fun onAnimationRepeat(animation: Animator?) {
+
+            override fun onAnimationRepeat(animation: Animator) {
             }
         })
         window.statusBarColor = ContextCompat.getColor(this, R.color.black)

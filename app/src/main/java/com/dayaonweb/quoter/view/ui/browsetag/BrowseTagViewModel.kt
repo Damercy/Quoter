@@ -3,6 +3,7 @@ package com.dayaonweb.quoter.view.ui.browsetag
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.LiveData
@@ -12,7 +13,7 @@ import androidx.lifecycle.viewModelScope
 import com.dayaonweb.quoter.constants.Constants
 import com.dayaonweb.quoter.data.local.DataStoreManager
 import com.dayaonweb.quoter.data.local.models.Preferences
-import com.dayaonweb.quoter.service.model.Quotes
+import com.dayaonweb.quoter.service.model.Data
 import com.dayaonweb.quoter.service.repository.QuotesRepo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -26,8 +27,8 @@ class BrowseTagViewModel : ViewModel() {
 
     var isFetchingQuotes = false
 
-    private val _quotes = MutableLiveData<Quotes>()
-    val quotes: LiveData<Quotes> = _quotes
+    private val _quotes = MutableLiveData<List<Data>>()
+    val quotes: LiveData<List<Data>> = _quotes
 
     private val _ssFile = MutableLiveData<File>()
     val ssFile: LiveData<File> = _ssFile
@@ -41,9 +42,9 @@ class BrowseTagViewModel : ViewModel() {
             withContext(Dispatchers.IO) {
                 isFetchingQuotes = try {
                     val response = QuotesRepo.getQuotesByTags(listOf(tag), pageNo)
-                    _quotes.postValue(response)
+                    val quotes = response.data?.filterNotNull()?: emptyList()
+                    _quotes.postValue(quotes)
                     false
-
                 } catch (exception: Exception) {
                     false
                 }
@@ -62,6 +63,7 @@ class BrowseTagViewModel : ViewModel() {
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos)
                 _ssFile.postValue(file)
             } catch (exception: Exception) {
+                Log.e("SS error",exception.message?:"")
             } finally {
                 fos?.flush()
                 fos?.close()

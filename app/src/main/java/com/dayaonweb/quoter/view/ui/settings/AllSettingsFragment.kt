@@ -70,7 +70,7 @@ class AllSettingsFragment : Fragment() {
     }
 
     private fun attachObservers() {
-        viewModel.preferences.observe({ lifecycle }) {
+        viewModel.preferences.observe(viewLifecycleOwner) {
             Log.d("PREFS", "attachObservers: $it")
             handler.postDelayed({
                 initializeQuoterTts(it.ttsLanguage)

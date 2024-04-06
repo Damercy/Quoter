@@ -1,14 +1,17 @@
 package com.dayaonweb.quoter.service.broadcast
 
+import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.os.Build
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.TaskStackBuilder
@@ -20,7 +23,7 @@ import com.dayaonweb.quoter.constants.Constants.IS_IMAGE_NOTIFICATION_STYLE
 import com.dayaonweb.quoter.constants.Constants.NOTIFICATION_ID
 import com.dayaonweb.quoter.data.local.DataStoreManager
 import com.dayaonweb.quoter.service.QuotesClient
-import com.dayaonweb.quoter.service.model.Quote
+import com.dayaonweb.quoter.service.model.Data
 import com.dayaonweb.quoter.view.ui.MainActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -29,7 +32,7 @@ import kotlinx.coroutines.launch
 class QuoteBroadcast : BroadcastReceiver() {
 
     private lateinit var authorImageBitmap: Bitmap
-    private lateinit var randomQuote: Quote
+    private var randomQuote: Data? = null
     private var isImageTypeNotification = true
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -37,12 +40,11 @@ class QuoteBroadcast : BroadcastReceiver() {
             try {
                 isImageTypeNotification =
                     DataStoreManager.getBooleanValue(context, IS_IMAGE_NOTIFICATION_STYLE, true)
-                randomQuote =
-                    QuotesClient().api.getRandomQuote(maxLength = if (isImageTypeNotification) 40 else 500)
+                randomQuote = QuotesClient().api.getQuotes(limit = 1).data?.firstOrNull()
                 if (isImageTypeNotification) {
                     val authorImageResponse =
                         QuotesClient().wikiApi.getAuthorImage(
-                            authorName = randomQuote.author,
+                            authorName = randomQuote?.quoteAuthor ?: "",
                             thumbnailSize = 500
                         ).query
                     val authorImage =
@@ -64,8 +66,8 @@ class QuoteBroadcast : BroadcastReceiver() {
                     .submit()
                     .get()
             } finally {
-                val quote = randomQuote.content
-                val title = "${randomQuote.author} says"
+                val quote = randomQuote?.quoteText ?: ""
+                val title = "${randomQuote?.quoteAuthor ?: "Unknown"} says"
                 createNotificationChannel(context)
                 val notification = NotificationCompat.Builder(context, CHANNEL_ID)
                     .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -88,7 +90,14 @@ class QuoteBroadcast : BroadcastReceiver() {
                     .setContentIntent(getPendingIntent(context))
                     .build()
                 val notificationManager = NotificationManagerCompat.from(context)
-                notificationManager.notify(NOTIFICATION_ID, notification)
+                if (ActivityCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.POST_NOTIFICATIONS
+                    ) == PackageManager.PERMISSION_GRANTED
+                ) {
+                    if (notificationManager.areNotificationsEnabled())
+                        notificationManager.notify(NOTIFICATION_ID, notification)
+                }
             }
         }
     }
@@ -123,39 +132,12 @@ private fun createNotificationChannel(context: Context) {
 
 private fun getOfflineRandomQuote() =
     listOf(
-        Quote(
-            author = "Aeschylus",
-            authorSlug = "aeschylus",
-            content = "It is good even for old men to learn wisdom.",
-            id = "1YubdPwZ3e",
-            length = 44,
-            tags = listOf("wisdom")
+        Data(
+            quoteAuthor = "Emily Dickinson",
+            quoteText = "Old age comes on suddenly, and not gradually as is thought."
         ),
-        Quote(
-            author = "Nathaniel Hawthorne",
-            authorSlug = "nathaniel-hawthorne",
-            content = "Happiness is as a butterfly which, when pursued, is always beyond our grasp, but which if you will sit down quietly, may alight upon you.",
-            id = "9gCEJkS5uaRS",
-            length = 137,
-            tags = listOf("famous-quotes")
-        ),
-        Quote(
-            author = "Chanakya",
-            authorSlug = "chanakya",
-            content = "There is some self-interest behind every friendship. There is no friendship without self-interests. This is a bitter truth.",
-            id = "oT3J6wfjpS",
-            length = 123,
-            tags = listOf("friendship")
+        Data(
+            quoteAuthor = "C. S. Lewis",
+            quoteText = "How incessant and great are the ills with which a prolonged old age is replete."
         )
     ).random()
-
-
-private fun getRandomTitleEmoji(): String {
-    val emojis = listOf(
-        "\uD83E\uDDD4\uD83C\uDFFC",
-        "\uD83D\uDD8B️",
-        "\uD83D\uDD25",
-        "\uD83D\uDCDC"
-    )
-    return emojis.random()
-}
