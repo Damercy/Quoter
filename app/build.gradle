@@ -13,8 +13,8 @@ android {
         applicationId "com.dayaonweb.quoter"
         minSdkVersion 24
         targetSdk 34
-        versionCode 13000
-        versionName "1.30.00"
+        versionCode 13001
+        versionName "1.30.01"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
