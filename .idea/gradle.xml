@@ -8,8 +8,8 @@
         <option name="gradleJvm" value="11" />
         <option name="modules">
           <set>
-            <option value="/media/damercy/480GB-SSD/AndroidStudioProjects/Quoter" />
-            <option value="/media/damercy/480GB-SSD/AndroidStudioProjects/Quoter/app" />
+            <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/app" />
           </set>
         </option>
         <option name="resolveExternalAnnotations" value="false" />
