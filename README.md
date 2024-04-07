@@ -1,8 +1,8 @@
-![Banner](https://github.com/Damercy/Quoter/blob/master/screenshots/Quoter.png "Banner")
+![Banner](https://github.com/Damercy/Quoter/assets/24220261/338a7a61-eb22-4683-a71e-667a077d5918 "Banner")  
 
-# Quoter
-Browse &amp; copy quotes to share among your socials!
+A minimalist designed android app to browse quotes. Has support to alter voices of the on-device TTS engine to hear the read out quotes in different accents.  
 
+#### Screenshots
 <p float="left">
 <img src="screenshots/ss-0-splash.png" width=200 height=400 />
 <img src="screenshots/ss-1.png" width=200 height=400 />
