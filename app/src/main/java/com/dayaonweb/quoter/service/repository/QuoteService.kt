@@ -1,25 +1,23 @@
 package com.dayaonweb.quoter.service.repository
 
-import com.dayaonweb.quoter.service.model.AllQuotesGenreResponse
-import com.dayaonweb.quoter.service.model.AllQuotesResponse
+import com.dayaonweb.quoter.service.model.RandomQuotesListingResponse
 import com.dayaonweb.quoter.service.model.wikiAPI.WikiApiImageResponse
 import retrofit2.http.GET
 import retrofit2.http.Query
 
 interface QuoteService {
 
-    @GET("quotes")
+    @GET("quotes/random")
     suspend fun getQuotes(
-        @Query("author") author: String? = null,
-        @Query("genre") genre: String? = null,
-        @Query("query") query: String? = null,
+        @Query("authors") authors:String? = null,
+        @Query("tags") tags: String? = null,
         @Query("page") page: Int = 1,
-        @Query("limit") limit: Int = 50,
-    ): AllQuotesResponse
+        @Query("count") limit: Int = 50,
+    ): RandomQuotesListingResponse
 
 
-    @GET("genres")
-    suspend fun getAllGenres(): AllQuotesGenreResponse
+    @GET("tags")
+    suspend fun getAllGenres(): List<String>
 
     // Only to be called from wikiApi
     @GET("api.php")

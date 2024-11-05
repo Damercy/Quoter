@@ -5,7 +5,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.dayaonweb.quoter.service.model.AllQuotesGenreResponse
 import com.dayaonweb.quoter.service.repository.QuotesRepo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -13,8 +12,8 @@ import kotlinx.coroutines.withContext
 
 class AllQuotesByTagViewModel : ViewModel() {
 
-    private val _allQuotesByTags = MutableLiveData<AllQuotesGenreResponse>()
-    val allQuotesByTag: LiveData<AllQuotesGenreResponse> = _allQuotesByTags
+    private val _allQuotesByTags = MutableLiveData<List<String>>()
+    val allQuotesByTag: LiveData<List<String>> = _allQuotesByTags
 
 
     init {
@@ -28,6 +27,7 @@ class AllQuotesByTagViewModel : ViewModel() {
                     _allQuotesByTags.postValue(response)
                 } catch (exception: Exception) {
                     Log.e(TAG, "getAllQuotes: ${exception.message}", exception.cause)
+                    _allQuotesByTags.postValue(emptyList())
                 }
         }
     }

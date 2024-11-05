@@ -42,7 +42,7 @@ class AllQuotesByTag : Fragment() {
             bi?.textView?.isVisible = true
             bi?.menuImageView?.isVisible = true
             bi?.loader?.isVisible = false
-            initNumberPicker(apiResponse.data ?: emptyList())
+            initNumberPicker(apiResponse ?: emptyList())
         }
     }
 
@@ -56,13 +56,16 @@ class AllQuotesByTag : Fragment() {
 
     private fun initNumberPicker(quoteTags: List<String>) {
         bi?.numberPicker?.apply {
-            isVisible = true
+            isVisible = quoteTags.isNotEmpty()
             typeface = ResourcesCompat.getFont(requireContext(), R.font.main_bold)
             setSelectedTypeface(ResourcesCompat.getFont(requireContext(), R.font.main_bold))
             minValue = 0
-            maxValue = quoteTags.size - 1
-            displayedValues = quoteTags.toTypedArray()
+            maxValue = if (quoteTags.isNotEmpty()) quoteTags.size - 1 else 1
+            if (quoteTags.isNotEmpty())
+                displayedValues = quoteTags.toTypedArray()
         }
+        if (quoteTags.isEmpty())
+            bi?.quoteTagTextView?.text = getString(R.string.failed_msg)
     }
 
     private fun attachListeners() {
