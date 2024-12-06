@@ -13,7 +13,7 @@ import androidx.lifecycle.viewModelScope
 import com.dayaonweb.quoter.constants.Constants
 import com.dayaonweb.quoter.data.local.DataStoreManager
 import com.dayaonweb.quoter.data.local.models.Preferences
-import com.dayaonweb.quoter.service.model.Data
+import com.dayaonweb.quoter.service.model.RandomQuotesListingResponseItem
 import com.dayaonweb.quoter.service.repository.QuotesRepo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -27,8 +27,8 @@ class BrowseTagViewModel : ViewModel() {
 
     var isFetchingQuotes = false
 
-    private val _quotes = MutableLiveData<List<Data>>()
-    val quotes: LiveData<List<Data>> = _quotes
+    private val _quotes = MutableLiveData<List<RandomQuotesListingResponseItem?>>()
+    val quotes: LiveData<List<RandomQuotesListingResponseItem?>> = _quotes
 
     private val _ssFile = MutableLiveData<File>()
     val ssFile: LiveData<File> = _ssFile
@@ -41,8 +41,7 @@ class BrowseTagViewModel : ViewModel() {
             isFetchingQuotes = true
             isFetchingQuotes = try {
                 val response = QuotesRepo.getQuotesByTags(listOf(tag), pageNo)
-                val quotes = response.data?.filterNotNull()?: emptyList()
-                _quotes.postValue(quotes)
+                _quotes.postValue(response)
                 false
             } catch (exception: Exception) {
                 false

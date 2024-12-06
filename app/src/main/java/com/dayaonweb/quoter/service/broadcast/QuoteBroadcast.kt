@@ -27,7 +27,7 @@ import com.dayaonweb.quoter.constants.Constants.NOTIFICATION_ID
 import com.dayaonweb.quoter.data.local.DataStoreManager
 import com.dayaonweb.quoter.extensions.showSnack
 import com.dayaonweb.quoter.service.QuotesClient
-import com.dayaonweb.quoter.service.model.Data
+import com.dayaonweb.quoter.service.model.RandomQuotesListingResponseItem
 import com.dayaonweb.quoter.view.ui.MainActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -37,7 +37,7 @@ import java.util.Calendar
 class QuoteBroadcast : BroadcastReceiver() {
 
     private lateinit var authorImageBitmap: Bitmap
-    private var randomQuote: Data? = null
+    private var randomQuote: RandomQuotesListingResponseItem? = null
     private var isImageTypeNotification = true
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -45,11 +45,11 @@ class QuoteBroadcast : BroadcastReceiver() {
             try {
                 isImageTypeNotification =
                     DataStoreManager.getBooleanValue(context, IS_IMAGE_NOTIFICATION_STYLE, true)
-                randomQuote = QuotesClient().api.getQuotes(limit = 1).data?.randomOrNull()
+                randomQuote = QuotesClient().api.getQuotes(limit = 2).random()
                 if (isImageTypeNotification) {
                     val authorImageResponse =
                         QuotesClient().wikiApi.getAuthorImage(
-                            authorName = randomQuote?.quoteAuthor ?: "",
+                            authorName = randomQuote?.author ?: "",
                             thumbnailSize = 500
                         ).query
                     val authorImage =
@@ -71,8 +71,8 @@ class QuoteBroadcast : BroadcastReceiver() {
                     .submit()
                     .get()
             } finally {
-                val quote = randomQuote?.quoteText ?: ""
-                val title = "${randomQuote?.quoteAuthor ?: "Unknown"} says"
+                val quote = randomQuote?.quote ?: ""
+                val title = "${randomQuote?.author ?: "Unknown"} says"
                 createNotificationChannel(context)
                 val notification = NotificationCompat.Builder(context, CHANNEL_ID)
                     .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -168,12 +168,12 @@ private fun createNotificationChannel(context: Context) {
 
 private fun getOfflineRandomQuote() =
     listOf(
-        Data(
-            quoteAuthor = "Emily Dickinson",
-            quoteText = "Old age comes on suddenly, and not gradually as is thought."
+        RandomQuotesListingResponseItem(
+            author = "Emily Dickinson",
+            quote = "Old age comes on suddenly, and not gradually as is thought."
         ),
-        Data(
-            quoteAuthor = "C. S. Lewis",
-            quoteText = "How incessant and great are the ills with which a prolonged old age is replete."
+        RandomQuotesListingResponseItem(
+            author = "C. S. Lewis",
+            quote ="How incessant and great are the ills with which a prolonged old age is replete."
         )
     ).random()

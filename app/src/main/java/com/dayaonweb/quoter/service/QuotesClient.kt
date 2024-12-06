@@ -6,11 +6,12 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
+import java.util.concurrent.TimeUnit
 
 class QuotesClient {
 
     private val retrofit = Retrofit.Builder()
-        .baseUrl("https://quote-garden.onrender.com/api/v3/")
+        .baseUrl("https://quoteslate.vercel.app/api/")
         .client(getClient())
         .addConverterFactory(MoshiConverterFactory.create())
         .build()
@@ -31,6 +32,7 @@ class QuotesClient {
             if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.HEADERS else HttpLoggingInterceptor.Level.NONE
         return OkHttpClient.Builder()
             .addInterceptor(loggingInterceptor)
+            .callTimeout(7,TimeUnit.SECONDS)
             .build()
     }
 }
