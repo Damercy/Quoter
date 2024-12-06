@@ -21,7 +21,7 @@ class Splash : AppCompatActivity() {
         setContentView(R.layout.activity_splash)
         supportActionBar?.hide()
         val view = findViewById<LottieAnimationView>(R.id.lottie_view)
-        view.animate().alpha(1.0f).setDuration(1000L).setListener(object : Animator.AnimatorListener{
+        view.animate().alpha(1.0f).setDuration(400L).setListener(object : Animator.AnimatorListener{
             override fun onAnimationStart(animation: Animator) {
             }
 

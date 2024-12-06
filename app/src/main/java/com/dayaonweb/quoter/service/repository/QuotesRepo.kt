@@ -13,7 +13,6 @@ object QuotesRepo {
     }
 
     suspend fun getQuotesByTags(tags: List<String>, pageNo: Int) = withContext(Dispatchers.IO){
-        println("xxx ${tags.joinToString()}")
         api.getQuotes(page = pageNo, tags = tags.joinToString())
     }
 

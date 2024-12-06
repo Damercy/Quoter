@@ -1,6 +1,7 @@
 package com.dayaonweb.quoter.service.repository
 
-import com.dayaonweb.quoter.service.model.RandomQuotesListingResponse
+
+import com.dayaonweb.quoter.service.model.RandomQuotesListingResponseItem
 import com.dayaonweb.quoter.service.model.wikiAPI.WikiApiImageResponse
 import retrofit2.http.GET
 import retrofit2.http.Query
@@ -13,7 +14,7 @@ interface QuoteService {
         @Query("tags") tags: String? = null,
         @Query("page") page: Int = 1,
         @Query("count") limit: Int = 50,
-    ): RandomQuotesListingResponse
+    ): List<RandomQuotesListingResponseItem?>
 
 
     @GET("tags")
