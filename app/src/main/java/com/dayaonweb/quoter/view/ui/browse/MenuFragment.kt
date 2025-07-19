@@ -7,20 +7,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.dayaonweb.quoter.BuildConfig
 import com.dayaonweb.quoter.R
 import com.dayaonweb.quoter.analytics.Analytics
-import com.dayaonweb.quoter.constants.Constants
-import com.dayaonweb.quoter.data.local.DataStoreManager
 import com.dayaonweb.quoter.databinding.FragmentMenuBinding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import kotlinx.coroutines.launch
 
 class MenuFragment : Fragment() {
 
@@ -31,7 +25,7 @@ class MenuFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        bi = DataBindingUtil.inflate(inflater, R.layout.fragment_menu, container, false)
+        bi = FragmentMenuBinding.inflate(inflater,container,false)
         return bi?.root
     }
 
@@ -94,6 +88,7 @@ class MenuFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         updateSystemBars(resetColors = true)
+        bi = null
     }
 
     private fun rateApp() {
@@ -115,11 +110,6 @@ class MenuFragment : Fragment() {
                 )
             )
         }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        bi = null
     }
 
 }

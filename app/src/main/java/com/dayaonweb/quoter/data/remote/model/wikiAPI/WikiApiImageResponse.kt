@@ -1,4 +1,4 @@
-package com.dayaonweb.quoter.service.model.wikiAPI
+package com.dayaonweb.quoter.data.remote.model.wikiAPI
 
 
 import com.squareup.moshi.Json

@@ -3,9 +3,7 @@ package com.dayaonweb.quoter.view.ui.browsetag
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.util.Log
 import android.view.View
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -13,8 +11,9 @@ import androidx.lifecycle.viewModelScope
 import com.dayaonweb.quoter.constants.Constants
 import com.dayaonweb.quoter.data.local.DataStoreManager
 import com.dayaonweb.quoter.data.local.models.Preferences
-import com.dayaonweb.quoter.service.model.RandomQuotesListingResponseItem
-import com.dayaonweb.quoter.service.repository.QuotesRepo
+import com.dayaonweb.quoter.data.remote.model.Quote
+import com.dayaonweb.quoter.domain.repository.Repository
+import com.dayaonweb.quoter.domain.tts.Speaker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -23,12 +22,15 @@ import java.io.FileOutputStream
 import java.util.*
 
 
-class BrowseTagViewModel : ViewModel() {
+class BrowseTagViewModel(
+    private val speaker: Speaker,
+    private val repository: Repository
+) : ViewModel() {
 
     var isFetchingQuotes = false
 
-    private val _quotes = MutableLiveData<List<RandomQuotesListingResponseItem?>>()
-    val quotes: LiveData<List<RandomQuotesListingResponseItem?>> = _quotes
+    private val _quotes = MutableLiveData<List<Quote?>>()
+    val quotes: LiveData<List<Quote?>> = _quotes
 
     private val _ssFile = MutableLiveData<File>()
     val ssFile: LiveData<File> = _ssFile
@@ -36,16 +38,14 @@ class BrowseTagViewModel : ViewModel() {
     private val _preferences = MutableLiveData<Preferences>()
     val preferences: LiveData<Preferences> = _preferences
 
+    val isSpeaking = speaker.onSpeaking
+    val isSpeakError = speaker.onError
+
     fun fetchQuotesByTag(tag: String, pageNo: Int) {
         viewModelScope.launch {
             isFetchingQuotes = true
-            isFetchingQuotes = try {
-                val response = QuotesRepo.getQuotesByTags(listOf(tag), pageNo)
-                _quotes.postValue(response)
-                false
-            } catch (exception: Exception) {
-                false
-            }
+            _quotes.postValue(repository.fetchQuotesByTag(tag, pageNo))
+            isFetchingQuotes = false
         }
     }
 
@@ -60,7 +60,7 @@ class BrowseTagViewModel : ViewModel() {
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos)
                 _ssFile.postValue(file)
             } catch (exception: Exception) {
-                Log.e("SS error",exception.message?:"")
+               // Ignore
             } finally {
                 fos?.flush()
                 fos?.close()
@@ -69,40 +69,9 @@ class BrowseTagViewModel : ViewModel() {
 
     }
 
-    fun getAllPreferences(context: Context) {
+    fun getAllPreferences() {
         viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                val isImageStyled = DataStoreManager.getBooleanValue(
-                    context,
-                    Constants.IS_IMAGE_NOTIFICATION_STYLE,
-                    true
-                )
-                val isNotificationOn =
-                    DataStoreManager.getBooleanValue(context, Constants.IS_NOTIFICATION_ON, true)
-                val selectedTtsLanguage =
-                    DataStoreManager.getStringValue(context, Constants.TTS_LANGUAGE, "en_IN")
-                        .split("_")
-                val notifTime =
-                    DataStoreManager.getStringValue(context, Constants.NOTIFICATION_TIME, "9:00")
-                val speechRate =
-                    DataStoreManager.getFloatValue(context, Constants.TTS_SPEECH_RATE, 1.0f)
-                val isDarkMode =
-                    DataStoreManager.getBooleanValue(
-                        context,
-                        Constants.IS_DARK_MODE,
-                        AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES
-                    )
-                _preferences.postValue(
-                    Preferences(
-                        isNotificationOn = isNotificationOn,
-                        isImageStyleNotification = isImageStyled,
-                        notificationTime = notifTime,
-                        ttsLanguage = Locale(selectedTtsLanguage[0], selectedTtsLanguage[1]),
-                        speechRate = speechRate,
-                        isDarkMode = isDarkMode
-                    )
-                )
-            }
+            _preferences.postValue(repository.getUserPreferences())
         }
     }
 
@@ -116,6 +85,19 @@ class BrowseTagViewModel : ViewModel() {
                 )
             }
         }
+    }
+
+
+    fun setSpeakerLanguage(locale: Locale) {
+        speaker.updateLanguage(locale)
+    }
+
+    fun speak(quote: String) {
+        speaker.speak(quote)
+    }
+
+    fun stop() {
+        speaker.stop()
     }
 
 }

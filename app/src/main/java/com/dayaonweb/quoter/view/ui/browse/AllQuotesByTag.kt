@@ -4,30 +4,27 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isVisible
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.dayaonweb.quoter.R
 import com.dayaonweb.quoter.databinding.FragmentAllQuotesByTagBinding
 import com.dayaonweb.quoter.view.ui.browsetag.BrowseTagArgs
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class AllQuotesByTag : Fragment() {
 
     private var bi: FragmentAllQuotesByTagBinding? = null
     private var scrollPositionIndex = -1
-    private val viewModel: AllQuotesByTagViewModel by viewModels()
+    private val viewModel: AllQuotesByTagViewModel by viewModel()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        bi =
-            DataBindingUtil.inflate(inflater, R.layout.fragment_all_quotes_by_tag, container, false)
+        bi = FragmentAllQuotesByTagBinding.inflate(inflater, container, false)
         return bi?.root
     }
 
@@ -35,6 +32,7 @@ class AllQuotesByTag : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         attachListeners()
         attachObservers()
+        viewModel.getAllQuotes()
     }
 
     private fun attachObservers() {
@@ -87,9 +85,9 @@ class AllQuotesByTag : Fragment() {
 
     }
 
-    override fun onDestroy() {
+    override fun onDestroyView() {
+        super.onDestroyView()
         bi = null
-        super.onDestroy()
     }
 
 }

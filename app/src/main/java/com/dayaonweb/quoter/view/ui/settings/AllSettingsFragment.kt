@@ -2,63 +2,44 @@ package com.dayaonweb.quoter.view.ui.settings
 
 import android.app.AlarmManager
 import android.app.PendingIntent
-import android.app.UiModeManager
 import android.content.Context
 import android.content.Intent
-import android.content.res.Configuration
-import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.provider.Settings
-import android.speech.tts.TextToSpeech
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import com.dayaonweb.quoter.BuildConfig
 import com.dayaonweb.quoter.R
 import com.dayaonweb.quoter.constants.Constants.PENDING_INTENT_REQ_CODE
 import com.dayaonweb.quoter.databinding.FragmentAllSettingsBinding
 import com.dayaonweb.quoter.extensions.showSnack
-import com.dayaonweb.quoter.extensions.showSnackWithAction
-import com.dayaonweb.quoter.service.broadcast.QuoteBroadcast
-import com.dayaonweb.quoter.tts.Quoter
+import com.dayaonweb.quoter.domain.broadcast.QuoteBroadcast
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
-import java.text.Format
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.text.SimpleDateFormat
 import java.util.*
 
 class AllSettingsFragment : Fragment() {
 
     private var bi: FragmentAllSettingsBinding? = null
-    private val viewModel: AllSettingsViewModel by viewModels()
+    private val viewModel: AllSettingsViewModel by viewModel()
     private lateinit var calendar: Calendar
     private lateinit var alarmManager: AlarmManager
-    private lateinit var pendingIntent: PendingIntent
-
-    private val handler by lazy {
-        Handler(Looper.getMainLooper())
-    }
-    private var quoterSpeaker: Quoter? = null
+    private var pendingIntent: PendingIntent? = null
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        bi = DataBindingUtil.inflate(inflater, R.layout.fragment_all_settings, container, false)
+        bi = FragmentAllSettingsBinding.inflate(
+            inflater, container, false
+        )
+        alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
         return bi?.root
     }
 
@@ -66,15 +47,13 @@ class AllSettingsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         attachObservers()
         setupListeners()
-        viewModel.getAllPreferences(requireContext())
+        setupAvailableLanguages(bi?.languageChipGroup)
+        viewModel.getAllPreferences()
     }
 
     private fun attachObservers() {
         viewModel.preferences.observe(viewLifecycleOwner) {
-            Log.d("PREFS", "attachObservers: $it")
-            handler.postDelayed({
-                initializeQuoterTts(it.ttsLanguage)
-            }, 1000)
+            viewModel.updateLanguage(it.ttsLanguage)
             bi?.notifSwitch?.isChecked = it.isNotificationOn
             bi?.darkModeSwitch?.isChecked = it.isDarkMode
             bi?.speechRateSlider?.value = it.speechRate
@@ -93,60 +72,66 @@ class AllSettingsFragment : Fragment() {
             backImageView.setOnClickListener {
                 findNavController().popBackStack()
             }
-            languageChipGroup.setOnCheckedChangeListener { _, checkedId ->
-                val availableLanguages = quoterSpeaker?.getSupportedLanguages()
-                val selectedLanguage = availableLanguages?.first {
-                    it.hashCode() == checkedId
-                }
-                selectedLanguage?.let {
-                    quoterSpeaker?.setEngineLocale(it)
-                    viewModel.updateTtsLanguage(requireContext(), it)
-                    quoterSpeaker?.speakText("Hi. Your quotes voice is set to ${it.displayLanguage}", "")
+            languageChipGroup.setOnCheckedStateChangeListener { view, checkedId ->
+                if(view.isPressed){
+                    if (checkedId.isEmpty()) return@setOnCheckedStateChangeListener
+                    val availableLanguages = viewModel.getSpeakerSupportedLanguages()
+                    val selectedLanguage =
+                        availableLanguages.firstOrNull { checkedId.contains(it.hashCode()) }
+                    selectedLanguage?.let {
+                        viewModel.updateTtsLanguage(requireContext(), it)
+                        viewModel.updateLanguage(it)
+                        viewModel.speak("Hi. Your quotes voice is set to ${it.displayLanguage}")
+                    }
                 }
             }
-            speechRateSlider.addOnChangeListener { _, value, _ ->
-                viewModel.updateTtsSpeechRate(requireContext(), value)
-                quoterSpeaker?.setSpeechRateSpeed(value)
-                quoterSpeaker?.speakText("This is the current speech rate", "")
+            speechRateSlider.addOnChangeListener { view, value, _ ->
+                if(view.isPressed){
+                    viewModel.updateTtsSpeechRate(requireContext(), value)
+                    viewModel.updateSpeechRate(value)
+                    viewModel.speak("This is the current speech rate")
+                }
             }
             notifTimeBtn.setOnClickListener {
-                val timePicker = MaterialTimePicker.Builder()
-                    .setTimeFormat(TimeFormat.CLOCK_12H)
-                    .setTitleText("Receive notifications at")
-                    .build()
+                val timePicker = MaterialTimePicker.Builder().setTimeFormat(TimeFormat.CLOCK_12H)
+                    .setTitleText("Receive notifications at").build()
 
                 timePicker.addOnPositiveButtonClickListener {
                     // Make cal instance & put in sharedpref
                     viewModel.updateNotifTime(
-                        requireContext(),
-                        "${timePicker.hour}:${timePicker.minute}"
+                        requireContext(), "${timePicker.hour}:${timePicker.minute}"
                     )
                     setAlarm(timePicker.hour, timePicker.minute)
                 }
                 timePicker.show(requireActivity().supportFragmentManager, null)
             }
-            notifStyleButtonToggleGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->
-                val isImageStyled = checkedId == R.id.image_style_btn && isChecked
-                viewModel.toggleNotificationStyle(requireContext(), isImageStyled)
-                showSnack("You'll receive ${if (isImageStyled) "image" else "text"} styled notification quote")
-            }
-            notifSwitch.setOnCheckedChangeListener { _, isChecked ->
-                notifOption2TextView.isVisible = isChecked
-                notifOption3TextView.isVisible = isChecked
-                notifTimeBtn.isVisible = isChecked
-                notifStyleButtonToggleGroup.isVisible = isChecked
-                viewModel.toggleNotification(requireContext(), isChecked)
-                if (!isChecked)
-                    cancelAlarm()
-                else {
-                    val timePrefs = viewModel.preferences.value ?: return@setOnCheckedChangeListener
-                    val time = timePrefs.notificationTime.split(":")
-                    setAlarm(time[0].toInt(), time[1].toInt())
+            notifStyleButtonToggleGroup.addOnButtonCheckedListener { view, checkedId, isChecked ->
+                if(view.isPressed){
+                    val isImageStyled = checkedId == R.id.image_style_btn && isChecked
+                    viewModel.toggleNotificationStyle(requireContext(), isImageStyled)
+                    showSnack("You'll receive ${if (isImageStyled) "image" else "text"} styled notification quote")
                 }
             }
-            darkModeSwitch.setOnCheckedChangeListener { _, isChecked ->
-                viewModel.toggleDarkMode(requireContext(), isChecked)
-                AppCompatDelegate.setDefaultNightMode(if (isChecked) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO)
+            notifSwitch.setOnCheckedChangeListener { view, isChecked ->
+               if(view.isPressed){
+                   notifOption2TextView.isVisible = isChecked
+                   notifOption3TextView.isVisible = isChecked
+                   notifTimeBtn.isVisible = isChecked
+                   notifStyleButtonToggleGroup.isVisible = isChecked
+                   viewModel.toggleNotification(requireContext(), isChecked)
+                   if (!isChecked) cancelAlarm()
+                   else {
+                       val timePrefs = viewModel.preferences.value ?: return@setOnCheckedChangeListener
+                       val time = timePrefs.notificationTime.split(":")
+                       setAlarm(time[0].toInt(), time[1].toInt())
+                   }
+               }
+            }
+            darkModeSwitch.setOnCheckedChangeListener { view, isChecked ->
+                if(view.isPressed) {
+                    viewModel.toggleDarkMode(requireContext(), isChecked)
+                    AppCompatDelegate.setDefaultNightMode(if (isChecked) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO)
+                }
             }
         }
     }
@@ -159,71 +144,52 @@ class AllSettingsFragment : Fragment() {
             set(Calendar.SECOND, 0)
             set(Calendar.MILLISECOND, 0)
         }
-        alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val broadcastIntent = Intent(requireContext(), QuoteBroadcast::class.java)
-        pendingIntent = PendingIntent.getBroadcast(
-            requireContext(),
-            PENDING_INTENT_REQ_CODE,
-            broadcastIntent,
-            PendingIntent.FLAG_MUTABLE
-        )
-        if (calendar.before(Calendar.getInstance()))
-            calendar.add(Calendar.DATE, 1)
+        if (calendar.before(Calendar.getInstance())) calendar.add(Calendar.DATE, 1)
         setAlarmManager(hour = hour, minute = minute)
+    }
+
+    private fun getOrCreatePendingIntent(): PendingIntent {
+        if (pendingIntent == null) {
+            val broadcastIntent = Intent(requireContext(), QuoteBroadcast::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            }
+            pendingIntent = PendingIntent.getBroadcast(
+                requireContext(),
+                PENDING_INTENT_REQ_CODE,
+                broadcastIntent,
+                PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+            )
+        }
+        return pendingIntent!!
     }
 
 
     private fun setAlarmManager(hour: Int, minute: Int) {
-        alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP,calendar.timeInMillis,pendingIntent)
+        alarmManager.setAndAllowWhileIdle(
+            AlarmManager.RTC_WAKEUP, calendar.timeInMillis, getOrCreatePendingIntent()
+        )
         val scheduledTime = getTime(hour, minute)
         bi?.notifTimeBtn?.text = scheduledTime
         showSnack("Next quote scheduled at $scheduledTime")
     }
 
     private fun cancelAlarm() {
-        val broadcastIntent = Intent(requireContext(), QuoteBroadcast::class.java)
-        pendingIntent = PendingIntent.getBroadcast(
-            requireContext(),
-            PENDING_INTENT_REQ_CODE,
-            broadcastIntent,
-            PendingIntent.FLAG_MUTABLE
-        )
-        alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        alarmManager.cancel(pendingIntent)
+        alarmManager.cancel(getOrCreatePendingIntent())
     }
 
     private fun getTime(hr: Int, min: Int): String? {
         val cal: Calendar = Calendar.getInstance()
         cal.set(Calendar.HOUR_OF_DAY, hr)
         cal.set(Calendar.MINUTE, min)
-        val formatter: Format
-        formatter = SimpleDateFormat("h:mm a", Locale.getDefault())
+        val formatter = SimpleDateFormat("h:mm a", Locale.getDefault())
         return formatter.format(cal.time)
     }
 
-    private fun initializeQuoterTts(ttsLanguage: Locale) {
-        quoterSpeaker = Quoter(context = requireContext()) { initStatus ->
-            if (initStatus == TextToSpeech.SUCCESS)
-                quoterSpeaker?.init()
-            quoterSpeaker?.setEngineLocale(ttsLanguage)
-            quoterSpeaker?.setSpeechRateSpeed(viewModel.preferences.value?.speechRate ?: 1.0f)
-            val engineLocale = quoterSpeaker?.getCurrentVoice()?.locale ?: ttsLanguage
-            viewModel.updateTtsLanguage(requireContext(), engineLocale)
-            setupSettingValues()
-        }
-    }
 
-    private fun setupSettingValues() {
-        bi?.run {
-            setupAvailableLanguages(languageChipGroup)
-        }
-    }
-
-
-    private fun setupAvailableLanguages(rootChipGroup: ChipGroup) {
-        val supportedLanguages = quoterSpeaker?.getSupportedLanguages()
-        val currentSelectedLanguage = quoterSpeaker?.getCurrentVoice()?.locale
-        supportedLanguages?.forEach {
+    private fun setupAvailableLanguages(rootChipGroup: ChipGroup?) {
+        if (rootChipGroup == null) return
+        val supportedLanguages = viewModel.getSpeakerSupportedLanguages()
+        supportedLanguages.forEach {
             // setup basic chip style
             val chip = layoutInflater.inflate(R.layout.language_chip, rootChipGroup, false) as Chip
             with(chip) {
@@ -235,22 +201,13 @@ class AllSettingsFragment : Fragment() {
                 rootChipGroup.addView(this)
             }
         }
-        currentSelectedLanguage?.hashCode()?.let {
-            rootChipGroup.check(it)
-        }
         bi?.loader?.isVisible = false
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        handler.removeCallbacksAndMessages(null)
-        quoterSpeaker?.deInit()
-    }
-
-
-    override fun onDestroy() {
-        super.onDestroy()
         bi = null
+        pendingIntent = null
     }
 
 
