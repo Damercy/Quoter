@@ -64,19 +64,16 @@ class Quoter(context: Context, onInit: (status: Int) -> Unit) {
     fun getCurrentVoice() = tts?.voice
 
 
-    private fun isLanguageAvailable(languageLocale: Locale): Boolean {
-        return when (tts?.isLanguageAvailable(languageLocale)) {
-            TextToSpeech.LANG_AVAILABLE -> true
-            TextToSpeech.LANG_COUNTRY_AVAILABLE -> true
-            TextToSpeech.LANG_COUNTRY_VAR_AVAILABLE -> true
-            TextToSpeech.LANG_MISSING_DATA -> false
-            TextToSpeech.LANG_NOT_SUPPORTED -> false
-            else -> false
-        }
-    }
+    private fun isLanguageAvailable(languageLocale: Locale): Boolean =
+        TTS_IS_LANG_AVAILABLE.contains(tts?.isLanguageAvailable(languageLocale))
 
     companion object {
         private const val DEFAULT_ENGINE = "com.google.android.tts"
+        private val TTS_IS_LANG_AVAILABLE= listOf(
+            TextToSpeech.LANG_AVAILABLE,
+            TextToSpeech.LANG_COUNTRY_AVAILABLE,
+            TextToSpeech.LANG_COUNTRY_VAR_AVAILABLE
+        )
     }
 
 }

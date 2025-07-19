@@ -39,13 +39,6 @@ class BrowseTagViewModel : ViewModel() {
     fun fetchQuotesByTag(tag: String, pageNo: Int) {
         viewModelScope.launch {
             isFetchingQuotes = true
-            isFetchingQuotes = try {
-                val response = QuotesRepo.getQuotesByTags(listOf(tag), pageNo)
-                _quotes.postValue(response)
-                false
-            } catch (exception: Exception) {
-                false
-            }
         }
     }
 

@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isVisible
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -26,8 +25,7 @@ class AllQuotesByTag : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        bi =
-            DataBindingUtil.inflate(inflater, R.layout.fragment_all_quotes_by_tag, container, false)
+        bi = FragmentAllQuotesByTagBinding.inflate(inflater,container,false)
         return bi?.root
     }
 

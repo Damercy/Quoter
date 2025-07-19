@@ -2,19 +2,20 @@ plugins {
     id 'com.android.application'
     id 'kotlin-android'
     id 'kotlin-kapt'
+    id 'com.google.devtools.ksp' version '2.2.0-2.0.2'
     id 'androidx.navigation.safeargs.kotlin'
     id 'com.google.gms.google-services'
 }
 
 android {
-    compileSdk 35
+    compileSdk 36
 
     defaultConfig {
         applicationId "com.dayaonweb.quoter"
         minSdkVersion 24
-        targetSdk 35
-        versionCode 13100
-        versionName "1.31.00"
+        targetSdk 36
+        versionCode 20000
+        versionName "2.00.00"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -24,21 +25,25 @@ android {
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
-        debug{
-            minifyEnabled true
-            shrinkResources true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        debug {
+            minifyEnabled false
+            shrinkResources false
+            debuggable true
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '17'
     }
-    buildFeatures{
-        dataBinding = true
+    buildFeatures {
+        viewBinding true
+        buildConfig true
+    }
+    packagingOptions {
+        resources.excludes += "DebugProbesKt.bin"
     }
     namespace 'com.dayaonweb.quoter'
 }
@@ -46,16 +51,9 @@ android {
 dependencies {
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation "androidx.core:core-ktx:1.15.0"
-    implementation "androidx.appcompat:appcompat:1.7.0"
-    implementation "com.google.android.material:material:1.12.0"
-    implementation "androidx.constraintlayout:constraintlayout:2.1.4"
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-
-    // Testing
-    testImplementation "junit:junit:4.13.2"
-    androidTestImplementation "androidx.test.ext:junit:1.2.1"
-    androidTestImplementation "androidx.test.espresso:espresso-core:3.6.1"
+    implementation "androidx.core:core-ktx:$core_ktx_version"
+    implementation "androidx.appcompat:appcompat:$app_compact_version"
+    implementation "com.google.android.material:material:$material_version"
 
     // Livedata & ViewModel
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
@@ -72,22 +70,30 @@ dependencies {
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
     implementation "com.squareup.retrofit2:converter-moshi:$retrofit_version"
     implementation "com.squareup.moshi:moshi:$moshi_version"
-    kapt "com.squareup.moshi:moshi-kotlin-codegen:$moshi_version"
+    ksp "com.squareup.moshi:moshi-kotlin-codegen:$moshi_version"
 
     // OkHttp Logger
     implementation "com.squareup.okhttp3:logging-interceptor:$okhttp_version"
 
     // Glide
     implementation "com.github.bumptech.glide:glide:$glide_version"
-    kapt "com.github.bumptech.glide:compiler:$glide_version"
+    ksp "com.github.bumptech.glide:compiler:$glide_version"
 
     // Firebase (base)
-    implementation platform("com.google.firebase:firebase-bom:33.5.1")
+    implementation platform("com.google.firebase:firebase-bom:$firebase_version")
     implementation "com.google.firebase:firebase-analytics-ktx"
+
+    // Coroutines
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
 
     // Lottie
     implementation "com.airbnb.android:lottie:$lottie_version"
 
     // Number picker
-    implementation "io.github.ShawnLin013:number-picker:2.4.13"
+    implementation "io.github.ShawnLin013:number-picker:$number_picker_version"
+
+    // DI
+    implementation platform("io.insert-koin:koin-bom:$koin_version")
+    implementation("io.insert-koin:koin-android")
+    implementation("io.insert-koin:koin-core-coroutines")
 }

@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit
 class QuotesClient {
 
     private val retrofit = Retrofit.Builder()
-        .baseUrl("https://quoteslate.vercel.app/api/")
+        .baseUrl("https://api.quotable.io")
         .client(getClient())
         .addConverterFactory(MoshiConverterFactory.create())
         .build()

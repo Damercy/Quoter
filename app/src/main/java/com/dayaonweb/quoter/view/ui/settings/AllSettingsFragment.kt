@@ -20,7 +20,6 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -57,8 +56,11 @@ class AllSettingsFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        bi = DataBindingUtil.inflate(inflater, R.layout.fragment_all_settings, container, false)
+        bi = FragmentAllSettingsBinding.inflate(
+            inflater,
+            container,
+            false
+        )
         return bi?.root
     }
 
@@ -101,7 +103,10 @@ class AllSettingsFragment : Fragment() {
                 selectedLanguage?.let {
                     quoterSpeaker?.setEngineLocale(it)
                     viewModel.updateTtsLanguage(requireContext(), it)
-                    quoterSpeaker?.speakText("Hi. Your quotes voice is set to ${it.displayLanguage}", "")
+                    quoterSpeaker?.speakText(
+                        "Hi. Your quotes voice is set to ${it.displayLanguage}",
+                        ""
+                    )
                 }
             }
             speechRateSlider.addOnChangeListener { _, value, _ ->
@@ -174,7 +179,11 @@ class AllSettingsFragment : Fragment() {
 
 
     private fun setAlarmManager(hour: Int, minute: Int) {
-        alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP,calendar.timeInMillis,pendingIntent)
+        alarmManager.setAndAllowWhileIdle(
+            AlarmManager.RTC_WAKEUP,
+            calendar.timeInMillis,
+            pendingIntent
+        )
         val scheduledTime = getTime(hour, minute)
         bi?.notifTimeBtn?.text = scheduledTime
         showSnack("Next quote scheduled at $scheduledTime")

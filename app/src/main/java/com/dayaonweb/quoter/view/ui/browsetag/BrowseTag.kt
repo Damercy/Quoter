@@ -14,7 +14,6 @@ import android.widget.PopupMenu
 import androidx.core.content.FileProvider
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isVisible
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
@@ -49,7 +48,7 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        bi = DataBindingUtil.inflate(inflater, R.layout.fragment_browse_tag, container, false)
+        bi = FragmentBrowseTagBinding.inflate(inflater,container,false)
         return bi?.root
     }
 
