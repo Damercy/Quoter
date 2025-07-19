@@ -1,5 +1,6 @@
 package com.dayaonweb.quoter.di
 
+import android.content.Context
 import android.speech.tts.TextToSpeech
 import com.dayaonweb.quoter.BuildConfig
 import com.dayaonweb.quoter.constants.Constants
@@ -12,6 +13,7 @@ import com.dayaonweb.quoter.domain.tts.Speaker
 import com.dayaonweb.quoter.view.ui.browse.AllQuotesByTagViewModel
 import com.dayaonweb.quoter.view.ui.browsetag.BrowseTagViewModel
 import com.dayaonweb.quoter.view.ui.settings.AllSettingsViewModel
+import okhttp3.Cache
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.core.module.dsl.viewModelOf
@@ -56,6 +58,7 @@ val appModule = module {
             if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY else HttpLoggingInterceptor.Level.NONE
         OkHttpClient.Builder()
             .addInterceptor(loggingInterceptor)
+            .cache(Cache(get<Context>().cacheDir, 10 * 1024 * 1024))
             .callTimeout(10, TimeUnit.SECONDS)
             .readTimeout(10, TimeUnit.SECONDS)
             .writeTimeout(10, TimeUnit.SECONDS)

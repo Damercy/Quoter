@@ -1,7 +1,6 @@
 package com.dayaonweb.quoter.view.ui.settings
 
 import android.content.Context
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -24,7 +23,7 @@ class AllSettingsViewModel(
     private val _preferences = MutableLiveData<Preferences>()
     val preferences: LiveData<Preferences> = _preferences
 
-    fun getAllPreferences(context: Context) {
+    fun getAllPreferences() {
         viewModelScope.launch {
             _preferences.postValue(repository.getUserPreferences())
         }

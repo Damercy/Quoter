@@ -53,7 +53,7 @@ class QuoteBroadcast : BroadcastReceiver(), KoinComponent {
             try {
                 isImageTypeNotification =
                     DataStoreManager.getBooleanValue(context, IS_IMAGE_NOTIFICATION_STYLE, true)
-                randomQuote = quotesService.getQuotes(limit = 2)?.quotes?.random()
+                randomQuote = quotesService.getQuotes(limit = 10)?.quotes?.random()
                 if (isImageTypeNotification) {
                     val authorImageResponse =
                         wikiService.getAuthorImage(
@@ -135,12 +135,14 @@ private fun setAlarm(context: Context, hour: Int, minute: Int) {
         set(Calendar.MILLISECOND, 0)
     }
     val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-    val broadcastIntent = Intent(context, QuoteBroadcast::class.java)
+    val broadcastIntent = Intent(context, QuoteBroadcast::class.java).apply {
+        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+    }
     val pendingIntent = PendingIntent.getBroadcast(
         context,
         Constants.PENDING_INTENT_REQ_CODE,
         broadcastIntent,
-        PendingIntent.FLAG_MUTABLE
+        PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
     )
     if (calendar.before(Calendar.getInstance()))
         calendar.add(Calendar.DATE, 1)

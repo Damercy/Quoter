@@ -239,9 +239,14 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
 
     }
 
-    override fun onDestroy() {
+    override fun onDestroyView() {
+        super.onDestroyView()
         bi = null
-        super.onDestroy()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        viewModel.stop()
     }
 
     override fun onMenuItemClick(item: MenuItem?): Boolean {

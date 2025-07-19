@@ -20,13 +20,11 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
-import com.dayaonweb.quoter.analytics.Analytics
 import com.dayaonweb.quoter.constants.Constants
 import com.dayaonweb.quoter.data.local.DataStoreManager
 import com.dayaonweb.quoter.databinding.ActivityMainBinding
 import com.dayaonweb.quoter.domain.broadcast.QuoteBroadcast
 import com.dayaonweb.quoter.domain.tts.Speaker
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -57,21 +55,24 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         splashScreen.setOnExitAnimationListener { splashScreenView ->
-            val iconView = splashScreenView.iconView
-            val slideUp = ObjectAnimator.ofFloat(
-                iconView,
-                View.TRANSLATION_Y,
-                0f,
-                -iconView.height.toFloat()
-            )
-            slideUp.apply {
-                interpolator = AnticipateInterpolator()
-                duration = 200L
+            try {
+                val iconView = splashScreenView.iconView
+                val slideUp = ObjectAnimator.ofFloat(
+                    iconView,
+                    View.TRANSLATION_Y,
+                    0f,
+                    -iconView.height.toFloat()
+                )
+                slideUp.apply {
+                    interpolator = AnticipateInterpolator()
+                    duration = 200L
+                }
+                slideUp.doOnEnd { splashScreenView.remove() }
+                slideUp.start()
+            }catch (e: Exception){
+                // Do nothing
             }
-            slideUp.doOnEnd { splashScreenView.remove() }
-            slideUp.start()
         }
-        Analytics.init(this)
         initNotifications()
         initAppTheme()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -143,12 +144,14 @@ class MainActivity : AppCompatActivity() {
             set(Calendar.MILLISECOND, 0)
         }
         val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val broadcastIntent = Intent(this, QuoteBroadcast::class.java)
+        val broadcastIntent = Intent(this, QuoteBroadcast::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        }
         val pendingIntent = PendingIntent.getBroadcast(
             this,
             Constants.PENDING_INTENT_REQ_CODE,
             broadcastIntent,
-            PendingIntent.FLAG_MUTABLE
+            PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
         if (calendar.before(Calendar.getInstance()))
             calendar.add(Calendar.DATE, 1)

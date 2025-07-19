@@ -3,9 +3,7 @@ package com.dayaonweb.quoter.view.ui.browsetag
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.util.Log
 import android.view.View
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -62,7 +60,7 @@ class BrowseTagViewModel(
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos)
                 _ssFile.postValue(file)
             } catch (exception: Exception) {
-                Log.e("SS error", exception.message ?: "")
+               // Ignore
             } finally {
                 fos?.flush()
                 fos?.close()

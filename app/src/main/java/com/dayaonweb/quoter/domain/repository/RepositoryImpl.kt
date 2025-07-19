@@ -12,6 +12,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import java.util.Collections.emptyList
 import java.util.Locale
+import kotlin.time.Duration.Companion.hours
 
 class RepositoryImpl(
     private val context: Context,
@@ -51,27 +52,50 @@ class RepositoryImpl(
 
     override suspend fun fetchQuotesTag(): List<String> = withContext(Dispatchers.IO) {
         try {
-            val genres = quotesService
-                .getAllGenres()
-                .mapNotNull {
-                    it?.name
-                }
-            if (genres.isNotEmpty()) {
-                cacheTags(genres)
-                genres
-            } else
+            // Check local cache first, then remote.
+            val lastFetchTimeInMs = DataStoreManager.getFloatValue(
+                context,
+                Constants.LOCAL_TAGS_LAST_FETCH_TIME_MS,
+                0.0f
+            )
+            if (isTagsCacheExpired(lastFetchTimeInMs, true)) {
+                val genres = quotesService
+                    .getAllGenres()
+                    .mapNotNull {
+                        it?.name
+                    }
+                if (genres.isNotEmpty()) {
+                    cacheTags(genres)
+                    genres
+                } else
+                    fetchTagsFromLocal()
+            } else {
                 fetchTagsFromLocal()
+            }
         } catch (e: Exception) {
             fetchTagsFromLocal()
         }
     }
 
+    private suspend fun isTagsCacheExpired(lastFetchTimeInMs: Float, isTags: Boolean): Boolean =
+        withContext(Dispatchers.IO) {
+            if (lastFetchTimeInMs == 0.0f)
+                return@withContext true
+            val localTags = if (isTags) fetchTagsFromLocal() else fetchQuotesFromLocal("", 0)
+            if (localTags.isEmpty())
+                return@withContext true
+            val lastFetchAt = lastFetchTimeInMs.toLong()
+            val now = System.currentTimeMillis()
+            val timeDiff = now - lastFetchAt
+            return@withContext timeDiff > 8.hours.inWholeMilliseconds
+        }
+
     override suspend fun fetchQuotesByTag(
         tag: String,
         pageNo: Int
     ): List<Quote> = withContext(Dispatchers.IO) {
-        val remoteQuotesOrEmpty = fetchQuotesFromRemote(tag, pageNo)
-        remoteQuotesOrEmpty.ifEmpty { fetchQuotesFromLocal(tag, pageNo) }
+        val quotesOrEmpty = fetchQuotesFromRemote(tag, pageNo)
+        quotesOrEmpty.ifEmpty { fetchQuotesFromLocal(tag, pageNo) }
     }
 
     private suspend fun fetchQuotesFromRemote(
@@ -118,6 +142,11 @@ class RepositoryImpl(
             Constants.LOCAL_QUOTES,
             Json.encodeToString(quotes)
         )
+        DataStoreManager.saveValue(
+            context,
+            Constants.LOCAL_QUOTES_LAST_FETCH_TIME_MS,
+            System.currentTimeMillis().toFloat()
+        )
     }
 
     private suspend fun cacheTags(tags: List<String>) = withContext(Dispatchers.IO) {
@@ -125,6 +154,11 @@ class RepositoryImpl(
             context,
             Constants.LOCAL_TAGS,
             tags.joinToString()
+        )
+        DataStoreManager.saveValue(
+            context,
+            Constants.LOCAL_TAGS_LAST_FETCH_TIME_MS,
+            System.currentTimeMillis().toFloat()
         )
     }
 }

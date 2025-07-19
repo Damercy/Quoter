@@ -87,7 +87,7 @@ dependencies {
 
     // Firebase (base)
     implementation platform("com.google.firebase:firebase-bom:$firebase_version")
-    implementation "com.google.firebase:firebase-analytics-ktx"
+    implementation "com.google.firebase:firebase-analytics"
 
     // Coroutines
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"

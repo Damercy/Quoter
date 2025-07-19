@@ -16,7 +16,7 @@
             android:id="@+id/back_image_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="16dp"
+            android:padding="16dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@null"
             app:layout_constraintEnd_toEndOf="parent"
