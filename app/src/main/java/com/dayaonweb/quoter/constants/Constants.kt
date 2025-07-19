@@ -11,6 +11,12 @@ object Constants {
     const val TTS_LANGUAGE="TTS_LANGUAGE"
     const val NOTIFICATION_TIME="NOTIFICATION_TIME"
     const val TTS_SPEECH_RATE="TTS_SPEECH_RATE"
+
+    const val DEFAULT_ENGINE = "com.google.android.tts"
+
+    const val LOCAL_QUOTES="LOCAL_QUOTES"
+
+    const val LOCAL_TAGS="LOCAL_TAGS"
     const val PENDING_INTENT_REQ_CODE=6969
 
 }

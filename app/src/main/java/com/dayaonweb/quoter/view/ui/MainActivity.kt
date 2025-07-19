@@ -15,21 +15,24 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
-import com.dayaonweb.quoter.R
 import com.dayaonweb.quoter.analytics.Analytics
 import com.dayaonweb.quoter.constants.Constants
 import com.dayaonweb.quoter.data.local.DataStoreManager
 import com.dayaonweb.quoter.databinding.ActivityMainBinding
-import com.dayaonweb.quoter.service.broadcast.QuoteBroadcast
+import com.dayaonweb.quoter.domain.broadcast.QuoteBroadcast
+import com.dayaonweb.quoter.domain.tts.Speaker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.koin.android.ext.android.get
 import java.util.*
 
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+
+    private val speaker: Speaker = get()
 
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->

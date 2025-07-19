@@ -1,4 +1,4 @@
-package com.dayaonweb.quoter.service.broadcast
+package com.dayaonweb.quoter.domain.broadcast
 
 import android.Manifest
 import android.app.AlarmManager
@@ -16,7 +16,6 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.TaskStackBuilder
-import androidx.core.content.ContentProviderCompat.requireContext
 import com.bumptech.glide.Glide
 import com.dayaonweb.quoter.R
 import com.dayaonweb.quoter.constants.Constants
@@ -25,30 +24,37 @@ import com.dayaonweb.quoter.constants.Constants.CHANNEL_NAME
 import com.dayaonweb.quoter.constants.Constants.IS_IMAGE_NOTIFICATION_STYLE
 import com.dayaonweb.quoter.constants.Constants.NOTIFICATION_ID
 import com.dayaonweb.quoter.data.local.DataStoreManager
-import com.dayaonweb.quoter.extensions.showSnack
-import com.dayaonweb.quoter.service.QuotesClient
-import com.dayaonweb.quoter.service.model.RandomQuotesListingResponseItem
+import com.dayaonweb.quoter.data.remote.QuoteService
+import com.dayaonweb.quoter.data.remote.WikiService
+import com.dayaonweb.quoter.data.remote.model.RandomQuotesListingResponseItem
 import com.dayaonweb.quoter.view.ui.MainActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import org.koin.java.KoinJavaComponent.inject
 import java.util.Calendar
 
-class QuoteBroadcast : BroadcastReceiver() {
+class QuoteBroadcast : BroadcastReceiver(), KoinComponent {
 
     private lateinit var authorImageBitmap: Bitmap
     private var randomQuote: RandomQuotesListingResponseItem? = null
     private var isImageTypeNotification = true
+
+    private val wikiService: WikiService by inject()
+
+    private val quotesService: QuoteService by inject()
 
     override fun onReceive(context: Context, intent: Intent) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 isImageTypeNotification =
                     DataStoreManager.getBooleanValue(context, IS_IMAGE_NOTIFICATION_STYLE, true)
-                randomQuote = QuotesClient().api.getQuotes(limit = 2).random()
+                randomQuote = quotesService.getQuotes(limit = 2).random()
                 if (isImageTypeNotification) {
                     val authorImageResponse =
-                        QuotesClient().wikiApi.getAuthorImage(
+                        wikiService.getAuthorImage(
                             authorName = randomQuote?.author ?: "",
                             thumbnailSize = 500
                         ).query
@@ -174,6 +180,6 @@ private fun getOfflineRandomQuote() =
         ),
         RandomQuotesListingResponseItem(
             author = "C. S. Lewis",
-            quote ="How incessant and great are the ills with which a prolonged old age is replete."
+            quote = "How incessant and great are the ills with which a prolonged old age is replete."
         )
     ).random()

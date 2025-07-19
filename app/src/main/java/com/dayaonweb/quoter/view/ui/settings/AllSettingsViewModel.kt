@@ -9,50 +9,24 @@ import androidx.lifecycle.viewModelScope
 import com.dayaonweb.quoter.constants.Constants
 import com.dayaonweb.quoter.data.local.DataStoreManager
 import com.dayaonweb.quoter.data.local.models.Preferences
+import com.dayaonweb.quoter.domain.repository.Repository
+import com.dayaonweb.quoter.domain.tts.Speaker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.*
 
-class AllSettingsViewModel : ViewModel() {
+class AllSettingsViewModel(
+    private val speaker: Speaker,
+    private val repository: Repository
+) : ViewModel() {
 
     private val _preferences = MutableLiveData<Preferences>()
     val preferences: LiveData<Preferences> = _preferences
 
     fun getAllPreferences(context: Context) {
         viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                val isImageStyled = DataStoreManager.getBooleanValue(
-                    context,
-                    Constants.IS_IMAGE_NOTIFICATION_STYLE,
-                    true
-                )
-                val isNotificationOn =
-                    DataStoreManager.getBooleanValue(context, Constants.IS_NOTIFICATION_ON, true)
-                val selectedTtsLanguage =
-                    DataStoreManager.getStringValue(context, Constants.TTS_LANGUAGE, "en_IN")
-                        .split("_")
-                val notifTime =
-                    DataStoreManager.getStringValue(context, Constants.NOTIFICATION_TIME, "9:00")
-                val speechRate =
-                    DataStoreManager.getFloatValue(context, Constants.TTS_SPEECH_RATE, 1.0f)
-                val isDarkMode =
-                    DataStoreManager.getBooleanValue(
-                        context,
-                        Constants.IS_DARK_MODE,
-                        AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES
-                    )
-                _preferences.postValue(
-                    Preferences(
-                        isNotificationOn = isNotificationOn,
-                        isImageStyleNotification = isImageStyled,
-                        notificationTime = notifTime,
-                        ttsLanguage = Locale(selectedTtsLanguage[0], selectedTtsLanguage[1]),
-                        speechRate = speechRate,
-                        isDarkMode = isDarkMode
-                    )
-                )
-            }
+            _preferences.postValue(repository.getUserPreferences())
         }
     }
 
@@ -64,7 +38,7 @@ class AllSettingsViewModel : ViewModel() {
         }
     }
 
-    fun toggleDarkMode(context: Context, wantDarkMode: Boolean){
+    fun toggleDarkMode(context: Context, wantDarkMode: Boolean) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 DataStoreManager.saveValue(context, Constants.IS_DARK_MODE, wantDarkMode)
@@ -105,4 +79,12 @@ class AllSettingsViewModel : ViewModel() {
             }
         }
     }
+
+    fun getSpeakerSupportedLanguages() = speaker.getSupportedLanguages()
+
+    fun speak(text: String) = speaker.speak(text)
+
+    fun updateLanguage(locale: Locale) = speaker.updateLanguage(locale)
+
+    fun updateSpeechRate(rate: Float) = speaker.updateSpeechRate(rate)
 }

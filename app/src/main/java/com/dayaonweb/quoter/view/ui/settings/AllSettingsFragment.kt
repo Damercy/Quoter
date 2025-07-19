@@ -2,39 +2,32 @@ package com.dayaonweb.quoter.view.ui.settings
 
 import android.app.AlarmManager
 import android.app.PendingIntent
-import android.app.UiModeManager
 import android.content.Context
 import android.content.Intent
-import android.content.res.Configuration
-import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.provider.Settings
 import android.speech.tts.TextToSpeech
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import com.dayaonweb.quoter.BuildConfig
 import com.dayaonweb.quoter.R
 import com.dayaonweb.quoter.constants.Constants.PENDING_INTENT_REQ_CODE
 import com.dayaonweb.quoter.databinding.FragmentAllSettingsBinding
 import com.dayaonweb.quoter.extensions.showSnack
-import com.dayaonweb.quoter.extensions.showSnackWithAction
-import com.dayaonweb.quoter.service.broadcast.QuoteBroadcast
-import com.dayaonweb.quoter.tts.Quoter
+import com.dayaonweb.quoter.domain.broadcast.QuoteBroadcast
+import com.dayaonweb.quoter.domain.tts.Quoter
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.text.Format
 import java.text.SimpleDateFormat
 import java.util.*
@@ -42,15 +35,10 @@ import java.util.*
 class AllSettingsFragment : Fragment() {
 
     private var bi: FragmentAllSettingsBinding? = null
-    private val viewModel: AllSettingsViewModel by viewModels()
+    private val viewModel: AllSettingsViewModel by viewModel()
     private lateinit var calendar: Calendar
     private lateinit var alarmManager: AlarmManager
     private lateinit var pendingIntent: PendingIntent
-
-    private val handler by lazy {
-        Handler(Looper.getMainLooper())
-    }
-    private var quoterSpeaker: Quoter? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -69,14 +57,12 @@ class AllSettingsFragment : Fragment() {
         attachObservers()
         setupListeners()
         viewModel.getAllPreferences(requireContext())
+        setupAvailableLanguages(bi?.languageChipGroup)
     }
 
     private fun attachObservers() {
         viewModel.preferences.observe(viewLifecycleOwner) {
-            Log.d("PREFS", "attachObservers: $it")
-            handler.postDelayed({
-                initializeQuoterTts(it.ttsLanguage)
-            }, 1000)
+            viewModel.updateLanguage(it.ttsLanguage)
             bi?.notifSwitch?.isChecked = it.isNotificationOn
             bi?.darkModeSwitch?.isChecked = it.isDarkMode
             bi?.speechRateSlider?.value = it.speechRate
@@ -96,23 +82,18 @@ class AllSettingsFragment : Fragment() {
                 findNavController().popBackStack()
             }
             languageChipGroup.setOnCheckedChangeListener { _, checkedId ->
-                val availableLanguages = quoterSpeaker?.getSupportedLanguages()
-                val selectedLanguage = availableLanguages?.first {
-                    it.hashCode() == checkedId
-                }
+                val availableLanguages = viewModel.getSpeakerSupportedLanguages()
+                val selectedLanguage = availableLanguages.firstOrNull { it.hashCode() == checkedId }
                 selectedLanguage?.let {
-                    quoterSpeaker?.setEngineLocale(it)
                     viewModel.updateTtsLanguage(requireContext(), it)
-                    quoterSpeaker?.speakText(
-                        "Hi. Your quotes voice is set to ${it.displayLanguage}",
-                        ""
-                    )
+                    viewModel.updateLanguage(it)
+                    viewModel.speak("Hi. Your quotes voice is set to ${it.displayLanguage}")
                 }
             }
             speechRateSlider.addOnChangeListener { _, value, _ ->
                 viewModel.updateTtsSpeechRate(requireContext(), value)
-                quoterSpeaker?.setSpeechRateSpeed(value)
-                quoterSpeaker?.speakText("This is the current speech rate", "")
+                viewModel.updateSpeechRate(value)
+                viewModel.speak("This is the current speech rate")
             }
             notifTimeBtn.setOnClickListener {
                 val timePicker = MaterialTimePicker.Builder()
@@ -210,29 +191,13 @@ class AllSettingsFragment : Fragment() {
         return formatter.format(cal.time)
     }
 
-    private fun initializeQuoterTts(ttsLanguage: Locale) {
-        quoterSpeaker = Quoter(context = requireContext()) { initStatus ->
-            if (initStatus == TextToSpeech.SUCCESS)
-                quoterSpeaker?.init()
-            quoterSpeaker?.setEngineLocale(ttsLanguage)
-            quoterSpeaker?.setSpeechRateSpeed(viewModel.preferences.value?.speechRate ?: 1.0f)
-            val engineLocale = quoterSpeaker?.getCurrentVoice()?.locale ?: ttsLanguage
-            viewModel.updateTtsLanguage(requireContext(), engineLocale)
-            setupSettingValues()
-        }
-    }
 
-    private fun setupSettingValues() {
-        bi?.run {
-            setupAvailableLanguages(languageChipGroup)
-        }
-    }
-
-
-    private fun setupAvailableLanguages(rootChipGroup: ChipGroup) {
-        val supportedLanguages = quoterSpeaker?.getSupportedLanguages()
-        val currentSelectedLanguage = quoterSpeaker?.getCurrentVoice()?.locale
-        supportedLanguages?.forEach {
+    private fun setupAvailableLanguages(rootChipGroup: ChipGroup?) {
+        if (rootChipGroup == null)
+            return
+        val supportedLanguages = viewModel.getSpeakerSupportedLanguages()
+        val currentSelectedLanguage = viewModel.preferences.value?.ttsLanguage
+        supportedLanguages.forEach {
             // setup basic chip style
             val chip = layoutInflater.inflate(R.layout.language_chip, rootChipGroup, false) as Chip
             with(chip) {
@@ -249,13 +214,6 @@ class AllSettingsFragment : Fragment() {
         }
         bi?.loader?.isVisible = false
     }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        handler.removeCallbacksAndMessages(null)
-        quoterSpeaker?.deInit()
-    }
-
 
     override fun onDestroy() {
         super.onDestroy()

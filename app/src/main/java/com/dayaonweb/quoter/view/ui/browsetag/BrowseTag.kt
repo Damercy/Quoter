@@ -16,26 +16,31 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.navArgs
 import com.dayaonweb.quoter.R
 import com.dayaonweb.quoter.analytics.Analytics
 import com.dayaonweb.quoter.databinding.FragmentBrowseTagBinding
 import com.dayaonweb.quoter.extensions.showSnack
-import com.dayaonweb.quoter.service.model.RandomQuotesListingResponseItem
-import com.dayaonweb.quoter.tts.Quoter
+import com.dayaonweb.quoter.data.remote.model.RandomQuotesListingResponseItem
+import com.dayaonweb.quoter.domain.tts.Quoter
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.io.File
 import java.util.*
 
 class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
 
     private var bi: FragmentBrowseTagBinding? = null
-    private val viewModel: BrowseTagViewModel by viewModels()
+    private val viewModel: BrowseTagViewModel by viewModel()
     private var quoteToAuthor = mutableMapOf<RandomQuotesListingResponseItem?, String>()
     private var totalPages = -1
     private var pageToFetch = 1
     private var currentPageCount = 0
     private var currentQuoteNumber = 1
-    private lateinit var quoterSpeaker: Quoter
     private val args: BrowseTagArgs by navArgs()
     private lateinit var speakerAnimation: AnimationDrawable
 
@@ -57,59 +62,14 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
         attachListeners()
         attachObservers()
         viewModel.fetchQuotesByTag(args.tag, pageToFetch)
-        viewModel.getAllPreferences(requireContext())
-    }
-
-    private fun initQuoter(ttsLanguage: Locale) {
-        bi?.ttsLoader?.isVisible = true
-        quoterSpeaker = Quoter(context = requireContext()) { initStatus ->
-            bi?.ttsLoader?.isVisible = false
-            if (initStatus == TextToSpeech.SUCCESS) {
-                bi?.speakImageView?.isVisible = true
-                quoterSpeaker.init(object : UtteranceProgressListener() {
-                    override fun onStart(utteranceId: String?) {
-                        requireActivity().runOnUiThread {
-                            speakerAnimation.start()
-                        }
-                    }
-
-                    override fun onDone(utteranceId: String?) {
-                        requireActivity().runOnUiThread {
-                            speakerAnimation.stop()
-                            speakerAnimation.selectDrawable(0)
-                        }
-                    }
-
-                    override fun onError(utteranceId: String?) {
-                        requireActivity().runOnUiThread {
-                            speakerAnimation.stop()
-                            speakerAnimation.selectDrawable(0)
-                            showSnack("Unable to synthesize text")
-                        }
-                    }
-
-                    override fun onError(utteranceId: String, errorCode: Int) {
-                        requireActivity().runOnUiThread {
-                            speakerAnimation.stop()
-                            speakerAnimation.selectDrawable(0)
-                            showSnack("Unable to synthesize text")
-                        }
-                    }
-                })
-                quoterSpeaker.setEngineLocale(ttsLanguage)
-                quoterSpeaker.setSpeechRateSpeed(viewModel.preferences.value?.speechRate ?: 1.0f)
-                val engineLocale = quoterSpeaker.getCurrentVoice()?.locale ?: ttsLanguage
-                viewModel.updateTtsLanguage(requireContext(), engineLocale)
-            } else if (initStatus == TextToSpeech.ERROR) {
-                showSnack("Unable to initialize text to speech")
-                bi?.speakImageView?.isVisible = false
-            }
-        }
+        viewModel.getAllPreferences()
     }
 
     private fun attachObservers() {
         viewModel.preferences.observe(viewLifecycleOwner) {
-            initQuoter(it.ttsLanguage)
+            viewModel.setSpeakerLanguage(it.ttsLanguage)
+            bi?.ttsLoader?.isVisible = false
+            bi?.speakImageView?.isVisible = true
         }
         viewModel.quotes.observe(viewLifecycleOwner) {
             currentPageCount += it.size
@@ -127,6 +87,35 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
                     it
                 )
             )
+        }
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED){
+                viewModel.isSpeaking.collectLatest { isSpeaking ->
+                    if(isSpeaking){
+                        requireActivity().runOnUiThread {
+                            speakerAnimation.start()
+                        }
+                    }else{
+                        requireActivity().runOnUiThread {
+                            speakerAnimation.stop()
+                            speakerAnimation.selectDrawable(0)
+                        }
+                    }
+                }
+            }
+        }
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED){
+                viewModel.isSpeakError.collectLatest { isError ->
+                    if(isError){
+                        requireActivity().runOnUiThread {
+                            speakerAnimation.stop()
+                            speakerAnimation.selectDrawable(0)
+                            showSnack("Unable to synthesize text")
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -198,8 +187,9 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
                 setBackgroundResource(R.drawable.speaking_anim)
                 speakerAnimation = background as AnimationDrawable
                 setOnClickListener {
-                    if (::quoterSpeaker.isInitialized)
-                        quoterSpeaker.speakText(bi?.quoteTextView?.text.toString(), currentQuoteId)
+                    viewModel.speak(
+                        bi?.quoteTextView?.text.toString()
+                    )
                 }
             }
         }
@@ -279,16 +269,6 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
         val clip = ClipData.newPlainText("quote", text)
         clipboard.setPrimaryClip(clip)
         showSnack("Copied")
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        if (::quoterSpeaker.isInitialized)
-            quoterSpeaker.deInit()
-    }
-
-    companion object {
-        private const val TAG = "BrowseTag"
     }
 
 }

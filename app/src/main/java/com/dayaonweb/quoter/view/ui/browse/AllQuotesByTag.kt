@@ -13,19 +13,20 @@ import androidx.navigation.fragment.findNavController
 import com.dayaonweb.quoter.R
 import com.dayaonweb.quoter.databinding.FragmentAllQuotesByTagBinding
 import com.dayaonweb.quoter.view.ui.browsetag.BrowseTagArgs
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class AllQuotesByTag : Fragment() {
 
     private var bi: FragmentAllQuotesByTagBinding? = null
     private var scrollPositionIndex = -1
-    private val viewModel: AllQuotesByTagViewModel by viewModels()
+    private val viewModel: AllQuotesByTagViewModel by viewModel()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        bi = FragmentAllQuotesByTagBinding.inflate(inflater,container,false)
+        bi = FragmentAllQuotesByTagBinding.inflate(inflater, container, false)
         return bi?.root
     }
 

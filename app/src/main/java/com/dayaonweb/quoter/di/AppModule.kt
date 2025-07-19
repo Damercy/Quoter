@@ -1,0 +1,67 @@
+package com.dayaonweb.quoter.di
+
+import android.speech.tts.TextToSpeech
+import com.dayaonweb.quoter.BuildConfig
+import com.dayaonweb.quoter.constants.Constants
+import com.dayaonweb.quoter.data.remote.QuoteService
+import com.dayaonweb.quoter.data.remote.WikiService
+import com.dayaonweb.quoter.domain.repository.Repository
+import com.dayaonweb.quoter.domain.repository.FetchQuotesByTagRepositoryImpl
+import com.dayaonweb.quoter.domain.tts.Quoter
+import com.dayaonweb.quoter.domain.tts.Speaker
+import com.dayaonweb.quoter.view.ui.browse.AllQuotesByTagViewModel
+import com.dayaonweb.quoter.view.ui.browsetag.BrowseTagViewModel
+import com.dayaonweb.quoter.view.ui.settings.AllSettingsViewModel
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
+import org.koin.core.module.dsl.viewModelOf
+import org.koin.dsl.module
+import retrofit2.Retrofit
+import retrofit2.converter.moshi.MoshiConverterFactory
+import java.util.concurrent.TimeUnit
+
+val appModule = module {
+    single<Speaker> {
+        Quoter(get())
+    }
+    single {
+        TextToSpeech(
+            get(),
+            null,
+            Constants.DEFAULT_ENGINE
+        )
+    }
+    single<Repository> {
+        FetchQuotesByTagRepositoryImpl(get(), get())
+    }
+    single<QuoteService> {
+        val retrofit = Retrofit.Builder()
+            .baseUrl("https://api.quotable.io")
+            .client(get())
+            .addConverterFactory(MoshiConverterFactory.create())
+            .build()
+        retrofit.create(QuoteService::class.java)
+    }
+    single<WikiService> {
+        val retrofit = Retrofit.Builder()
+            .baseUrl("https://en.wikipedia.org/w/")
+            .client(get())
+            .addConverterFactory(MoshiConverterFactory.create())
+            .build()
+        retrofit.create(WikiService::class.java)
+    }
+    single<OkHttpClient> {
+        val loggingInterceptor = HttpLoggingInterceptor()
+        loggingInterceptor.level =
+            if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.HEADERS else HttpLoggingInterceptor.Level.NONE
+        OkHttpClient.Builder()
+            .addInterceptor(loggingInterceptor)
+            .callTimeout(10, TimeUnit.SECONDS)
+            .readTimeout(10, TimeUnit.SECONDS)
+            .writeTimeout(10, TimeUnit.SECONDS)
+            .build()
+    }
+    viewModelOf(::AllQuotesByTagViewModel)
+    viewModelOf(::BrowseTagViewModel)
+    viewModelOf(::AllSettingsViewModel)
+}

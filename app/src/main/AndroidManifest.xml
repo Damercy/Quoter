@@ -13,6 +13,7 @@
     </queries>
 
     <application
+        android:name=".Application"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -37,7 +38,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".view.ui.MainActivity" android:exported="false" />
-        <receiver android:name=".service.broadcast.QuoteBroadcast" android:exported="false"/>
+        <receiver android:name=".domain.broadcast.QuoteBroadcast" android:exported="false"/>
     </application>
 
 </manifest>
