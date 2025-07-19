@@ -1,6 +1,7 @@
 package com.dayaonweb.quoter.view.ui
 
 import android.Manifest
+import android.animation.ObjectAnimator
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
@@ -8,12 +9,16 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.view.View
+import android.view.animation.AnticipateInterpolator
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.animation.doOnEnd
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import com.dayaonweb.quoter.analytics.Analytics
 import com.dayaonweb.quoter.constants.Constants
@@ -24,6 +29,7 @@ import com.dayaonweb.quoter.domain.tts.Speaker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.get
 import java.util.*
 
@@ -46,9 +52,25 @@ class MainActivity : AppCompatActivity() {
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        splashScreen.setOnExitAnimationListener { splashScreenView ->
+            val iconView = splashScreenView.iconView
+            val slideUp = ObjectAnimator.ofFloat(
+                iconView,
+                View.TRANSLATION_Y,
+                0f,
+                -iconView.height.toFloat()
+            )
+            slideUp.apply {
+                interpolator = AnticipateInterpolator()
+                duration = 200L
+            }
+            slideUp.doOnEnd { splashScreenView.remove() }
+            slideUp.start()
+        }
         Analytics.init(this)
         initNotifications()
         initAppTheme()
@@ -80,18 +102,20 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initAppTheme() {
-        lifecycleScope.launch {
+        lifecycleScope.launch(Dispatchers.IO){
             val isDarkMode = DataStoreManager.getBooleanValue(
                 this@MainActivity,
                 Constants.IS_DARK_MODE,
                 AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES
             )
-            AppCompatDelegate.setDefaultNightMode(if (isDarkMode) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO)
+            withContext(Dispatchers.Main){
+                AppCompatDelegate.setDefaultNightMode(if (isDarkMode) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO)
+            }
         }
     }
 
     private fun initNotifications() {
-        CoroutineScope(Dispatchers.IO).launch {
+        lifecycleScope.launch(Dispatchers.IO){
             val isNotificationOn = DataStoreManager.getBooleanValue(
                 this@MainActivity,
                 Constants.IS_NOTIFICATION_ON,

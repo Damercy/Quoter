@@ -10,16 +10,10 @@ import kotlinx.coroutines.launch
 class AllQuotesByTagViewModel(
     private val repository: Repository
 ) : ViewModel() {
-
     private val _allQuotesByTags = MutableLiveData<List<String>>()
     val allQuotesByTag: LiveData<List<String>> = _allQuotesByTags
 
-
-    init {
-        getAllQuotes()
-    }
-
-    private fun getAllQuotes() {
+   fun getAllQuotes() {
         viewModelScope.launch {
             _allQuotesByTags.postValue(repository.fetchQuotesTag())
         }

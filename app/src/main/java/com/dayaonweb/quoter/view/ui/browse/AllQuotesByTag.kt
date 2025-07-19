@@ -34,6 +34,7 @@ class AllQuotesByTag : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         attachListeners()
         attachObservers()
+        viewModel.getAllQuotes()
     }
 
     private fun attachObservers() {

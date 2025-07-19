@@ -6,7 +6,7 @@ import com.dayaonweb.quoter.constants.Constants
 import com.dayaonweb.quoter.data.remote.QuoteService
 import com.dayaonweb.quoter.data.remote.WikiService
 import com.dayaonweb.quoter.domain.repository.Repository
-import com.dayaonweb.quoter.domain.repository.FetchQuotesByTagRepositoryImpl
+import com.dayaonweb.quoter.domain.repository.RepositoryImpl
 import com.dayaonweb.quoter.domain.tts.Quoter
 import com.dayaonweb.quoter.domain.tts.Speaker
 import com.dayaonweb.quoter.view.ui.browse.AllQuotesByTagViewModel
@@ -32,11 +32,11 @@ val appModule = module {
         )
     }
     single<Repository> {
-        FetchQuotesByTagRepositoryImpl(get(), get())
+        RepositoryImpl(get(), get())
     }
     single<QuoteService> {
         val retrofit = Retrofit.Builder()
-            .baseUrl("https://api.quotable.io")
+            .baseUrl(BuildConfig.QUOTES_BASE_URL)
             .client(get())
             .addConverterFactory(MoshiConverterFactory.create())
             .build()
@@ -44,7 +44,7 @@ val appModule = module {
     }
     single<WikiService> {
         val retrofit = Retrofit.Builder()
-            .baseUrl("https://en.wikipedia.org/w/")
+            .baseUrl(BuildConfig.QUOTES_IMAGE_BASE_URL)
             .client(get())
             .addConverterFactory(MoshiConverterFactory.create())
             .build()
@@ -53,7 +53,7 @@ val appModule = module {
     single<OkHttpClient> {
         val loggingInterceptor = HttpLoggingInterceptor()
         loggingInterceptor.level =
-            if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.HEADERS else HttpLoggingInterceptor.Level.NONE
+            if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY else HttpLoggingInterceptor.Level.NONE
         OkHttpClient.Builder()
             .addInterceptor(loggingInterceptor)
             .callTimeout(10, TimeUnit.SECONDS)

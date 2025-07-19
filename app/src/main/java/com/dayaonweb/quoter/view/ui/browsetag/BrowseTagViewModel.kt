@@ -13,8 +13,8 @@ import androidx.lifecycle.viewModelScope
 import com.dayaonweb.quoter.constants.Constants
 import com.dayaonweb.quoter.data.local.DataStoreManager
 import com.dayaonweb.quoter.data.local.models.Preferences
+import com.dayaonweb.quoter.data.remote.model.Quote
 import com.dayaonweb.quoter.domain.repository.Repository
-import com.dayaonweb.quoter.data.remote.model.RandomQuotesListingResponseItem
 import com.dayaonweb.quoter.domain.tts.Speaker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -31,8 +31,8 @@ class BrowseTagViewModel(
 
     var isFetchingQuotes = false
 
-    private val _quotes = MutableLiveData<List<RandomQuotesListingResponseItem?>>()
-    val quotes: LiveData<List<RandomQuotesListingResponseItem?>> = _quotes
+    private val _quotes = MutableLiveData<List<Quote?>>()
+    val quotes: LiveData<List<Quote?>> = _quotes
 
     private val _ssFile = MutableLiveData<File>()
     val ssFile: LiveData<File> = _ssFile

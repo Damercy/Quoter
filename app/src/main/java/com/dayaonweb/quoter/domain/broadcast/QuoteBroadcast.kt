@@ -26,11 +26,13 @@ import com.dayaonweb.quoter.constants.Constants.NOTIFICATION_ID
 import com.dayaonweb.quoter.data.local.DataStoreManager
 import com.dayaonweb.quoter.data.remote.QuoteService
 import com.dayaonweb.quoter.data.remote.WikiService
-import com.dayaonweb.quoter.data.remote.model.RandomQuotesListingResponseItem
+import com.dayaonweb.quoter.data.remote.model.Quote
 import com.dayaonweb.quoter.view.ui.MainActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.koin.java.KoinJavaComponent.inject
@@ -39,7 +41,7 @@ import java.util.Calendar
 class QuoteBroadcast : BroadcastReceiver(), KoinComponent {
 
     private lateinit var authorImageBitmap: Bitmap
-    private var randomQuote: RandomQuotesListingResponseItem? = null
+    private var randomQuote: Quote? = null
     private var isImageTypeNotification = true
 
     private val wikiService: WikiService by inject()
@@ -51,11 +53,11 @@ class QuoteBroadcast : BroadcastReceiver(), KoinComponent {
             try {
                 isImageTypeNotification =
                     DataStoreManager.getBooleanValue(context, IS_IMAGE_NOTIFICATION_STYLE, true)
-                randomQuote = quotesService.getQuotes(limit = 2).random()
+                randomQuote = quotesService.getQuotes(limit = 2)?.quotes?.random()
                 if (isImageTypeNotification) {
                     val authorImageResponse =
                         wikiService.getAuthorImage(
-                            authorName = randomQuote?.author ?: "",
+                            authorName = randomQuote?.author?.name.orEmpty(),
                             thumbnailSize = 500
                         ).query
                     val authorImage =
@@ -70,15 +72,15 @@ class QuoteBroadcast : BroadcastReceiver(), KoinComponent {
                         .get()
                 }
             } catch (exception: Exception) {
-                randomQuote = getOfflineRandomQuote()
+                randomQuote = getOfflineRandomQuote(context).random()
                 authorImageBitmap = Glide.with(context)
                     .asBitmap()
                     .load(R.mipmap.ic_launcher)
                     .submit()
                     .get()
             } finally {
-                val quote = randomQuote?.quote ?: ""
-                val title = "${randomQuote?.author ?: "Unknown"} says"
+                val quote = randomQuote?.content.orEmpty()
+                val title = "${randomQuote?.author?.name ?: "Unknown"} says"
                 createNotificationChannel(context)
                 val notification = NotificationCompat.Builder(context, CHANNEL_ID)
                     .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -172,14 +174,9 @@ private fun createNotificationChannel(context: Context) {
     }
 }
 
-private fun getOfflineRandomQuote() =
-    listOf(
-        RandomQuotesListingResponseItem(
-            author = "Emily Dickinson",
-            quote = "Old age comes on suddenly, and not gradually as is thought."
-        ),
-        RandomQuotesListingResponseItem(
-            author = "C. S. Lewis",
-            quote = "How incessant and great are the ills with which a prolonged old age is replete."
-        )
-    ).random()
+private suspend fun getOfflineRandomQuote(context: Context) = withContext(Dispatchers.IO){
+    val localQuotes = DataStoreManager.getStringValue(context, Constants.LOCAL_QUOTES,"")
+    if(localQuotes.isEmpty())
+        return@withContext emptyList()
+    Json.decodeFromString<List<Quote>>(localQuotes)
+}

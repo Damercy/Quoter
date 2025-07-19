@@ -6,8 +6,6 @@ import android.content.Intent
 import android.graphics.drawable.AnimationDrawable
 import android.net.Uri
 import android.os.Bundle
-import android.speech.tts.TextToSpeech
-import android.speech.tts.UtteranceProgressListener
 import android.util.TypedValue
 import android.view.*
 import android.widget.PopupMenu
@@ -15,17 +13,15 @@ import androidx.core.content.FileProvider
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.navArgs
 import com.dayaonweb.quoter.R
 import com.dayaonweb.quoter.analytics.Analytics
+import com.dayaonweb.quoter.data.remote.model.Quote
 import com.dayaonweb.quoter.databinding.FragmentBrowseTagBinding
 import com.dayaonweb.quoter.extensions.showSnack
-import com.dayaonweb.quoter.data.remote.model.RandomQuotesListingResponseItem
-import com.dayaonweb.quoter.domain.tts.Quoter
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -36,7 +32,7 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
 
     private var bi: FragmentBrowseTagBinding? = null
     private val viewModel: BrowseTagViewModel by viewModel()
-    private var quoteToAuthor = mutableMapOf<RandomQuotesListingResponseItem?, String>()
+    private var quoteToAuthor = mutableMapOf<Quote?, String>()
     private var totalPages = -1
     private var pageToFetch = 1
     private var currentPageCount = 0
@@ -75,7 +71,7 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
             currentPageCount += it.size
             totalPages = it.size
             for (quote in it) {
-                quoteToAuthor[quote] = quote?.author ?: ""
+                quoteToAuthor[quote] = quote?.author?.name.orEmpty()
             }
             initNumberPicker()
         }
@@ -158,19 +154,19 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
             quoteScroller.setOnValueChangedListener { _, _, newVal ->
                 currentQuoteNumber = newVal + 1
                 val currentQuote = quoteToAuthor.keys.toTypedArray()[newVal]
-                quoteTextView.text = currentQuote?.quote?:"Unknown"
-                ssQuoteTextView.text = currentQuote?.quote?:"Unknown"
+                quoteTextView.text = currentQuote?.content ?:"Unknown"
+                ssQuoteTextView.text = currentQuote?.content ?:"Unknown"
                 authorTextView.text = quoteToAuthor.values.toTypedArray()[newVal]
                 ssAuthorTextView.text = quoteToAuthor.values.toTypedArray()[newVal]
                 serialTextView.text = String.format("%s", "$currentQuoteNumber/$currentPageCount")
                 fadeInViews()
                 quoteTextView.setTextSize(
                     TypedValue.COMPLEX_UNIT_SP,
-                    if ((currentQuote?.quote?.length ?: 0) > 150) 24f else 32f
+                    if ((currentQuote?.content?.length ?: 0) > 150) 24f else 32f
                 )
                 ssQuoteTextView.setTextSize(
                     TypedValue.COMPLEX_UNIT_SP,
-                    if ((currentQuote?.quote?.length ?: 0) > 150) 18f else 28f
+                    if ((currentQuote?.content?.length ?: 0) > 150) 18f else 28f
                 )
                 if (currentPageCount - (newVal + 1) <= 4) {
                     pageToFetch++
@@ -215,8 +211,8 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
             maxValue = currentPageCount - 1
             displayedValues = Array(quoteToAuthor.size) { "" }
         }
-        bi?.quoteTextView?.text = quoteToAuthor.keys.toTypedArray()[0]?.quote?:"Unknown"
-        bi?.ssQuoteTextView?.text = quoteToAuthor.keys.toTypedArray()[0]?.quote?:"Unknown"
+        bi?.quoteTextView?.text = quoteToAuthor.keys.toTypedArray()[0]?.content?:"Unknown"
+        bi?.ssQuoteTextView?.text = quoteToAuthor.keys.toTypedArray()[0]?.content?:"Unknown"
         bi?.authorTextView?.text = quoteToAuthor.values.toTypedArray()[0]
         bi?.ssAuthorTextView?.text = quoteToAuthor.values.toTypedArray()[0]
         bi?.serialTextView?.text = String.format("%s", "$currentQuoteNumber/$currentPageCount")

@@ -6,14 +6,14 @@ import com.dayaonweb.quoter.constants.Constants
 import com.dayaonweb.quoter.data.local.DataStoreManager
 import com.dayaonweb.quoter.data.local.models.Preferences
 import com.dayaonweb.quoter.data.remote.QuoteService
-import com.dayaonweb.quoter.data.remote.model.RandomQuotesListingResponseItem
+import com.dayaonweb.quoter.data.remote.model.Quote
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
 import java.util.Collections.emptyList
 import java.util.Locale
-import kotlin.collections.get
 
-class FetchQuotesByTagRepositoryImpl(
+class RepositoryImpl(
     private val context: Context,
     private val quotesService: QuoteService
 ) : Repository {
@@ -51,7 +51,11 @@ class FetchQuotesByTagRepositoryImpl(
 
     override suspend fun fetchQuotesTag(): List<String> = withContext(Dispatchers.IO) {
         try {
-            val genres = quotesService.getAllGenres().filterNotNull()
+            val genres = quotesService
+                .getAllGenres()
+                .mapNotNull {
+                    it?.name
+                }
             if (genres.isNotEmpty()) {
                 cacheTags(genres)
                 genres
@@ -65,7 +69,7 @@ class FetchQuotesByTagRepositoryImpl(
     override suspend fun fetchQuotesByTag(
         tag: String,
         pageNo: Int
-    ): List<RandomQuotesListingResponseItem> = withContext(Dispatchers.IO) {
+    ): List<Quote> = withContext(Dispatchers.IO) {
         val remoteQuotesOrEmpty = fetchQuotesFromRemote(tag, pageNo)
         remoteQuotesOrEmpty.ifEmpty { fetchQuotesFromLocal(tag, pageNo) }
     }
@@ -73,9 +77,10 @@ class FetchQuotesByTagRepositoryImpl(
     private suspend fun fetchQuotesFromRemote(
         tag: String,
         pageNo: Int
-    ): List<RandomQuotesListingResponseItem> = withContext(Dispatchers.IO) {
+    ): List<Quote> = withContext(Dispatchers.IO) {
         try {
-            val quotes = quotesService.getQuotes(tags = tag, page = pageNo).filterNotNull()
+            val quotes = quotesService.getQuotes(tags = tag, page = pageNo)?.quotes?.filterNotNull()
+                ?: emptyList()
             if (quotes.isNotEmpty())
                 cacheQuotes(tag, pageNo, quotes)
             quotes
@@ -87,16 +92,11 @@ class FetchQuotesByTagRepositoryImpl(
     private suspend fun fetchQuotesFromLocal(
         tag: String,
         pageNo: Int
-    ): List<RandomQuotesListingResponseItem> = withContext(Dispatchers.IO) {
-        // TODO: Use kotlinx serialization
+    ): List<Quote> = withContext(Dispatchers.IO) {
         val localQuotesString = DataStoreManager.getStringValue(context, Constants.LOCAL_QUOTES, "")
         if (localQuotesString.isEmpty())
             return@withContext emptyList()
-        localQuotesString
-            .split(",")
-            .map {
-                RandomQuotesListingResponseItem()
-            }
+        Json.decodeFromString<List<Quote>>(localQuotesString)
     }
 
     private suspend fun fetchTagsFromLocal(): List<String> = withContext(Dispatchers.IO) {
@@ -109,16 +109,17 @@ class FetchQuotesByTagRepositoryImpl(
     private suspend fun cacheQuotes(
         tag: String,
         pageNo: Int,
-        quotes: List<RandomQuotesListingResponseItem>
+        quotes: List<Quote>
     ) = withContext(
         Dispatchers.IO
     ) {
         DataStoreManager.saveValue(
             context,
             Constants.LOCAL_QUOTES,
-            quotes.joinToString()
+            Json.encodeToString(quotes)
         )
     }
+
     private suspend fun cacheTags(tags: List<String>) = withContext(Dispatchers.IO) {
         DataStoreManager.saveValue(
             context,
