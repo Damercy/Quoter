@@ -4,50 +4,41 @@ import android.content.Context
 import android.media.AudioAttributes
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
-import kotlinx.coroutines.*
 import java.util.*
+import javax.inject.Inject
 
-class Quoter(context: Context, onInit: (status: Int) -> Unit) {
-    private var tts: TextToSpeech? = null
-    private val scope: CoroutineScope = CoroutineScope(context = Dispatchers.IO + Job())
+class Quoter @Inject constructor(context: Context, onInit: (status: Int) -> Unit) {
 
-    init {
-        scope.launch {
-            tts = TextToSpeech(context.applicationContext, { status ->
-                onInit(status)
-            }, DEFAULT_ENGINE)
+    private var isReady = false
+
+    private var tts: TextToSpeech? = TextToSpeech(context, { status ->
+        if (status == TextToSpeech.SUCCESS) {
+            isReady = true
+            setupAudioAttributes()
+            setEngineLocale(Locale.ENGLISH)
+        }
+    }, DEFAULT_ENGINE)
+
+    fun speakText(text: String, utteranceId: String) {
+        if (isReady) {
+            tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, utteranceId)
         }
     }
 
+    fun stopSpeaking() {
+        tts?.stop()
+    }
 
-    fun init(listener: UtteranceProgressListener? = null): Boolean {
+    fun setUtteranceListener(listener: UtteranceProgressListener? = null) {
         listener?.let {
             tts?.setOnUtteranceProgressListener(it)
         }
-        setupAudioAttributes()
-        if (tts?.voice?.locale != Locale("en"))
-            setEngineLocale(Locale("en", "IN"))
-        return true
     }
-
-    fun deInit() {
-        stopSpeaking()
-        tts?.shutdown()
-    }
-
-
-    fun speakText(text: String, utteranceId: String) {
-        tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, utteranceId)
-    }
-
-    private fun stopSpeaking() = tts?.stop()
-
     private fun setupAudioAttributes() {
         val audioAttributes = AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY)
             .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
             .build()
-
         tts?.setAudioAttributes(audioAttributes)
     }
 
@@ -56,13 +47,6 @@ class Quoter(context: Context, onInit: (status: Int) -> Unit) {
             tts?.language = languageLocale
         }
     }
-
-    fun setSpeechRateSpeed(speechRate: Float) = tts?.setSpeechRate(speechRate)
-
-    fun getSupportedLanguages() = tts?.availableLanguages
-
-    fun getCurrentVoice() = tts?.voice
-
 
     private fun isLanguageAvailable(languageLocale: Locale): Boolean {
         return when (tts?.isLanguageAvailable(languageLocale)) {
@@ -75,8 +59,15 @@ class Quoter(context: Context, onInit: (status: Int) -> Unit) {
         }
     }
 
+    fun setSpeechRateSpeed(speechRate: Float) {
+        tts?.setSpeechRate(speechRate)
+    }
+
+    fun getSupportedLanguages() = tts?.availableLanguages
+
+    fun getCurrentVoice() = tts?.voice
+
     companion object {
         private const val DEFAULT_ENGINE = "com.google.android.tts"
     }
-
 }

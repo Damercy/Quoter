@@ -19,12 +19,12 @@ class QuotesRepoImpl @Inject constructor(
         try {
             val remoteResponse = remoteDataSource.api.getAllGenres()
             if (remoteResponse.isEmpty()) {
-                emit(getLocalQuotes().flatMap { it.tags })
+                emit(getLocalQuotes().flatMap { it.tags }.distinct())
             } else {
-                emit(remoteResponse)
+                emit(remoteResponse.distinct())
             }
         } catch (_: Exception) {
-            emit(getLocalQuotes().flatMap { it.tags })
+            emit(getLocalQuotes().flatMap { it.tags }.distinct())
         }
     }
 
@@ -35,18 +35,18 @@ class QuotesRepoImpl @Inject constructor(
         try {
             // Attempt to fetch from remote
             val remoteResponse =
-                remoteDataSource.api.getQuotes(page = pageNo, tags = tags.joinToString())
+                remoteDataSource.api.getQuotes(page = pageNo, tags = tags.distinct().joinToString())
             // Map remote response here if necessary. Assuming local fallback for now:
             if (remoteResponse.isEmpty()) {
                 emit(
-                    getLocalQuotes().filter { it.tags.contains(tags.firstOrNull()) }
+                    getLocalQuotes().filter { it.tags.contains(tags.distinct().firstOrNull()) }
                 )
             } else {
                 emit(mapToDomainModel(remoteResponse = remoteResponse))
             }
         } catch (_: Exception) {
             emit(
-                getLocalQuotes().filter { it.tags.contains(tags.firstOrNull()) }
+                getLocalQuotes().filter { it.tags.contains(tags.distinct().firstOrNull()) }
             )
         }
     }

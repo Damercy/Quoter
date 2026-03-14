@@ -35,22 +35,6 @@ class MenuFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         bi?.tvVersion?.text = getString(R.string.app_version,BuildConfig.VERSION_NAME)
         attachListeners()
-        updateSystemBars(resetColors = false)
-    }
-
-    private fun updateSystemBars(resetColors: Boolean) {
-        if (!resetColors) {
-            setSystemBarColors(R.color.black)
-            return
-        }
-        setSystemBarColors(R.color.onPrimary)
-    }
-
-    private fun setSystemBarColors(color: Int) {
-        requireActivity().window.apply {
-            statusBarColor = ContextCompat.getColor(requireContext(), color)
-            navigationBarColor = ContextCompat.getColor(requireContext(), color)
-        }
     }
 
     private fun attachListeners() {
@@ -60,9 +44,6 @@ class MenuFragment : Fragment() {
             }
             rateTextView.setOnClickListener {
                 rateApp()
-            }
-            helpTextView.setOnClickListener {
-
             }
             aboutTextView.setOnClickListener {
                 showAboutDialog()
@@ -89,7 +70,6 @@ class MenuFragment : Fragment() {
 
     override fun onDestroyView() {
         bi = null
-        updateSystemBars(resetColors = true)
         super.onDestroyView()
     }
 

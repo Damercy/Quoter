@@ -6,8 +6,6 @@ import android.content.Intent
 import android.graphics.drawable.AnimationDrawable
 import android.net.Uri
 import android.os.Bundle
-import android.speech.tts.TextToSpeech
-import android.speech.tts.UtteranceProgressListener
 import android.util.TypedValue
 import android.view.*
 import android.widget.PopupMenu
@@ -16,28 +14,32 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.asLiveData
 import androidx.navigation.fragment.navArgs
 import com.dayaonweb.quoter.R
 import com.dayaonweb.quoter.domain.analytics.Analytics
 import com.dayaonweb.quoter.databinding.FragmentBrowseTagBinding
 import com.dayaonweb.quoter.domain.extensions.showSnack
 import com.dayaonweb.quoter.domain.models.UiQuote
-import com.dayaonweb.quoter.domain.tts.Quoter
+import com.dayaonweb.quoter.domain.tts.QuoteSpeaker
+import dagger.Lazy
 import dagger.hilt.android.AndroidEntryPoint
 import java.io.File
 import java.util.*
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
 
     private var bi: FragmentBrowseTagBinding? = null
     private val viewModel: BrowseTagViewModel by viewModels()
-    private var quoteToAuthor = mutableMapOf<UiQuote, String>()
+    private var authorToQuote = mutableMapOf<String,UiQuote>()
     private var totalPages = -1
     private var pageToFetch = 1
     private var currentPageCount = 0
     private var currentQuoteNumber = 1
-    private lateinit var quoterSpeaker: Quoter
+    @Inject
+    lateinit var quoteSpeaker: Lazy<QuoteSpeaker>
     private val args: BrowseTagArgs by navArgs()
     private lateinit var speakerAnimation: AnimationDrawable
 
@@ -62,50 +64,12 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
     }
 
     private fun initQuoter(ttsLanguage: Locale) {
-        bi?.ttsLoader?.isVisible = true
-        quoterSpeaker = Quoter(context = requireContext()) { initStatus ->
-            bi?.ttsLoader?.isVisible = false
-            if (initStatus == TextToSpeech.SUCCESS) {
-                bi?.speakImageView?.isVisible = true
-                quoterSpeaker.init(object : UtteranceProgressListener() {
-                    override fun onStart(utteranceId: String?) {
-                        requireActivity().runOnUiThread {
-                            speakerAnimation.start()
-                        }
-                    }
-
-                    override fun onDone(utteranceId: String?) {
-                        requireActivity().runOnUiThread {
-                            speakerAnimation.stop()
-                            speakerAnimation.selectDrawable(0)
-                        }
-                    }
-
-                    override fun onError(utteranceId: String?) {
-                        requireActivity().runOnUiThread {
-                            speakerAnimation.stop()
-                            speakerAnimation.selectDrawable(0)
-                            showSnack("Unable to synthesize text")
-                        }
-                    }
-
-                    override fun onError(utteranceId: String, errorCode: Int) {
-                        requireActivity().runOnUiThread {
-                            speakerAnimation.stop()
-                            speakerAnimation.selectDrawable(0)
-                            showSnack("Unable to synthesize text")
-                        }
-                    }
-                })
-                quoterSpeaker.setEngineLocale(ttsLanguage)
-                quoterSpeaker.setSpeechRateSpeed(viewModel.preferences.value?.speechRate ?: 1.0f)
-                val engineLocale = quoterSpeaker.getCurrentVoice()?.locale ?: ttsLanguage
-                viewModel.updateTtsLanguage(engineLocale)
-            } else if (initStatus == TextToSpeech.ERROR) {
-                showSnack("Unable to initialize text to speech")
-                bi?.speakImageView?.isVisible = false
-            }
-        }
+        bi?.ttsLoader?.isVisible = false
+        bi?.speakImageView?.isVisible = true
+        quoteSpeaker.get().setEngineLocale(ttsLanguage)
+        quoteSpeaker.get().setSpeechRate(viewModel.preferences.value?.speechRate ?: 1.0f)
+        val engineLocale = quoteSpeaker.get().getEngineLocale() ?: ttsLanguage
+        viewModel.updateTtsLanguage(engineLocale)
     }
 
     private fun attachObservers() {
@@ -116,7 +80,7 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
             currentPageCount += it.size
             totalPages = it.size
             for (quote in it) {
-                quoteToAuthor[quote] = quote.author
+                authorToQuote[quote.author] = quote
             }
             initNumberPicker()
         }
@@ -128,6 +92,14 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
                     it
                 )
             )
+        }
+        quoteSpeaker.get().isSpeaking().asLiveData().observe(viewLifecycleOwner){ isSpeaking ->
+            if(isSpeaking){
+                speakerAnimation.start()
+            }else{
+                speakerAnimation.stop()
+                speakerAnimation.selectDrawable(0)
+            }
         }
     }
 
@@ -169,11 +141,11 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
             }
             quoteScroller.setOnValueChangedListener { _, _, newVal ->
                 currentQuoteNumber = newVal + 1
-                val currentQuote = quoteToAuthor.keys.toTypedArray().getOrNull(newVal) ?: return@setOnValueChangedListener
+                val currentQuote = authorToQuote.values.toTypedArray().getOrNull(newVal) ?: return@setOnValueChangedListener
                 quoteTextView.text = currentQuote.quote
                 ssQuoteTextView.text = currentQuote.quote
-                authorTextView.text = quoteToAuthor.values.toTypedArray().getOrNull(newVal) ?: return@setOnValueChangedListener
-                ssAuthorTextView.text = quoteToAuthor.values.toTypedArray().getOrNull(newVal) ?: return@setOnValueChangedListener
+                authorTextView.text = currentQuote.author
+                ssAuthorTextView.text = currentQuote.author
                 serialTextView.text = String.format("%s", "$currentQuoteNumber/$currentPageCount")
                 fadeInViews()
                 quoteTextView.setTextSize(
@@ -199,8 +171,8 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
                 setBackgroundResource(R.drawable.speaking_anim)
                 speakerAnimation = background as AnimationDrawable
                 setOnClickListener {
-                    if (::quoterSpeaker.isInitialized)
-                        quoterSpeaker.speakText(bi?.quoteTextView?.text.toString(), currentQuoteId)
+                    val uiQuote = authorToQuote.get(bi?.authorTextView?.text?.toString())?: return@setOnClickListener
+                    quoteSpeaker.get().speak(uiQuote)
                 }
             }
         }
@@ -224,9 +196,9 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
             setSelectedTypeface(ResourcesCompat.getFont(requireContext(), R.font.main_bold))
             minValue = 0
             maxValue = currentPageCount - 1
-            displayedValues = Array(quoteToAuthor.size) { "" }
+            displayedValues = Array(authorToQuote.size) { "" }
         }
-        val uiQuote = quoteToAuthor.keys.toTypedArray().getOrNull(0)?:return
+        val uiQuote = authorToQuote.values.firstOrNull() ?: return
         bi?.quoteTextView?.text = uiQuote.quote
         bi?.ssQuoteTextView?.text = uiQuote.quote
         bi?.authorTextView?.text = uiQuote.author
@@ -280,13 +252,8 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
 
     override fun onDestroyView() {
         bi = null
+        quoteSpeaker.get().stopSpeaking()
         super.onDestroyView()
-    }
-
-    override fun onDestroy() {
-        if (::quoterSpeaker.isInitialized)
-            quoterSpeaker.deInit()
-        super.onDestroy()
     }
 
 }
