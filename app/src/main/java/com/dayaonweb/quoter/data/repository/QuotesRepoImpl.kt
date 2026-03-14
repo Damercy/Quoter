@@ -20,18 +20,18 @@ class QuotesRepoImpl @Inject constructor(
             val remoteResponse = remoteDataSource.api.getAllGenres()
             if (remoteResponse.isEmpty()) {
                 emit(getLocalQuotes()
-                    .sortedByDescending { it.tags.count() }
                     .flatMap { it.tags }
                     .distinct()
+                    .shuffled()
                 )
             } else {
                 emit(remoteResponse.distinct())
             }
         } catch (_: Exception) {
             emit(getLocalQuotes()
-                .sortedByDescending { it.tags.count() }
                 .flatMap { it.tags }
                 .distinct()
+                .shuffled()
             )
         }
     }

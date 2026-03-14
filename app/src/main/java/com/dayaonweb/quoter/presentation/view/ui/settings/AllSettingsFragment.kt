@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.dayaonweb.quoter.R
 import com.dayaonweb.quoter.domain.constants.Constants.PENDING_INTENT_REQ_CODE
@@ -25,9 +26,12 @@ import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
 import dagger.Lazy
 import dagger.hilt.android.AndroidEntryPoint
-import java.text.Format
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.Collections.emptySet
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -39,10 +43,14 @@ class AllSettingsFragment : Fragment() {
     private lateinit var alarmManager: AlarmManager
     private lateinit var pendingIntent: PendingIntent
 
+    private var isFirstLoad = true
+
     @Inject
     lateinit var quoteSpeaker: Lazy<QuoteSpeaker>
 
-    override fun onCreateView(
+    private var supportedLanguages = setOf<Locale>()
+
+        override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
@@ -59,10 +67,16 @@ class AllSettingsFragment : Fragment() {
 
     private fun attachObservers() {
         viewModel.preferences.observe(viewLifecycleOwner) {
-            setTTSLocale(it.ttsLanguage)
+
+            // Update UI components (Safe to do every time)
             bi?.notifSwitch?.isChecked = it.isNotificationOn
             bi?.darkModeSwitch?.isChecked = it.isDarkMode
             bi?.speechRateSlider?.value = it.speechRate
+
+            // Update TTS settings WITHOUT speaking
+            quoteSpeaker.get().setEngineLocale(it.ttsLanguage)
+            quoteSpeaker.get().setSpeechRate(it.speechRate)
+
             if (it.isNotificationOn) {
                 val time = it.notificationTime.split(":")
                 bi?.notifTimeBtn?.text = getTime(time[0].toInt(), time[1].toInt())
@@ -70,6 +84,13 @@ class AllSettingsFragment : Fragment() {
                     if (it.isImageStyleNotification) R.id.image_style_btn else R.id.text_style_btn
                 bi?.notifStyleButtonToggleGroup?.check(checkBtnId)
             }
+
+            // Only do "Welcome" logic or complex setup on actual first load
+            if (isFirstLoad) {
+                setTTSLocale(it.ttsLanguage)
+                isFirstLoad = false
+            }
+
         }
     }
 
@@ -80,20 +101,22 @@ class AllSettingsFragment : Fragment() {
                 findNavController().popBackStack()
             }
             languageChipGroup.setOnCheckedChangeListener { _, checkedId ->
-                val availableLanguages =  quoteSpeaker.get()?.getSupportedLocales()
-                val selectedLanguage = availableLanguages?.first {
+                if(supportedLanguages.isEmpty()){
+                    supportedLanguages = quoteSpeaker.get().getSupportedLocales() ?: emptySet()
+                }
+                val selectedLanguage = supportedLanguages.firstOrNull {
                     it.hashCode() == checkedId
                 }
                 selectedLanguage?.let {
                     quoteSpeaker.get()?.setEngineLocale(it)
                     viewModel.updateTtsLanguage(it)
-                    quoteSpeaker.get()?.speak("Hi. Your quotes voice is set to ${it.displayLanguage}")
+                    quoteSpeaker.get()?.speak("Voice set to ${it.displayLanguage}")
                 }
+
             }
             speechRateSlider.addOnChangeListener { _, value, _ ->
                 viewModel.updateTtsSpeechRate(value)
                 quoteSpeaker.get()?.setSpeechRate(value)
-                quoteSpeaker.get()?.speak("This is the current speech rate")
             }
             notifTimeBtn.setOnClickListener {
                 val timePicker = MaterialTimePicker.Builder()
@@ -115,23 +138,35 @@ class AllSettingsFragment : Fragment() {
                 viewModel.toggleNotificationStyle(isImageStyled)
                 showSnack("You'll receive ${if (isImageStyled) "image" else "text"} styled notification quote")
             }
-            notifSwitch.setOnCheckedChangeListener { _, isChecked ->
+            darkModeSwitch.setOnCheckedChangeListener { view, isChecked ->
+                // ONLY execute if the user actually tapped it
+                if (view.isPressed) {
+                    viewModel.toggleDarkMode(isChecked)
+                    AppCompatDelegate.setDefaultNightMode(
+                        if (isChecked) AppCompatDelegate.MODE_NIGHT_YES
+                        else AppCompatDelegate.MODE_NIGHT_NO
+                    )
+                }
+            }
+
+            notifSwitch.setOnCheckedChangeListener { view, isChecked ->
+                // Update UI visibility (Always safe to do)
                 notifOption2TextView.isVisible = isChecked
                 notifOption3TextView.isVisible = isChecked
                 notifTimeBtn.isVisible = isChecked
                 notifStyleButtonToggleGroup.isVisible = isChecked
-                viewModel.toggleNotification(isChecked)
-                if (!isChecked)
-                    cancelAlarm()
-                else {
-                    val timePrefs = viewModel.preferences.value ?: return@setOnCheckedChangeListener
-                    val time = timePrefs.notificationTime.split(":")
-                    setAlarm(time[0].toInt(), time[1].toInt())
+
+                // ONLY execute data/alarm logic if user initiated
+                if (view.isPressed) {
+                    viewModel.toggleNotification(isChecked)
+                    if (!isChecked) {
+                        cancelAlarm()
+                    } else {
+                        val timePrefs = viewModel.preferences.value ?: return@setOnCheckedChangeListener
+                        val time = timePrefs.notificationTime.split(":")
+                        setAlarm(time[0].toInt(), time[1].toInt())
+                    }
                 }
-            }
-            darkModeSwitch.setOnCheckedChangeListener { _, isChecked ->
-                viewModel.toggleDarkMode(isChecked)
-                AppCompatDelegate.setDefaultNightMode(if (isChecked) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO)
             }
         }
     }
@@ -181,8 +216,7 @@ class AllSettingsFragment : Fragment() {
         val cal: Calendar = Calendar.getInstance()
         cal.set(Calendar.HOUR_OF_DAY, hr)
         cal.set(Calendar.MINUTE, min)
-        val formatter: Format
-        formatter = SimpleDateFormat("h:mm a", Locale.getDefault())
+        val formatter = SimpleDateFormat("h:mm a", Locale.getDefault())
         return formatter.format(cal.time)
     }
 
@@ -195,31 +229,51 @@ class AllSettingsFragment : Fragment() {
     }
 
     private fun setupSettingValues() {
-        bi?.run {
-            setupAvailableLanguages(languageChipGroup)
+        bi?.languageChipGroup?.let {
+            setupAvailableLanguages(it)
         }
     }
 
 
     private fun setupAvailableLanguages(rootChipGroup: ChipGroup) {
-        val supportedLanguages = quoteSpeaker.get().getSupportedLocales()
-        val currentSelectedLanguage = quoteSpeaker.get()?.getEngineLocale()
-        supportedLanguages?.forEach {
-            // setup basic chip style
-            val chip = layoutInflater.inflate(R.layout.language_chip, rootChipGroup, false) as Chip
-            with(chip) {
-                isCheckable = true
-                isFocusable = true
-                isClickable = true
-                text = it.displayName
-                id = it.hashCode()
-                rootChipGroup.addView(this)
+        // 1. Show loader while we process data
+        bi?.loader?.isVisible = true
+        rootChipGroup.removeAllViews() // Clear existing to prevent duplicates on recreation
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            // 2. Heavy Lifting on Background Thread
+            val processedLanguages = withContext(Dispatchers.Default) {
+                val speaker = quoteSpeaker.get()
+                val current = speaker.getEngineLocale()
+                if(supportedLanguages.isEmpty()){
+                    supportedLanguages = speaker.getSupportedLocales() ?: emptySet()
+                }
+
+                // Sort alphabetically by display name so users can find their language
+                val sortedList = supportedLanguages.sortedBy { it.displayName }
+
+                Pair(sortedList, current)
             }
+
+            // 3. UI Updates back on Main Thread
+            val (languages, currentLocale) = processedLanguages
+
+            languages.forEach { locale ->
+                val chip = layoutInflater.inflate(R.layout.language_chip, rootChipGroup, false) as Chip
+                chip.apply {
+                    isCheckable = true
+                    text = locale.displayName
+                    id = locale.hashCode()
+                }
+                rootChipGroup.addView(chip)
+            }
+
+            // 4. Set the selection
+            currentLocale?.hashCode()?.let {
+                rootChipGroup.check(it)
+            }
+            bi?.loader?.isVisible = false
         }
-        currentSelectedLanguage?.hashCode()?.let {
-            rootChipGroup.check(it)
-        }
-        bi?.loader?.isVisible = false
     }
 
     override fun onDestroyView() {

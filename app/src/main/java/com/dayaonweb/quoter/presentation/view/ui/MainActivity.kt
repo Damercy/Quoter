@@ -23,6 +23,7 @@ import com.dayaonweb.quoter.domain.constants.Constants
 import com.dayaonweb.quoter.data.local.DataStoreManager
 import com.dayaonweb.quoter.databinding.ActivityMainBinding
 import com.dayaonweb.quoter.domain.broadcast.QuoteBroadcast
+import com.dayaonweb.quoter.domain.tts.QuoteSpeaker
 import dagger.Lazy
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -38,6 +39,9 @@ class MainActivity : AppCompatActivity() {
 
     @Inject
     lateinit var dataStoreManager: Lazy<DataStoreManager>
+
+    @Inject
+    lateinit var quoteSpeaker: QuoteSpeaker
 
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
