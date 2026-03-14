@@ -11,8 +11,7 @@ interface QuoteService {
     suspend fun getQuotes(
         @Query("authors") authors:String? = null,
         @Query("tags") tags: String? = null,
-        @Query("page") page: Int = 1,
-        @Query("count") limit: Int = 50,
+        @Query("count") limit: Int = 100,
     ): List<RandomQuotesListingResponseItem?>
 
 

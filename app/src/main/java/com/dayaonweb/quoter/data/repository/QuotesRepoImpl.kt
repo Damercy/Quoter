@@ -19,23 +19,28 @@ class QuotesRepoImpl @Inject constructor(
         try {
             val remoteResponse = remoteDataSource.api.getAllGenres()
             if (remoteResponse.isEmpty()) {
-                emit(getLocalQuotes().flatMap { it.tags }.distinct())
+                emit(getLocalQuotes()
+                    .sortedByDescending { it.tags.count() }
+                    .flatMap { it.tags }
+                    .distinct()
+                )
             } else {
                 emit(remoteResponse.distinct())
             }
         } catch (_: Exception) {
-            emit(getLocalQuotes().flatMap { it.tags }.distinct())
+            emit(getLocalQuotes()
+                .sortedByDescending { it.tags.count() }
+                .flatMap { it.tags }
+                .distinct()
+            )
         }
     }
 
-    override fun getQuotesByTags(
-        tags: List<String>,
-        pageNo: Int
-    ): Flow<List<UiQuote>> = flow {
+    override fun getQuotesByTags(tags: List<String>): Flow<List<UiQuote>> = flow {
         try {
             // Attempt to fetch from remote
             val remoteResponse =
-                remoteDataSource.api.getQuotes(page = pageNo, tags = tags.distinct().joinToString())
+                remoteDataSource.api.getQuotes(tags = tags.distinct().joinToString())
             // Map remote response here if necessary. Assuming local fallback for now:
             if (remoteResponse.isEmpty()) {
                 emit(

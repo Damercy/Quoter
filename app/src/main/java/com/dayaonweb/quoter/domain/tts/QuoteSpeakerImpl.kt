@@ -3,36 +3,37 @@ package com.dayaonweb.quoter.domain.tts
 import android.speech.tts.UtteranceProgressListener
 import com.dayaonweb.quoter.domain.models.UiQuote
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import java.util.Locale
 import javax.inject.Inject
 
 class QuoteSpeakerImpl @Inject constructor(
     private val tts: Quoter
-) : QuoteSpeaker, UtteranceProgressListener() {
+) : QuoteSpeaker {
 
-    private var isSpeaking = false
+    private val _isSpeaking = MutableStateFlow(false)
+    override fun isSpeaking(): Flow<Boolean> = _isSpeaking.asStateFlow()
 
     override fun speak(quote: UiQuote) {
         val quoteToSpeak = quote.quote
         val author = quote.author
         val text = "$author said, $quoteToSpeak"
         val id = quote.id
-        speakImpl(text,id)
+        speakImpl(text, id)
     }
 
     override fun speak(text: String) {
-        speakImpl(text,"")
+        speakImpl(text, "")
     }
 
-    private fun speakImpl(text: String, id: String){
-        tts.setUtteranceListener(this)
+    private fun speakImpl(text: String, id: String) {
         tts.speakText(text, id)
     }
 
     override fun stopSpeaking() {
         tts.stopSpeaking()
-        isSpeaking = false
+        _isSpeaking.value = false
     }
 
     override fun setEngineLocale(locale: Locale) {
@@ -51,19 +52,19 @@ class QuoteSpeakerImpl @Inject constructor(
         tts.setSpeechRateSpeed(rate)
     }
 
-    override fun isSpeaking(): Flow<Boolean> = flow {
-        emit(isSpeaking)
-    }
+    override fun initSpeakListener() {
+        tts.setUtteranceListener(object : UtteranceProgressListener() {
+            override fun onStart(utteranceId: String?) {
+                _isSpeaking.value = true
+            }
 
-    override fun onDone(utteranceId: String?) {
-        isSpeaking = false
-    }
+            override fun onDone(utteranceId: String?) {
+                _isSpeaking.value = false
+            }
 
-    override fun onError(utteranceId: String?) {
-        isSpeaking = false
-    }
-
-    override fun onStart(utteranceId: String?) {
-        isSpeaking = true
+            override fun onError(utteranceId: String?) {
+                _isSpeaking.value = false
+            }
+        })
     }
 }

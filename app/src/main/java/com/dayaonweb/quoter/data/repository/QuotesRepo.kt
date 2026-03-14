@@ -5,5 +5,5 @@ import kotlinx.coroutines.flow.Flow
 
 interface QuotesRepo {
     fun getTags(): Flow<List<String>>
-    fun getQuotesByTags(tags: List<String>, pageNo: Int): Flow<List<UiQuote>>
+    fun getQuotesByTags(tags: List<String>): Flow<List<UiQuote>>
 }
