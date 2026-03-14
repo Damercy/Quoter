@@ -1,4 +1,4 @@
-package com.dayaonweb.quoter.constants
+package com.dayaonweb.quoter.domain.constants
 
 object Constants {
 

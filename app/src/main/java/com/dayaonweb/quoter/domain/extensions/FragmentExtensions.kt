@@ -1,4 +1,4 @@
-package com.dayaonweb.quoter.extensions
+package com.dayaonweb.quoter.domain.extensions
 
 import android.view.View
 import android.widget.TextView

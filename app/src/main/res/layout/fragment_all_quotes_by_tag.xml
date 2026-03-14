@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:animateLayoutChanges="true"
-    tools:context=".view.ui.browse.AllQuotesByTag">
+    tools:context=".presentation.view.ui.browse.AllQuotesByTag">
 
     <ImageView
         android:id="@+id/menu_image_view"
@@ -14,11 +14,9 @@
         android:layout_margin="16dp"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="@null"
-        android:padding="16dp"
         android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="@id/textView"
-        app:layout_constraintTop_toTopOf="@id/textView"
+        app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_menu"
         tools:visibility="visible" />
 
@@ -27,15 +25,14 @@
         style="@style/TextStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
         android:fontFamily="@font/main_bold"
         android:text="@string/my_quotes"
         android:textSize="48sp"
         android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.33"
+        app:layout_constraintHorizontal_bias="0.25"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/menu_image_view"
         tools:visibility="visible" />
 
     <com.shawnlin.numberpicker.NumberPicker

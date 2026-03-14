@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:animateLayoutChanges="true"
@@ -16,7 +16,7 @@
             android:id="@+id/back_image_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="16dp"
+            android:layout_margin="16dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@null"
             app:layout_constraintEnd_toEndOf="parent"
@@ -243,7 +243,6 @@
 
         <com.google.android.material.button.MaterialButtonToggleGroup
             android:id="@+id/notif_style_button_toggle_group"
-            tools:checkedButton="@id/image_style_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
@@ -252,7 +251,8 @@
             app:layout_constraintStart_toStartOf="@+id/notif_option_3_text_view"
             app:layout_constraintTop_toBottomOf="@+id/notif_option_3_text_view"
             app:selectionRequired="true"
-            app:singleSelection="true">
+            app:singleSelection="true"
+            tools:checkedButton="@id/image_style_btn">
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/text_style_btn"
@@ -286,7 +286,6 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/notif_time_btn"
-            tools:text="9:00 am"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
@@ -294,7 +293,8 @@
             app:layout_constraintEnd_toEndOf="@+id/notif_option_2_text_view"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="@+id/notif_option_2_text_view"
-            app:layout_constraintTop_toBottomOf="@+id/notif_option_2_text_view" />
+            app:layout_constraintTop_toBottomOf="@+id/notif_option_2_text_view"
+            tools:text="9:00 am" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,4 +1,4 @@
-package com.dayaonweb.quoter.analytics
+package com.dayaonweb.quoter.domain.analytics
 
 import com.dayaonweb.quoter.BuildConfig
 import com.google.firebase.analytics.FirebaseAnalytics

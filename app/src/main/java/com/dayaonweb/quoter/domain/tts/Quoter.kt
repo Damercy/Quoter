@@ -1,128 +1,82 @@
 package com.dayaonweb.quoter.domain.tts
 
+import android.content.Context
 import android.media.AudioAttributes
-import android.media.AudioManager
-import android.os.Build
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
-import androidx.core.os.bundleOf
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.LifecycleOwner
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.*
 import java.util.*
 
-class Quoter(private val tts: TextToSpeech) :
-    Speaker, LifecycleEventObserver, UtteranceProgressListener() {
+class Quoter(context: Context, onInit: (status: Int) -> Unit) {
+    private var tts: TextToSpeech? = null
+    private val scope: CoroutineScope = CoroutineScope(context = Dispatchers.IO + Job())
 
-    private val speakingFlow = MutableStateFlow(false)
-    private val errorFlow = MutableStateFlow(false)
-    private var currentUtteranceId = ""
-
-    override val onSpeaking: StateFlow<Boolean>
-        get() = speakingFlow.asStateFlow()
-
-    override val onError: StateFlow<Boolean>
-        get() = errorFlow.asStateFlow()
-
-    override fun speak(quote: String) {
-        currentUtteranceId = UUID.randomUUID().toString()
-        tts.speak(
-            quote,
-            TextToSpeech.QUEUE_FLUSH,
-            bundleOf(
-                TextToSpeech.Engine.KEY_PARAM_STREAM to AudioManager.STREAM_MUSIC,
-                TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID to currentUtteranceId
-            ),
-            currentUtteranceId
-        )
-    }
-
-    override fun stop() {
-        tts.stop()
-    }
-
-    override fun updateLanguage(language: Locale) {
-        setEngineLocale(language)
-    }
-
-    override fun updateSpeechRate(speechRate: Float) {
-        tts.setSpeechRate(speechRate)
-    }
-
-    override fun getSupportedLanguages(): Set<Locale> = tts.availableLanguages
-
-    override fun onStateChanged(
-        source: LifecycleOwner,
-        event: Lifecycle.Event
-    ) {
-        when {
-            event.targetState.isAtLeast(Lifecycle.State.CREATED) -> {
-                tts.setOnUtteranceProgressListener(this)
-                setupAudioAttributes()
-            }
-
-            event.targetState.isAtLeast(Lifecycle.State.DESTROYED) -> {
-                currentUtteranceId = ""
-                tts.stop()
-                tts.shutdown()
-            }
+    init {
+        scope.launch {
+            tts = TextToSpeech(context.applicationContext, { status ->
+                onInit(status)
+            }, DEFAULT_ENGINE)
         }
     }
 
-    override fun onError(utteranceId: String?, errorCode: Int) {
-        if (utteranceId == currentUtteranceId)
-            errorFlow.tryEmit(true)
-    }
 
-    override fun onError(utteranceId: String?) {
-        onError(utteranceId, -1)
-    }
-
-    override fun onDone(utteranceId: String?) {
-        if (utteranceId == currentUtteranceId) {
-            speakingFlow.tryEmit(false)
-            errorFlow.tryEmit(false)
+    fun init(listener: UtteranceProgressListener? = null): Boolean {
+        listener?.let {
+            tts?.setOnUtteranceProgressListener(it)
         }
+        setupAudioAttributes()
+        if (tts?.voice?.locale != Locale("en"))
+            setEngineLocale(Locale("en", "IN"))
+        return true
     }
 
-    override fun onStart(utteranceId: String?) {
-        if (utteranceId == currentUtteranceId)
-            speakingFlow.tryEmit(true)
+    fun deInit() {
+        stopSpeaking()
+        tts?.shutdown()
     }
+
+
+    fun speakText(text: String, utteranceId: String) {
+        tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, utteranceId)
+    }
+
+    private fun stopSpeaking() = tts?.stop()
 
     private fun setupAudioAttributes() {
-        val usage = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O)
-            AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY
-        else
-            AudioAttributes.USAGE_ASSISTANT
-
         val audioAttributes = AudioAttributes.Builder()
-            .setUsage(usage)
+            .setUsage(AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY)
             .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
             .build()
 
-        tts.setAudioAttributes(audioAttributes)
+        tts?.setAudioAttributes(audioAttributes)
     }
 
-    private fun setEngineLocale(languageLocale: Locale) {
+    fun setEngineLocale(languageLocale: Locale) {
         if (isLanguageAvailable(languageLocale)) {
-            tts.language = languageLocale
+            tts?.language = languageLocale
         }
     }
 
+    fun setSpeechRateSpeed(speechRate: Float) = tts?.setSpeechRate(speechRate)
 
-    private fun isLanguageAvailable(languageLocale: Locale): Boolean =
-        TTS_IS_LANG_AVAILABLE.contains(tts.isLanguageAvailable(languageLocale))
+    fun getSupportedLanguages() = tts?.availableLanguages
+
+    fun getCurrentVoice() = tts?.voice
+
+
+    private fun isLanguageAvailable(languageLocale: Locale): Boolean {
+        return when (tts?.isLanguageAvailable(languageLocale)) {
+            TextToSpeech.LANG_AVAILABLE -> true
+            TextToSpeech.LANG_COUNTRY_AVAILABLE -> true
+            TextToSpeech.LANG_COUNTRY_VAR_AVAILABLE -> true
+            TextToSpeech.LANG_MISSING_DATA -> false
+            TextToSpeech.LANG_NOT_SUPPORTED -> false
+            else -> false
+        }
+    }
 
     companion object {
-        private val TTS_IS_LANG_AVAILABLE = listOf(
-            TextToSpeech.LANG_AVAILABLE,
-            TextToSpeech.LANG_COUNTRY_AVAILABLE,
-            TextToSpeech.LANG_COUNTRY_VAR_AVAILABLE
-        )
+        private const val DEFAULT_ENGINE = "com.google.android.tts"
     }
 
 }

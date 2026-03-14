@@ -18,46 +18,49 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.TaskStackBuilder
 import com.bumptech.glide.Glide
 import com.dayaonweb.quoter.R
-import com.dayaonweb.quoter.constants.Constants
-import com.dayaonweb.quoter.constants.Constants.CHANNEL_ID
-import com.dayaonweb.quoter.constants.Constants.CHANNEL_NAME
-import com.dayaonweb.quoter.constants.Constants.IS_IMAGE_NOTIFICATION_STYLE
-import com.dayaonweb.quoter.constants.Constants.NOTIFICATION_ID
+import com.dayaonweb.quoter.domain.constants.Constants
+import com.dayaonweb.quoter.domain.constants.Constants.CHANNEL_ID
+import com.dayaonweb.quoter.domain.constants.Constants.CHANNEL_NAME
+import com.dayaonweb.quoter.domain.constants.Constants.IS_IMAGE_NOTIFICATION_STYLE
+import com.dayaonweb.quoter.domain.constants.Constants.NOTIFICATION_ID
 import com.dayaonweb.quoter.data.local.DataStoreManager
-import com.dayaonweb.quoter.data.remote.QuoteService
-import com.dayaonweb.quoter.data.remote.WikiService
-import com.dayaonweb.quoter.data.remote.model.Quote
-import com.dayaonweb.quoter.view.ui.MainActivity
+import com.dayaonweb.quoter.data.remote.QuotesClient
+import com.dayaonweb.quoter.data.remote.model.RandomQuotesListingResponseItem
+import com.dayaonweb.quoter.presentation.view.ui.MainActivity
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.Json
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
-import org.koin.java.KoinJavaComponent.inject
 import java.util.Calendar
+import javax.inject.Inject
 
-class QuoteBroadcast : BroadcastReceiver(), KoinComponent {
+@AndroidEntryPoint
+class QuoteBroadcast : BroadcastReceiver() {
+
+    @Inject
+    lateinit var coroutineScope: CoroutineScope
+
+    @Inject
+    lateinit var dataStoreManager: DataStoreManager
+
+    @Inject
+    lateinit var remoteDataSource: QuotesClient
+
 
     private lateinit var authorImageBitmap: Bitmap
-    private var randomQuote: Quote? = null
+    private var randomQuote: RandomQuotesListingResponseItem? = null
     private var isImageTypeNotification = true
 
-    private val wikiService: WikiService by inject()
-
-    private val quotesService: QuoteService by inject()
-
     override fun onReceive(context: Context, intent: Intent) {
-        CoroutineScope(Dispatchers.IO).launch {
+        val result = goAsync()
+        coroutineScope.launch {
             try {
                 isImageTypeNotification =
-                    DataStoreManager.getBooleanValue(context, IS_IMAGE_NOTIFICATION_STYLE, true)
-                randomQuote = quotesService.getQuotes(limit = 10)?.quotes?.random()
+                    dataStoreManager.getBooleanValue(context, IS_IMAGE_NOTIFICATION_STYLE, true)
+                randomQuote = remoteDataSource.api.getQuotes(limit = 2).random()
                 if (isImageTypeNotification) {
                     val authorImageResponse =
-                        wikiService.getAuthorImage(
-                            authorName = randomQuote?.author?.name.orEmpty(),
+                        remoteDataSource.wikiApi.getAuthorImage(
+                            authorName = randomQuote?.author ?: "",
                             thumbnailSize = 500
                         ).query
                     val authorImage =
@@ -71,16 +74,16 @@ class QuoteBroadcast : BroadcastReceiver(), KoinComponent {
                         .submit()
                         .get()
                 }
-            } catch (exception: Exception) {
-                randomQuote = getOfflineRandomQuote(context).random()
+            } catch (_: Exception) {
+                randomQuote = getOfflineRandomQuote()
                 authorImageBitmap = Glide.with(context)
                     .asBitmap()
                     .load(R.mipmap.ic_launcher)
                     .submit()
                     .get()
             } finally {
-                val quote = randomQuote?.content.orEmpty()
-                val title = "${randomQuote?.author?.name ?: "Unknown"} says"
+                val quote = randomQuote?.quote ?: ""
+                val title = "${randomQuote?.author ?: "Unknown"} says"
                 createNotificationChannel(context)
                 val notification = NotificationCompat.Builder(context, CHANNEL_ID)
                     .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -112,13 +115,14 @@ class QuoteBroadcast : BroadcastReceiver(), KoinComponent {
                         notificationManager.notify(NOTIFICATION_ID, notification)
                 }
                 val time =
-                    DataStoreManager.getStringValue(context, Constants.NOTIFICATION_TIME, "9:00")
+                    dataStoreManager.getStringValue(context, Constants.NOTIFICATION_TIME, "9:00")
                 val timeHrMin = time.split(":")
                 setAlarm(
                     context = context,
                     hour = timeHrMin[0].toInt(),
                     minute = timeHrMin[1].toInt()
                 )
+                result.finish()
             }
         }
     }
@@ -135,14 +139,12 @@ private fun setAlarm(context: Context, hour: Int, minute: Int) {
         set(Calendar.MILLISECOND, 0)
     }
     val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-    val broadcastIntent = Intent(context, QuoteBroadcast::class.java).apply {
-        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-    }
+    val broadcastIntent = Intent(context, QuoteBroadcast::class.java)
     val pendingIntent = PendingIntent.getBroadcast(
         context,
         Constants.PENDING_INTENT_REQ_CODE,
         broadcastIntent,
-        PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        PendingIntent.FLAG_MUTABLE
     )
     if (calendar.before(Calendar.getInstance()))
         calendar.add(Calendar.DATE, 1)
@@ -176,9 +178,14 @@ private fun createNotificationChannel(context: Context) {
     }
 }
 
-private suspend fun getOfflineRandomQuote(context: Context) = withContext(Dispatchers.IO){
-    val localQuotes = DataStoreManager.getStringValue(context, Constants.LOCAL_QUOTES,"")
-    if(localQuotes.isEmpty())
-        return@withContext emptyList()
-    Json.decodeFromString<List<Quote>>(localQuotes)
-}
+private fun getOfflineRandomQuote() =
+    listOf(
+        RandomQuotesListingResponseItem(
+            author = "Emily Dickinson",
+            quote = "Old age comes on suddenly, and not gradually as is thought."
+        ),
+        RandomQuotesListingResponseItem(
+            author = "C. S. Lewis",
+            quote ="How incessant and great are the ills with which a prolonged old age is replete."
+        )
+    ).random()

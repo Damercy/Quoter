@@ -1,4 +1,4 @@
-package com.dayaonweb.quoter.view.ui.browse
+package com.dayaonweb.quoter.presentation.view.ui.browse
 
 import android.content.ActivityNotFoundException
 import android.content.Intent
@@ -12,10 +12,12 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.dayaonweb.quoter.BuildConfig
 import com.dayaonweb.quoter.R
-import com.dayaonweb.quoter.analytics.Analytics
+import com.dayaonweb.quoter.domain.analytics.Analytics
 import com.dayaonweb.quoter.databinding.FragmentMenuBinding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MenuFragment : Fragment() {
 
     private var bi: FragmentMenuBinding? = null
@@ -25,7 +27,7 @@ class MenuFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        bi = FragmentMenuBinding.inflate(inflater,container,false)
+        bi = FragmentMenuBinding.inflate(inflater, container, false)
         return bi?.root
     }
 
@@ -86,9 +88,9 @@ class MenuFragment : Fragment() {
     }
 
     override fun onDestroyView() {
-        super.onDestroyView()
-        updateSystemBars(resetColors = true)
         bi = null
+        updateSystemBars(resetColors = true)
+        super.onDestroyView()
     }
 
     private fun rateApp() {

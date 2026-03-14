@@ -1,4 +1,4 @@
-package com.dayaonweb.quoter.view.ui.browsetag
+package com.dayaonweb.quoter.presentation.view.ui.browsetag
 
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -6,6 +6,8 @@ import android.content.Intent
 import android.graphics.drawable.AnimationDrawable
 import android.net.Uri
 import android.os.Bundle
+import android.speech.tts.TextToSpeech
+import android.speech.tts.UtteranceProgressListener
 import android.util.TypedValue
 import android.view.*
 import android.widget.PopupMenu
@@ -13,30 +15,29 @@ import androidx.core.content.FileProvider
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
 import com.dayaonweb.quoter.R
-import com.dayaonweb.quoter.analytics.Analytics
-import com.dayaonweb.quoter.data.remote.model.Quote
+import com.dayaonweb.quoter.domain.analytics.Analytics
 import com.dayaonweb.quoter.databinding.FragmentBrowseTagBinding
-import com.dayaonweb.quoter.extensions.showSnack
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import com.dayaonweb.quoter.domain.extensions.showSnack
+import com.dayaonweb.quoter.domain.models.UiQuote
+import com.dayaonweb.quoter.domain.tts.Quoter
+import dagger.hilt.android.AndroidEntryPoint
 import java.io.File
 import java.util.*
 
+@AndroidEntryPoint
 class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
 
     private var bi: FragmentBrowseTagBinding? = null
-    private val viewModel: BrowseTagViewModel by viewModel()
-    private var quoteToAuthor = mutableMapOf<Quote?, String>()
+    private val viewModel: BrowseTagViewModel by viewModels()
+    private var quoteToAuthor = mutableMapOf<UiQuote, String>()
     private var totalPages = -1
     private var pageToFetch = 1
     private var currentPageCount = 0
     private var currentQuoteNumber = 1
+    private lateinit var quoterSpeaker: Quoter
     private val args: BrowseTagArgs by navArgs()
     private lateinit var speakerAnimation: AnimationDrawable
 
@@ -49,7 +50,7 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        bi = FragmentBrowseTagBinding.inflate(inflater,container,false)
+        bi = FragmentBrowseTagBinding.inflate(inflater, container, false)
         return bi?.root
     }
 
@@ -58,20 +59,64 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
         attachListeners()
         attachObservers()
         viewModel.fetchQuotesByTag(args.tag, pageToFetch)
-        viewModel.getAllPreferences()
+    }
+
+    private fun initQuoter(ttsLanguage: Locale) {
+        bi?.ttsLoader?.isVisible = true
+        quoterSpeaker = Quoter(context = requireContext()) { initStatus ->
+            bi?.ttsLoader?.isVisible = false
+            if (initStatus == TextToSpeech.SUCCESS) {
+                bi?.speakImageView?.isVisible = true
+                quoterSpeaker.init(object : UtteranceProgressListener() {
+                    override fun onStart(utteranceId: String?) {
+                        requireActivity().runOnUiThread {
+                            speakerAnimation.start()
+                        }
+                    }
+
+                    override fun onDone(utteranceId: String?) {
+                        requireActivity().runOnUiThread {
+                            speakerAnimation.stop()
+                            speakerAnimation.selectDrawable(0)
+                        }
+                    }
+
+                    override fun onError(utteranceId: String?) {
+                        requireActivity().runOnUiThread {
+                            speakerAnimation.stop()
+                            speakerAnimation.selectDrawable(0)
+                            showSnack("Unable to synthesize text")
+                        }
+                    }
+
+                    override fun onError(utteranceId: String, errorCode: Int) {
+                        requireActivity().runOnUiThread {
+                            speakerAnimation.stop()
+                            speakerAnimation.selectDrawable(0)
+                            showSnack("Unable to synthesize text")
+                        }
+                    }
+                })
+                quoterSpeaker.setEngineLocale(ttsLanguage)
+                quoterSpeaker.setSpeechRateSpeed(viewModel.preferences.value?.speechRate ?: 1.0f)
+                val engineLocale = quoterSpeaker.getCurrentVoice()?.locale ?: ttsLanguage
+                viewModel.updateTtsLanguage(engineLocale)
+            } else if (initStatus == TextToSpeech.ERROR) {
+                showSnack("Unable to initialize text to speech")
+                bi?.speakImageView?.isVisible = false
+            }
+        }
     }
 
     private fun attachObservers() {
         viewModel.preferences.observe(viewLifecycleOwner) {
-            viewModel.setSpeakerLanguage(it.ttsLanguage)
-            bi?.ttsLoader?.isVisible = false
-            bi?.speakImageView?.isVisible = true
+            initQuoter(it.ttsLanguage)
         }
         viewModel.quotes.observe(viewLifecycleOwner) {
             currentPageCount += it.size
             totalPages = it.size
             for (quote in it) {
-                quoteToAuthor[quote] = quote?.author?.name.orEmpty()
+                quoteToAuthor[quote] = quote.author
             }
             initNumberPicker()
         }
@@ -83,35 +128,6 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
                     it
                 )
             )
-        }
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED){
-                viewModel.isSpeaking.collectLatest { isSpeaking ->
-                    if(isSpeaking){
-                        requireActivity().runOnUiThread {
-                            speakerAnimation.start()
-                        }
-                    }else{
-                        requireActivity().runOnUiThread {
-                            speakerAnimation.stop()
-                            speakerAnimation.selectDrawable(0)
-                        }
-                    }
-                }
-            }
-        }
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED){
-                viewModel.isSpeakError.collectLatest { isError ->
-                    if(isError){
-                        requireActivity().runOnUiThread {
-                            speakerAnimation.stop()
-                            speakerAnimation.selectDrawable(0)
-                            showSnack("Unable to synthesize text")
-                        }
-                    }
-                }
-            }
         }
     }
 
@@ -153,20 +169,20 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
             }
             quoteScroller.setOnValueChangedListener { _, _, newVal ->
                 currentQuoteNumber = newVal + 1
-                val currentQuote = quoteToAuthor.keys.toTypedArray()[newVal]
-                quoteTextView.text = currentQuote?.content ?:"Unknown"
-                ssQuoteTextView.text = currentQuote?.content ?:"Unknown"
-                authorTextView.text = quoteToAuthor.values.toTypedArray()[newVal]
-                ssAuthorTextView.text = quoteToAuthor.values.toTypedArray()[newVal]
+                val currentQuote = quoteToAuthor.keys.toTypedArray().getOrNull(newVal) ?: return@setOnValueChangedListener
+                quoteTextView.text = currentQuote.quote
+                ssQuoteTextView.text = currentQuote.quote
+                authorTextView.text = quoteToAuthor.values.toTypedArray().getOrNull(newVal) ?: return@setOnValueChangedListener
+                ssAuthorTextView.text = quoteToAuthor.values.toTypedArray().getOrNull(newVal) ?: return@setOnValueChangedListener
                 serialTextView.text = String.format("%s", "$currentQuoteNumber/$currentPageCount")
                 fadeInViews()
                 quoteTextView.setTextSize(
                     TypedValue.COMPLEX_UNIT_SP,
-                    if ((currentQuote?.content?.length ?: 0) > 150) 24f else 32f
+                    if ((currentQuote.quote.length) > 150) 24f else 32f
                 )
                 ssQuoteTextView.setTextSize(
                     TypedValue.COMPLEX_UNIT_SP,
-                    if ((currentQuote?.content?.length ?: 0) > 150) 18f else 28f
+                    if ((currentQuote.quote.length) > 150) 18f else 28f
                 )
                 if (currentPageCount - (newVal + 1) <= 4) {
                     pageToFetch++
@@ -175,17 +191,16 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
                 }
 
                 /**************ANALYTICS********************/
-                currentQuoteId = currentQuote?.id?.toString() ?: UUID.randomUUID().toString()
-                currentQuoteTag = listOf(currentQuote?.tags?.joinToString() ?: "")
+                currentQuoteId = currentQuote.id
+                currentQuoteTag = listOf(currentQuote.tags.joinToString())
             }
 
             speakImageView.apply {
                 setBackgroundResource(R.drawable.speaking_anim)
                 speakerAnimation = background as AnimationDrawable
                 setOnClickListener {
-                    viewModel.speak(
-                        bi?.quoteTextView?.text.toString()
-                    )
+                    if (::quoterSpeaker.isInitialized)
+                        quoterSpeaker.speakText(bi?.quoteTextView?.text.toString(), currentQuoteId)
                 }
             }
         }
@@ -211,10 +226,11 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
             maxValue = currentPageCount - 1
             displayedValues = Array(quoteToAuthor.size) { "" }
         }
-        bi?.quoteTextView?.text = quoteToAuthor.keys.toTypedArray()[0]?.content?:"Unknown"
-        bi?.ssQuoteTextView?.text = quoteToAuthor.keys.toTypedArray()[0]?.content?:"Unknown"
-        bi?.authorTextView?.text = quoteToAuthor.values.toTypedArray()[0]
-        bi?.ssAuthorTextView?.text = quoteToAuthor.values.toTypedArray()[0]
+        val uiQuote = quoteToAuthor.keys.toTypedArray().getOrNull(0)?:return
+        bi?.quoteTextView?.text = uiQuote.quote
+        bi?.ssQuoteTextView?.text = uiQuote.quote
+        bi?.authorTextView?.text = uiQuote.author
+        bi?.ssAuthorTextView?.text = uiQuote.author
         bi?.serialTextView?.text = String.format("%s", "$currentQuoteNumber/$currentPageCount")
         bi?.shareImageView?.isVisible = true
         bi?.backImageView?.isVisible = true
@@ -224,8 +240,8 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
         bi?.loader?.isVisible = false
 
         /**************ANALYTICS********************/
-        currentQuoteId = quoteToAuthor.keys.toTypedArray()[0]?.id?.toString() ?: UUID.randomUUID().toString()
-        currentQuoteTag = listOf(quoteToAuthor.keys.toTypedArray()[0]?.tags?.joinToString() ?: "")
+        currentQuoteId = uiQuote.id
+        currentQuoteTag = uiQuote.tags
     }
 
     private fun showPopup(anchorView: View) {
@@ -237,16 +253,6 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
             show()
         }
 
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        bi = null
-    }
-
-    override fun onStop() {
-        super.onStop()
-        viewModel.stop()
     }
 
     override fun onMenuItemClick(item: MenuItem?): Boolean {
@@ -270,6 +276,17 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
         val clip = ClipData.newPlainText("quote", text)
         clipboard.setPrimaryClip(clip)
         showSnack("Copied")
+    }
+
+    override fun onDestroyView() {
+        bi = null
+        super.onDestroyView()
+    }
+
+    override fun onDestroy() {
+        if (::quoterSpeaker.isInitialized)
+            quoterSpeaker.deInit()
+        super.onDestroy()
     }
 
 }

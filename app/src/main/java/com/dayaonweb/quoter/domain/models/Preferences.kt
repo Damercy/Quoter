@@ -1,4 +1,4 @@
-package com.dayaonweb.quoter.data.local.models
+package com.dayaonweb.quoter.domain.models
 
 import java.util.*
 
