@@ -18,6 +18,12 @@
         <item name="android:fontFamily">@font/main_bold</item>
     </style>
 
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/white</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher_round</item>
+        <item name="postSplashScreenTheme">@style/Theme.Quoter</item>
+    </style>
+
     <style name="TextStyle">
         <item name="android:textColor">@color/text</item>
     </style>

@@ -13,6 +13,7 @@
     </queries>
 
     <application
+        android:name=".QuoterApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -21,6 +22,7 @@
         android:theme="@style/Theme.Quoter"
         android:networkSecurityConfig="@xml/network_config"
         android:usesCleartextTraffic="false">
+        <property android:name="android.window.PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY" android:value="true" />
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.provider"
@@ -30,14 +32,16 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
         </provider>
-        <activity android:name=".view.ui.splash.Splash" android:exported="true">
+        <activity
+            android:name=".presentation.view.ui.MainActivity"
+            android:exported="true"
+            android:theme="@style/Theme.App.Starting">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".view.ui.MainActivity" android:exported="false" />
-        <receiver android:name=".service.broadcast.QuoteBroadcast" android:exported="false"/>
+        <receiver android:name=".domain.broadcast.QuoteBroadcast" android:exported="false" android:intentMatchingFlags="none"/>
     </application>
 
 </manifest>

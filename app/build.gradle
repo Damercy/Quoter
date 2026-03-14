@@ -2,19 +2,21 @@ plugins {
     id 'com.android.application'
     id 'kotlin-android'
     id 'kotlin-kapt'
+    id 'com.google.devtools.ksp'
     id 'androidx.navigation.safeargs.kotlin'
     id 'com.google.gms.google-services'
+    id 'com.google.dagger.hilt.android'
 }
 
 android {
-    compileSdk 35
+    compileSdk 36
 
     defaultConfig {
         applicationId "com.dayaonweb.quoter"
         minSdkVersion 24
-        targetSdk 35
-        versionCode 13100
-        versionName "1.31.00"
+        targetSdk 36
+        versionCode 20000
+        versionName "2.00.00"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -38,7 +40,7 @@ android {
         jvmTarget = '1.8'
     }
     buildFeatures{
-        dataBinding = true
+        viewBinding true
     }
     namespace 'com.dayaonweb.quoter'
 }
@@ -49,8 +51,15 @@ dependencies {
     implementation "androidx.core:core-ktx:1.15.0"
     implementation "androidx.appcompat:appcompat:1.7.0"
     implementation "com.google.android.material:material:1.12.0"
-    implementation "androidx.constraintlayout:constraintlayout:2.1.4"
+    implementation "androidx.constraintlayout:constraintlayout:2.2.0"
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+
+    // Splash Screen
+    implementation "androidx.core:core-splashscreen:1.0.1"
+
+    // Hilt
+    implementation "com.google.dagger:hilt-android:$hilt_version"
+    ksp "com.google.dagger:hilt-android-compiler:$hilt_version"
 
     // Testing
     testImplementation "junit:junit:4.13.2"
@@ -72,18 +81,18 @@ dependencies {
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
     implementation "com.squareup.retrofit2:converter-moshi:$retrofit_version"
     implementation "com.squareup.moshi:moshi:$moshi_version"
-    kapt "com.squareup.moshi:moshi-kotlin-codegen:$moshi_version"
+    ksp "com.squareup.moshi:moshi-kotlin-codegen:$moshi_version"
 
     // OkHttp Logger
     implementation "com.squareup.okhttp3:logging-interceptor:$okhttp_version"
 
     // Glide
     implementation "com.github.bumptech.glide:glide:$glide_version"
-    kapt "com.github.bumptech.glide:compiler:$glide_version"
+    ksp "com.github.bumptech.glide:compiler:$glide_version"
 
     // Firebase (base)
-    implementation platform("com.google.firebase:firebase-bom:33.5.1")
-    implementation "com.google.firebase:firebase-analytics-ktx"
+    implementation platform("com.google.firebase:firebase-bom:33.7.0")
+    implementation "com.google.firebase:firebase-analytics"
 
     // Lottie
     implementation "com.airbnb.android:lottie:$lottie_version"

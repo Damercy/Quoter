@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.map
 
 val Context.settingsDatastore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
-object DataStoreManager {
+class DataStoreManager {
 
     suspend fun saveValue(context: Context, key: String, value: String) {
         val dataKey = stringPreferencesKey(key)

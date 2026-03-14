@@ -6,7 +6,7 @@
     app:startDestination="@id/allQuotesByTag">
     <fragment
         android:id="@+id/allQuotesByTag"
-        android:name="com.dayaonweb.quoter.view.ui.browse.AllQuotesByTag"
+        android:name="com.dayaonweb.quoter.presentation.view.ui.browse.AllQuotesByTag"
         android:label="AllQuotesByTag"
         tools:layout="@layout/fragment_all_quotes_by_tag">
         <action
@@ -26,7 +26,7 @@
     </fragment>
     <fragment
         android:id="@+id/browseTag"
-        android:name="com.dayaonweb.quoter.view.ui.browsetag.BrowseTag"
+        android:name="com.dayaonweb.quoter.presentation.view.ui.browsetag.BrowseTag"
         android:label="BrowseTag"
         tools:layout="@layout/fragment_browse_tag">
         <argument
@@ -35,7 +35,7 @@
     </fragment>
     <fragment
         android:id="@+id/menuFragment"
-        android:name="com.dayaonweb.quoter.view.ui.browse.MenuFragment"
+        android:name="com.dayaonweb.quoter.presentation.view.ui.browse.MenuFragment"
         android:label="MenuFragment"
         tools:layout="@layout/fragment_menu" >
         <action
@@ -50,6 +50,6 @@
     <fragment
         tools:layout="@layout/fragment_all_settings"
         android:id="@+id/allSettingsFragment"
-        android:name="com.dayaonweb.quoter.view.ui.settings.AllSettingsFragment"
+        android:name="com.dayaonweb.quoter.presentation.view.ui.settings.AllSettingsFragment"
         android:label="AllSettingsFragment" />
 </navigation>
