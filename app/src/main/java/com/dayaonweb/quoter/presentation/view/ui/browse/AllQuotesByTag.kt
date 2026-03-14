@@ -68,10 +68,6 @@ class AllQuotesByTag : Fragment() {
             wrapSelectorWheel = true
             isVisible = true
         }
-        println("daya ${bi?.numberPicker?.maxValue}")
-        println("daya ${bi?.numberPicker?.displayedValues}")
-        println("daya ${bi?.numberPicker?.minValue}")
-        println("daya ${bi?.numberPicker?.isVisible}")
     }
 
     private fun attachListeners() {

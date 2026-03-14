@@ -8,6 +8,9 @@ import com.dayaonweb.quoter.data.repository.PreferencesRepo
 import com.dayaonweb.quoter.data.repository.PreferencesRepoImpl
 import com.dayaonweb.quoter.data.repository.QuotesRepo
 import com.dayaonweb.quoter.data.repository.QuotesRepoImpl
+import com.dayaonweb.quoter.domain.tts.QuoteSpeaker
+import com.dayaonweb.quoter.domain.tts.QuoteSpeakerImpl
+import com.dayaonweb.quoter.domain.tts.Quoter
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -24,6 +27,18 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 class QuoteModule {
+
+    @Provides
+    @Singleton
+    fun provideTTSEngine(
+        @ApplicationContext context: Context,
+    ): Quoter = Quoter(context, {})
+
+    @Provides
+    @Singleton
+    fun provideQuoteSpeaker(
+        quoter: Quoter
+    ): QuoteSpeaker = QuoteSpeakerImpl(quoter)
 
     @Provides
     @Singleton
