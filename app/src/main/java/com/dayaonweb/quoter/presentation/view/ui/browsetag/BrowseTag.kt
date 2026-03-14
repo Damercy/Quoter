@@ -1,27 +1,29 @@
 package com.dayaonweb.quoter.presentation.view.ui.browsetag
 
+import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Intent
 import android.graphics.drawable.AnimationDrawable
 import android.net.Uri
 import android.os.Bundle
-import android.util.TypedValue
 import android.view.*
 import android.widget.PopupMenu
 import androidx.core.content.FileProvider
-import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.asLiveData
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.RecyclerView
 import com.dayaonweb.quoter.R
 import com.dayaonweb.quoter.domain.analytics.Analytics
 import com.dayaonweb.quoter.databinding.FragmentBrowseTagBinding
 import com.dayaonweb.quoter.domain.extensions.showSnack
-import com.dayaonweb.quoter.domain.models.UiQuote
 import com.dayaonweb.quoter.domain.tts.QuoteSpeaker
+import com.google.android.material.carousel.CarouselLayoutManager
+import com.google.android.material.carousel.CarouselSnapHelper
+import com.google.android.material.carousel.FullScreenCarouselStrategy
 import dagger.Lazy
 import dagger.hilt.android.AndroidEntryPoint
 import java.io.File
@@ -33,19 +35,14 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
 
     private var bi: FragmentBrowseTagBinding? = null
     private val viewModel: BrowseTagViewModel by viewModels()
-    private var authorToQuote = mutableMapOf<String,UiQuote>()
-    private var totalPages = -1
-    private var pageToFetch = 1
-    private var currentPageCount = 0
-    private var currentQuoteNumber = 1
+
     @Inject
     lateinit var quoteSpeaker: Lazy<QuoteSpeaker>
     private val args: BrowseTagArgs by navArgs()
     private lateinit var speakerAnimation: AnimationDrawable
 
-    /**************ANALYTICS********************/
-    private var currentQuoteId: String = ""
-    private lateinit var currentQuoteTag: List<String>
+    private val quotesAdapter by lazy { QuotesAdapter() }
+    private val snapHelper by lazy { CarouselSnapHelper() }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -58,17 +55,51 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setupUi()
         attachListeners()
         attachObservers()
-        viewModel.fetchQuotesByTag(args.tag, pageToFetch)
+        viewModel.fetchQuotesByTag(args.tag)
+    }
+
+    private fun setupUi() {
+        bi?.rvQuotes?.apply {
+            val manager = CarouselLayoutManager(
+                FullScreenCarouselStrategy(),
+                CarouselLayoutManager.HORIZONTAL
+            )
+            layoutManager = manager
+            snapHelper.attachToRecyclerView(this)
+            adapter = quotesAdapter
+            addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    super.onScrolled(recyclerView, dx, dy)
+                    updateSerialText()
+                }
+
+                override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                    super.onScrollStateChanged(recyclerView, newState)
+                    if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                        updateSerialText()
+                    }
+                }
+            })
+        }
+        bi?.speakImageView?.apply {
+            setBackgroundResource(R.drawable.speaking_anim)
+            post {
+                speakerAnimation = background as AnimationDrawable
+            }
+        }
     }
 
     private fun initQuoter(ttsLanguage: Locale) {
         bi?.ttsLoader?.isVisible = false
         bi?.speakImageView?.isVisible = true
-        quoteSpeaker.get().setEngineLocale(ttsLanguage)
-        quoteSpeaker.get().setSpeechRate(viewModel.preferences.value?.speechRate ?: 1.0f)
-        val engineLocale = quoteSpeaker.get().getEngineLocale() ?: ttsLanguage
+        val speaker = quoteSpeaker.get()
+        speaker.initSpeakListener()
+        speaker.setEngineLocale(ttsLanguage)
+        speaker.setSpeechRate(viewModel.preferences.value?.speechRate ?: 1.0f)
+        val engineLocale = speaker.getEngineLocale() ?: ttsLanguage
         viewModel.updateTtsLanguage(engineLocale)
     }
 
@@ -77,12 +108,17 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
             initQuoter(it.ttsLanguage)
         }
         viewModel.quotes.observe(viewLifecycleOwner) {
-            currentPageCount += it.size
-            totalPages = it.size
-            for (quote in it) {
-                authorToQuote[quote.author] = quote
+            bi?.apply {
+                loader.isVisible = false
+                rvQuotes.isVisible = true
+                rvQuotes.requestLayout()
+                backImageView.isVisible = true
+                shareImageView.isVisible = true
+                optionsImageView.isVisible = true
+                serialTextView.isVisible = true
             }
-            initNumberPicker()
+            quotesAdapter.submitList(it)
+            updateSerialText()
         }
         viewModel.ssFile.observe(viewLifecycleOwner) {
             shareScreenshot(
@@ -93,14 +129,26 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
                 )
             )
         }
-        quoteSpeaker.get().isSpeaking().asLiveData().observe(viewLifecycleOwner){ isSpeaking ->
-            if(isSpeaking){
+        quoteSpeaker.get().isSpeaking().asLiveData().observe(viewLifecycleOwner) { isSpeaking ->
+            if (::speakerAnimation.isInitialized.not())
+                return@observe
+            if (isSpeaking) {
                 speakerAnimation.start()
-            }else{
+            } else {
                 speakerAnimation.stop()
                 speakerAnimation.selectDrawable(0)
             }
         }
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun updateSerialText() {
+        val layoutManager = bi?.rvQuotes?.layoutManager as? CarouselLayoutManager ?: return
+        val focusedView = snapHelper.findSnapView(layoutManager) ?: layoutManager.focusedChild ?: return
+        val current = layoutManager.getPosition(focusedView) + 1
+        val total = quotesAdapter.itemCount
+
+        bi?.serialTextView?.text = "$current/$total"
     }
 
     private fun shareScreenshot(fileUri: Uri) {
@@ -121,17 +169,22 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
     private fun attachListeners() {
         bi?.apply {
             shareImageView.setOnClickListener {
-                Analytics.trackQuoteShare(
-                    bi?.quoteTextView?.text.toString(),
-                    currentQuoteId,
-                    currentQuoteTag
+                // 1. Get the layout manager from the RecyclerView
+                val layoutManager =
+                    rvQuotes.layoutManager as? CarouselLayoutManager ?: return@setOnClickListener
+                // 2. The CarouselLayoutManager provides the center item index via its offset
+                val focusedChildView = snapHelper.findSnapView(layoutManager) ?: layoutManager.focusedChild ?: return@setOnClickListener
+                val currentPosition = layoutManager.getPosition(focusedChildView)
+                // 3. Find the ViewHolder for that position
+                val viewHolder =
+                    rvQuotes.findViewHolderForLayoutPosition(currentPosition) as? QuotesAdapter.QuotesViewHolder
+                // 4. Access the binding and view
+                val quoteRootView = viewHolder?.binding?.quoteRoot ?: return@setOnClickListener
+                // 5. Trigger the screenshot
+                viewModel.takeScreenShot(
+                    quoteRootView,
+                    File(quoteRootView.context.externalCacheDir, "quoter_${UUID.randomUUID()}.jpg")
                 )
-                screenshotView.let { containerView ->
-                    viewModel.takeScreenShot(
-                        containerView,
-                        File(requireContext().externalCacheDir, "quoter_${UUID.randomUUID()}.jpg")
-                    )
-                }
             }
             optionsImageView.setOnClickListener {
                 showPopup(it)
@@ -139,81 +192,18 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
             backImageView.setOnClickListener {
                 requireActivity().onBackPressed()
             }
-            quoteScroller.setOnValueChangedListener { _, _, newVal ->
-                currentQuoteNumber = newVal + 1
-                val currentQuote = authorToQuote.values.toTypedArray().getOrNull(newVal) ?: return@setOnValueChangedListener
-                quoteTextView.text = currentQuote.quote
-                ssQuoteTextView.text = currentQuote.quote
-                authorTextView.text = currentQuote.author
-                ssAuthorTextView.text = currentQuote.author
-                serialTextView.text = String.format("%s", "$currentQuoteNumber/$currentPageCount")
-                fadeInViews()
-                quoteTextView.setTextSize(
-                    TypedValue.COMPLEX_UNIT_SP,
-                    if ((currentQuote.quote.length) > 150) 24f else 32f
-                )
-                ssQuoteTextView.setTextSize(
-                    TypedValue.COMPLEX_UNIT_SP,
-                    if ((currentQuote.quote.length) > 150) 18f else 28f
-                )
-                if (currentPageCount - (newVal + 1) <= 4) {
-                    pageToFetch++
-                    if (pageToFetch <= totalPages && !viewModel.isFetchingQuotes)
-                        viewModel.fetchQuotesByTag(args.tag, pageToFetch)
-                }
-
-                /**************ANALYTICS********************/
-                currentQuoteId = currentQuote.id
-                currentQuoteTag = listOf(currentQuote.tags.joinToString())
-            }
-
-            speakImageView.apply {
-                setBackgroundResource(R.drawable.speaking_anim)
-                speakerAnimation = background as AnimationDrawable
-                setOnClickListener {
-                    val uiQuote = authorToQuote.get(bi?.authorTextView?.text?.toString())?: return@setOnClickListener
-                    quoteSpeaker.get().speak(uiQuote)
-                }
+            speakImageView.setOnClickListener {
+                // 1. Get the layout manager from the RecyclerView
+                val layoutManager =
+                    rvQuotes.layoutManager as? CarouselLayoutManager ?: return@setOnClickListener
+                // 2. The CarouselLayoutManager provides the center item index via its offset
+                val focusedChildView = snapHelper.findSnapView(layoutManager) ?:layoutManager.focusedChild ?: return@setOnClickListener
+                val currentPosition = layoutManager.getPosition(focusedChildView)
+                val uiQuote = quotesAdapter.currentList.getOrNull(currentPosition)
+                    ?: return@setOnClickListener
+                quoteSpeaker.get().speak(uiQuote)
             }
         }
-    }
-
-    private fun fadeInViews() {
-        bi?.apply {
-            authorTextView.alpha = 0.0f
-            quoteTextView.alpha = 0.0f
-            quoteImageView.alpha = 0.0f
-            authorTextView.animate().alpha(1.0f).setDuration(200).start()
-            quoteTextView.animate().alpha(1.0f).setDuration(200).start()
-            quoteImageView.animate().alpha(1.0f).setDuration(200).start()
-        }
-    }
-
-    private fun initNumberPicker() {
-        bi?.quoteScroller?.apply {
-            isVisible = true
-            typeface = ResourcesCompat.getFont(requireContext(), R.font.main_bold)
-            setSelectedTypeface(ResourcesCompat.getFont(requireContext(), R.font.main_bold))
-            minValue = 0
-            maxValue = currentPageCount - 1
-            displayedValues = Array(authorToQuote.size) { "" }
-        }
-        val uiQuote = authorToQuote.values.firstOrNull() ?: return
-        bi?.quoteTextView?.text = uiQuote.quote
-        bi?.ssQuoteTextView?.text = uiQuote.quote
-        bi?.authorTextView?.text = uiQuote.author
-        bi?.ssAuthorTextView?.text = uiQuote.author
-        bi?.serialTextView?.text = String.format("%s", "$currentQuoteNumber/$currentPageCount")
-        bi?.shareImageView?.isVisible = true
-        bi?.backImageView?.isVisible = true
-        bi?.quoteImageView?.isVisible = true
-        bi?.optionsImageView?.isVisible = true
-        bi?.speakImageView?.isVisible = true
-        bi?.loader?.isVisible = false
-
-        /**************ANALYTICS********************/
-        currentQuoteId = uiQuote.id
-        currentQuoteTag = uiQuote.tags
     }
 
     private fun showPopup(anchorView: View) {
@@ -230,12 +220,16 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
     override fun onMenuItemClick(item: MenuItem?): Boolean {
         return when (item?.itemId) {
             R.id.copy_quote -> {
-                bi?.quoteTextView?.text?.let { quote ->
-                    bi?.authorTextView?.text?.let { author ->
-                        Analytics.trackQuoteCopy(quote.toString(), currentQuoteId, currentQuoteTag)
-                        copyText(String.format("%s\n\n~ %s", quote, author))
-                    }
-                }
+                // 1. Get the layout manager from the RecyclerView
+                val layoutManager =
+                    bi?.rvQuotes?.layoutManager as? CarouselLayoutManager ?: return false
+                // 2. The CarouselLayoutManager provides the center item index via its offset
+                val focusedChildView = snapHelper.findSnapView(layoutManager) ?: layoutManager.focusedChild ?: return false
+                val currentPosition = layoutManager.getPosition(focusedChildView)
+                val uiQuote = quotesAdapter?.currentList?.getOrNull(currentPosition) ?: return false
+                val quote = String.format("%s\n\n~ %s", uiQuote.quote, uiQuote.author)
+                Analytics.trackQuoteCopy(quote, uiQuote.id, uiQuote.tags)
+                copyText(quote)
                 true
             }
 
@@ -250,9 +244,20 @@ class BrowseTag : Fragment(), PopupMenu.OnMenuItemClickListener {
         showSnack("Copied")
     }
 
+    override fun onStop() {
+        quoteSpeaker.get().stopSpeaking()
+        if (::speakerAnimation.isInitialized) {
+            speakerAnimation.stop()
+        }
+        super.onStop()
+    }
+
     override fun onDestroyView() {
         bi = null
         quoteSpeaker.get().stopSpeaking()
+        if (::speakerAnimation.isInitialized) {
+            speakerAnimation.stop()
+        }
         super.onDestroyView()
     }
 

@@ -21,6 +21,7 @@ class Quoter @Inject constructor(context: Context, onInit: (status: Int) -> Unit
 
     fun speakText(text: String, utteranceId: String) {
         if (isReady) {
+            stopSpeaking()
             tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, utteranceId)
         }
     }

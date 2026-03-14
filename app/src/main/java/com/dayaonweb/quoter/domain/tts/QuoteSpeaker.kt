@@ -13,4 +13,5 @@ interface QuoteSpeaker {
     fun getSupportedLocales(): Set<Locale>?
     fun setSpeechRate(rate: Float)
     fun isSpeaking(): Flow<Boolean>
+    fun initSpeakListener()
 }

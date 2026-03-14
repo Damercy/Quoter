@@ -11,9 +11,9 @@
         android:id="@+id/back_image_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="@null"
+        android:padding="16dp"
         android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -22,138 +22,19 @@
         app:srcCompat="@drawable/ic_back"
         tools:visibility="visible" />
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/screenshot_view"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:background="@color/onPrimary"
-        android:elevation="1dp"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="@+id/author_text_view"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/quoteScroller">
-
-        <ImageView
-            android:id="@+id/ss_quote_image_view"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:contentDescription="@null"
-            android:paddingStart="48dp"
-            android:paddingEnd="0dp"
-            app:layout_constraintBottom_toBottomOf="@+id/ss_quote_text_view"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/ss_quote_text_view"
-            app:layout_constraintVertical_bias="0.0"
-            app:srcCompat="@drawable/ic_quote"
-            tools:visibility="visible" />
-
-        <TextView
-            android:id="@+id/ss_quote_text_view"
-            style="@style/TextStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/main_bold"
-            android:gravity="center"
-            android:padding="48dp"
-            android:textAlignment="textStart"
-            android:textSize="32sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:ignore="RtlCompat"
-            tools:text="To be or not to be, that is the question." />
-
-
-        <TextView
-            android:id="@+id/ss_author_text_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="56dp"
-            android:layout_marginBottom="32dp"
-            android:fontFamily="@font/main_regular"
-            android:textAllCaps="true"
-            android:textColor="@color/controlNormal"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/ss_quote_text_view"
-            app:layout_constraintVertical_bias="1.0"
-            tools:text="Shakespeare" />
-
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-
-    <com.shawnlin.numberpicker.NumberPicker
-        android:id="@+id/quoteScroller"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toTopOf="@+id/author_text_view"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/back_image_view"
-        app:np_dividerColor="@android:color/transparent"
-        app:np_maxFlingVelocityCoefficient="20"
-        app:np_orientation="horizontal"
-        app:np_selectedTextSize="48sp"
-        app:np_wheelItemCount="1"
-        app:np_wrapSelectorWheel="false" />
-
-    <ImageView
-        android:id="@+id/quote_image_view"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:contentDescription="@null"
-        android:paddingStart="48dp"
-        android:paddingEnd="0dp"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="@+id/quote_text_view"
-        app:layout_constraintEnd_toEndOf="@+id/quoteScroller"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/quote_text_view"
-        app:layout_constraintVertical_bias="0.0"
-        app:srcCompat="@drawable/ic_quote"
-        tools:visibility="visible" />
-
-    <TextView
-        android:id="@+id/quote_text_view"
-        style="@style/TextStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:fontFamily="@font/main_bold"
-        android:gravity="center"
-        android:padding="48dp"
-        android:textAlignment="textStart"
-        android:textSize="32sp"
-        app:layout_constraintBottom_toBottomOf="@+id/quoteScroller"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/quoteScroller"
-        tools:ignore="RtlCompat"
-        tools:text="To be or not to be, that is the question" />
-
-    <TextView
-        android:id="@+id/author_text_view"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_quotes"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="56dp"
-        android:fontFamily="@font/main_regular"
-        android:textAllCaps="true"
-        android:textColor="@color/controlNormal"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_height="0dp"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        app:layout_constraintBottom_toTopOf="@id/share_image_view"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.84000003"
-        tools:text="Shakespeare"
-        tools:visibility="visible" />
+        app:layout_constraintTop_toBottomOf="@id/back_image_view"
+        tools:itemCount="8"
+        tools:listitem="@layout/item_quote" />
+
 
     <TextView
         android:id="@+id/serial_text_view"
@@ -166,21 +47,20 @@
         app:layout_constraintBottom_toBottomOf="@+id/share_image_view"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/share_image_view"
-        app:layout_constraintVertical_bias="0.84000003"
         tools:text="1/20" />
 
     <ImageView
         android:id="@+id/share_image_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="@null"
         android:visibility="invisible"
+        android:padding="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/author_text_view"
+        app:layout_constraintStart_toStartOf="parent"
         app:srcCompat="@drawable/ic_share"
         tools:visibility="visible" />
 
@@ -206,17 +86,18 @@
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.2"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/share_image_view"
+        tools:src="@drawable/speaking_anim"
         tools:visibility="visible" />
 
     <ImageView
         android:id="@+id/options_image_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="@null"
+        android:padding="16dp"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="@+id/back_image_view"
         app:layout_constraintEnd_toEndOf="parent"
