@@ -1,0 +1,1 @@
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android" android:drawable="@drawable/vec_moon"><target android:name="icon" android:animation="@animator/icon_press"/></animated-vector>

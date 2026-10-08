@@ -1,0 +1,24 @@
+{
+  "packageName": "com.dayaonweb.quoter",
+  "listings": {
+    "en-GB": {
+      "shortDescription": "REPLACE WITH REVIEWED STORE DESCRIPTION"
+    }
+  },
+  "images": {
+    "en-GB": {
+      "phoneScreenshots": ["screenshots/01.png", "screenshots/02.png"]
+    }
+  },
+  "bundle": "../app/build/outputs/bundle/release/app-release.aab",
+  "mapping": "../app/build/outputs/mapping/release/mapping.txt",
+  "release": {
+    "track": "production",
+    "status": "completed",
+    "expectedVersionCode": 40000,
+    "name": "4.00.00",
+    "releaseNotes": [
+      {"language": "en-GB", "text": "REPLACE WITH REVIEWED RELEASE NOTES"}
+    ]
+  }
+}

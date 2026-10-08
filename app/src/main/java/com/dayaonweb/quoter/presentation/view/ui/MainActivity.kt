@@ -1,155 +1,63 @@
 package com.dayaonweb.quoter.presentation.view.ui
 
-import android.Manifest
-import android.app.AlarmManager
-import android.app.PendingIntent
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
-import android.widget.Toast
+import android.content.Intent
+import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
+import androidx.activity.viewModels
+import androidx.activity.ComponentActivity
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.dayaonweb.quoter.domain.analytics.Analytics
-import com.dayaonweb.quoter.domain.constants.Constants
-import com.dayaonweb.quoter.data.local.DataStoreManager
-import com.dayaonweb.quoter.databinding.ActivityMainBinding
-import com.dayaonweb.quoter.domain.broadcast.QuoteBroadcast
-import com.dayaonweb.quoter.domain.tts.QuoteSpeaker
-import dagger.Lazy
+import com.dayaonweb.quoter.domain.broadcast.ReminderScheduler
+import com.dayaonweb.quoter.presentation.compose.*
 import dagger.hilt.android.AndroidEntryPoint
-
 import kotlinx.coroutines.launch
-import java.util.*
-import javax.inject.Inject
-
+import kotlinx.coroutines.flow.first
+import androidx.lifecycle.Lifecycle
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity() {
-
-    private lateinit var binding: ActivityMainBinding
-
-    @Inject
-    lateinit var dataStoreManager: Lazy<DataStoreManager>
-
-    @Inject
-    lateinit var quoteSpeaker: QuoteSpeaker
-
-    private val requestPermissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
-            if (!isGranted) {
-                Toast.makeText(
-                    this,
-                    "Please grant notification permission to get local notifications.",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        }
-
+class MainActivity : ComponentActivity() {
+    private val model: QuoterViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
-        installSplashScreen()
-        enableEdgeToEdge()
+        val splash = installSplashScreen()
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        enableEdgeToEdge()
+        splash.setOnExitAnimationListener { it.remove() }
         Analytics.init(this)
-        initNotifications()
-        initAppTheme()
-        checkNotificationPermission()
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
-    }
-
-    private fun checkNotificationPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            when {
-                ContextCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.POST_NOTIFICATIONS
-                ) == PackageManager.PERMISSION_GRANTED -> {
-                    // Notification permission is granted, yay!
-                }
-
-                ActivityCompat.shouldShowRequestPermissionRationale(
-                    this, Manifest.permission.POST_NOTIFICATIONS
-                ) -> {
-                    Toast.makeText(
-                        this,
-                        "Please grant notification permission to get local notifications.",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-
-                else -> {
-                    // Ask permission
-                    requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                }
+        setContent {
+            val state by model.state.collectAsStateWithLifecycle()
+            if (state.quotes.isEmpty()) QuoterTheme(state.settings.theme) { Surface(Modifier.fillMaxSize()) {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { LoadingDots() }
             }
+            } else QuoterScreen(state, remember(model) { QuoterActions(model::save, model::theme, model::reminder,
+                model::time, model::imageNotification, model::rate, model::voice, model::glass, model::glassTransparency, model::reviewRequests) })
         }
+        if (savedInstanceState == null) recordAppLaunch()
     }
-
-    private fun initAppTheme() {
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        if (intent.action == Intent.ACTION_MAIN && Intent.CATEGORY_LAUNCHER in intent.categories.orEmpty()) recordAppLaunch()
+    }
+    private fun recordAppLaunch() {
         lifecycleScope.launch {
-            val isDarkMode = dataStoreManager.get().getBooleanValue(
-                this@MainActivity,
-                Constants.IS_DARK_MODE,
-                AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES
-            )
-            AppCompatDelegate.setDefaultNightMode(if (isDarkMode) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO)
+            val review = ReviewPrompter(this@MainActivity)
+            val due = review.claimLaunch()
+            if (!due || com.dayaonweb.quoter.BuildConfig.DEBUG) return@launch
+            model.state.first { it.quotes.isNotEmpty() }
+            lifecycle.currentStateFlow.first { it.isAtLeast(Lifecycle.State.RESUMED) }
+            review.request()
         }
     }
-
-    private fun initNotifications() {
-        lifecycleScope.launch {
-            val isNotificationOn = dataStoreManager.get().getBooleanValue(
-                this@MainActivity,
-                Constants.IS_NOTIFICATION_ON,
-                true
-            )
-            if (isNotificationOn) {
-                val notificationTime = dataStoreManager.get().getStringValue(
-                    this@MainActivity,
-                    Constants.NOTIFICATION_TIME,
-                    "9:00"
-                )
-                val time = notificationTime.split(":")
-                setAlarm(time[0].toInt(), time[1].toInt())
-            }
-        }
+    override fun onResume() {
+        super.onResume()
+        lifecycleScope.launch { ReminderScheduler(this@MainActivity).reconcile() }
     }
-
-
-    private fun setAlarm(hour: Int, minute: Int) {
-        val calendar = Calendar.getInstance()
-        calendar.apply {
-            set(Calendar.HOUR_OF_DAY, hour)
-            set(Calendar.MINUTE, minute)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
-        }
-        val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
-        val broadcastIntent = Intent(this, QuoteBroadcast::class.java)
-        val pendingIntent = PendingIntent.getBroadcast(
-            this,
-            Constants.PENDING_INTENT_REQ_CODE,
-            broadcastIntent,
-            PendingIntent.FLAG_MUTABLE
-        )
-        if (calendar.before(Calendar.getInstance()))
-            calendar.add(Calendar.DATE, 1)
-        alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP,calendar.timeInMillis,pendingIntent)
-    }
-
-
 }

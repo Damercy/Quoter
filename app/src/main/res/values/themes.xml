@@ -1,71 +1,18 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Theme.Quoter" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/primary</item>
-        <item name="colorPrimaryVariant">@color/primaryVariant</item>
-        <item name="colorOnPrimary">@color/onPrimary</item>
-        <item name="colorPrimaryDark">@color/primaryDark</item>
-        <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/secondary</item>
-        <item name="colorSecondaryVariant">@color/secondaryVariant</item>
-        <item name="colorOnSecondary">@color/onSecondary</item>
-        <item name="colorControlNormal">@color/controlNormal</item>
-        <!-- System bars -->
-        <item name="android:windowLightStatusBar">@bool/isLightStatusBar</item>
-        <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">@bool/isLightNavBar</item>
-        <item name="android:navigationBarColor">@color/onPrimary</item>
-        <item name="android:fontFamily">@font/main_bold</item>
+<resources>
+    <style name="Theme.Quoter" parent="android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:colorAccent">@color/black</item>
+        <item name="android:fontFamily">@font/main_regular</item>
+        <item name="android:windowBackground">@color/white</item>
     </style>
-
     <style name="Theme.App.Starting" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenBackground">@color/white</item>
+        <item name="windowSplashScreenBackground">@color/onPrimary</item>
         <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher_round</item>
         <item name="postSplashScreenTheme">@style/Theme.Quoter</item>
     </style>
-
-    <style name="TextStyle">
-        <item name="android:textColor">@color/text</item>
+    <style name="QuoterTimePickerLight" parent="android:style/Theme.Material.Light.Dialog.Alert">
+        <item name="android:colorAccent">@color/black</item>
     </style>
-    <style name="BasePopupMenu" parent="Widget.AppCompat.PopupMenu">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_gravity">center</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:textSize">12sp</item>
-        <item name="android:dropDownHorizontalOffset">16dp</item>
-        <item name="android:textColor">@color/text</item>
-        <item name="android:fontFamily">@font/main_regular</item>
-    </style>
-
-    <style name="Theme.AppCompat.Slider">
-        <item name="thumbColor">@color/primary</item>
-        <item name="tickColorInactive">@color/onPrimary</item>
-        <item name="trackColorActive">@color/primary</item>
-    </style>
-
-    <style name="ClickableView">
-        <item name="colorControlHighlight">@color/cardview_dark_background</item>
-        <item name="android:background">?selectableItemBackground</item>
-    </style>
-
-    <style name="ChipTextStyle" parent="TextAppearance.MaterialComponents.Chip">
-        <item name="android:fontFamily">@font/main_bold</item>
-    </style>
-
-    <style name="RegularFontStyle" parent="TextAppearance.MaterialComponents.Subtitle1">
-        <item name="fontFamily">@font/main_regular</item>
-        <item name="android:fontFamily">@font/main_regular</item>
-    </style>
-
-    <style name="ChipStyle" parent="Widget.MaterialComponents.Chip.Choice">
-        <item name="chipSurfaceColor">@color/chip_surface_color</item>
-        <item name="android:textColor">@color/chip_text_color</item>
-        <item name="rippleColor">@color/cardview_dark_background</item>
-        <item name="chipCornerRadius">8dp</item>
-        <item name="chipMinHeight">40dp</item>
-    </style>
-
-    <style name="AlertDialogStyle" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
-        <item name="materialAlertDialogBodyTextStyle">@style/RegularFontStyle</item>
+    <style name="QuoterTimePickerDark" parent="android:style/Theme.Material.Dialog.Alert">
+        <item name="android:colorAccent">@color/white</item>
     </style>
 </resources>

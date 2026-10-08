@@ -1,191 +1,65 @@
 package com.dayaonweb.quoter.domain.broadcast
 
-import android.Manifest
-import android.app.AlarmManager
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.app.PendingIntent
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.graphics.Color
-import android.os.Build
-import androidx.core.app.ActivityCompat
+import android.content.*
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.app.TaskStackBuilder
-import com.bumptech.glide.Glide
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import com.dayaonweb.quoter.R
+import com.dayaonweb.quoter.data.local.settingsDatastore
+import com.dayaonweb.quoter.data.repository.QuotesRepoImpl
 import com.dayaonweb.quoter.domain.constants.Constants
-import com.dayaonweb.quoter.domain.constants.Constants.CHANNEL_ID
-import com.dayaonweb.quoter.domain.constants.Constants.CHANNEL_NAME
-import com.dayaonweb.quoter.domain.constants.Constants.IS_IMAGE_NOTIFICATION_STYLE
-import com.dayaonweb.quoter.domain.constants.Constants.NOTIFICATION_ID
-import com.dayaonweb.quoter.data.local.DataStoreManager
-import com.dayaonweb.quoter.data.remote.QuotesClient
-import com.dayaonweb.quoter.data.remote.model.RandomQuotesListingResponseItem
 import com.dayaonweb.quoter.presentation.view.ui.MainActivity
+import com.dayaonweb.quoter.presentation.compose.QuoteImage
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
-import java.util.Calendar
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class QuoteBroadcast : BroadcastReceiver() {
-
-    @Inject
-    lateinit var coroutineScope: CoroutineScope
-
-    @Inject
-    lateinit var dataStoreManager: DataStoreManager
-
-    @Inject
-    lateinit var remoteDataSource: QuotesClient
-
-
-    private lateinit var authorImageBitmap: Bitmap
-    private var randomQuote: RandomQuotesListingResponseItem? = null
-    private var isImageTypeNotification = true
-
+    @Inject lateinit var repository: QuotesRepoImpl
     override fun onReceive(context: Context, intent: Intent) {
-        val result = goAsync()
-        coroutineScope.launch {
+        val pending = goAsync()
+        CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
+            val scheduler = ReminderScheduler(context)
             try {
-                isImageTypeNotification =
-                    dataStoreManager.getBooleanValue(context, IS_IMAGE_NOTIFICATION_STYLE, true)
-                randomQuote = remoteDataSource.api.getQuotes(limit = 2).random()
-                if (isImageTypeNotification) {
-                    val authorImageResponse =
-                        remoteDataSource.wikiApi.getAuthorImage(
-                            authorName = randomQuote?.author ?: "",
-                            thumbnailSize = 500
-                        ).query
-                    val authorImage =
-                        authorImageResponse?.pages?.entries?.first()?.value?.original?.source
-                            ?: ""
-
-                    authorImageBitmap = Glide.with(context)
-                        .asBitmap()
-                        .load(authorImage)
-                        .error(R.mipmap.ic_launcher)
-                        .submit()
-                        .get()
+                withTimeout(8000) {
+                    scheduler.createChannel()
+                    val preferences = context.settingsDatastore.data.first()
+                    if (preferences[booleanPreferencesKey(Constants.IS_NOTIFICATION_ON)] == false || !scheduler.canNotify()) return@withTimeout
+                    val quote = repository.randomQuote()
+                    val launch = PendingIntent.getActivity(context, Constants.NOTIFICATION_ID, Intent(context, MainActivity::class.java),
+                        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+                    val notification = NotificationCompat.Builder(context, Constants.CHANNEL_ID)
+                        .setSmallIcon(R.drawable.ic_quote).setContentTitle("Daily quote").setSubText(quote.author).setContentText(quote.quote)
+                        .setOnlyAlertOnce(true).setAutoCancel(true).setContentIntent(launch)
+                    if (quote.quote.length <= 350 && preferences[booleanPreferencesKey(Constants.IS_IMAGE_NOTIFICATION_STYLE)] != false) {
+                        val image = QuoteImage.render(context, quote, false, 720)
+                        val style = NotificationCompat.BigPictureStyle().bigPicture(image).setSummaryText(quote.quote)
+                        if (android.os.Build.VERSION.SDK_INT >= 31) style.showBigPictureWhenCollapsed(true)
+                            .setContentDescription("Quote by ${quote.author}")
+                        notification.setLargeIcon(image).setStyle(style)
+                    } else notification.setStyle(NotificationCompat.BigTextStyle().bigText(quote.quote))
+                    try { NotificationManagerCompat.from(context).notify(Constants.NOTIFICATION_ID, notification.build()) }
+                    catch (_: SecurityException) { /* Permission may be revoked while building. */ }
                 }
-            } catch (_: Exception) {
-                randomQuote = getOfflineRandomQuote()
-                authorImageBitmap = Glide.with(context)
-                    .asBitmap()
-                    .load(R.mipmap.ic_launcher)
-                    .submit()
-                    .get()
-            } finally {
-                val quote = randomQuote?.quote ?: ""
-                val title = "${randomQuote?.author ?: "Unknown"} says"
-                createNotificationChannel(context)
-                val notification = NotificationCompat.Builder(context, CHANNEL_ID)
-                    .setPriority(NotificationCompat.PRIORITY_HIGH)
-                    .setSmallIcon(R.mipmap.ic_launcher_round)
-                    .setContentTitle(title)
-                    .setContentText(quote)
-                    .setAutoCancel(true)
-                    .setStyle(
-                        if (isImageTypeNotification) {
-                            NotificationCompat.BigPictureStyle()
-                                .setBigContentTitle(title)
-                                .setSummaryText(quote)
-                                .bigPicture(authorImageBitmap)
-                        } else {
-                            NotificationCompat.BigTextStyle()
-                                .setBigContentTitle(title)
-                                .bigText(quote)
-                        }
-                    )
-                    .setContentIntent(getPendingIntent(context))
-                    .build()
-                val notificationManager = NotificationManagerCompat.from(context)
-                if (ActivityCompat.checkSelfPermission(
-                        context,
-                        Manifest.permission.POST_NOTIFICATIONS
-                    ) == PackageManager.PERMISSION_GRANTED
-                ) {
-                    if (notificationManager.areNotificationsEnabled())
-                        notificationManager.notify(NOTIFICATION_ID, notification)
-                }
-                val time =
-                    dataStoreManager.getStringValue(context, Constants.NOTIFICATION_TIME, "9:00")
-                val timeHrMin = time.split(":")
-                setAlarm(
-                    context = context,
-                    hour = timeHrMin[0].toInt(),
-                    minute = timeHrMin[1].toInt()
-                )
-                result.finish()
+            } catch (_: Exception) { /* Failure must never leave a BroadcastReceiver pending. */ }
+            finally {
+                try { withTimeout(1500) { scheduler.reconcile() } }
+                finally { pending.finish() }
             }
         }
     }
-
-
 }
 
-private fun setAlarm(context: Context, hour: Int, minute: Int) {
-    val calendar = Calendar.getInstance()
-    calendar.apply {
-        set(Calendar.HOUR_OF_DAY, hour)
-        set(Calendar.MINUTE, minute)
-        set(Calendar.SECOND, 0)
-        set(Calendar.MILLISECOND, 0)
-    }
-    val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-    val broadcastIntent = Intent(context, QuoteBroadcast::class.java)
-    val pendingIntent = PendingIntent.getBroadcast(
-        context,
-        Constants.PENDING_INTENT_REQ_CODE,
-        broadcastIntent,
-        PendingIntent.FLAG_MUTABLE
-    )
-    if (calendar.before(Calendar.getInstance()))
-        calendar.add(Calendar.DATE, 1)
-    alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent)
-}
-
-private fun getPendingIntent(context: Context): PendingIntent? {
-    val intent = Intent(context, MainActivity::class.java)
-    return TaskStackBuilder.create(context).run {
-        addNextIntentWithParentStack(intent)
-        getPendingIntent(
-            NOTIFICATION_ID,
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-        )
-    }
-}
-
-private fun createNotificationChannel(context: Context) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        val channel = NotificationChannel(
-            CHANNEL_ID, CHANNEL_NAME,
-            NotificationManager.IMPORTANCE_HIGH
-        ).apply {
-            lightColor = Color.GREEN
-            enableLights(true)
-            enableVibration(true)
+class ReminderRecoveryReceiver : BroadcastReceiver() {
+    override fun onReceive(context: Context, intent: Intent) {
+        if (intent.action !in setOf(Intent.ACTION_BOOT_COMPLETED, Intent.ACTION_MY_PACKAGE_REPLACED, Intent.ACTION_TIME_CHANGED, Intent.ACTION_TIMEZONE_CHANGED)) return
+        val pending = goAsync()
+        CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
+            try { withTimeout(8000) { ReminderScheduler(context).reconcile() } }
+            finally { pending.finish() }
         }
-        val manager =
-            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        manager.createNotificationChannel(channel)
     }
 }
-
-private fun getOfflineRandomQuote() =
-    listOf(
-        RandomQuotesListingResponseItem(
-            author = "Emily Dickinson",
-            quote = "Old age comes on suddenly, and not gradually as is thought."
-        ),
-        RandomQuotesListingResponseItem(
-            author = "C. S. Lewis",
-            quote ="How incessant and great are the ills with which a prolonged old age is replete."
-        )
-    ).random()

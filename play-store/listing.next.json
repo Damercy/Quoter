@@ -1,0 +1,10 @@
+{
+  "packageName": "com.dayaonweb.quoter",
+  "listings": {
+    "en-GB": {
+      "title": "Quoter: Quotes and Motivation",
+      "shortDescription": "Read inspiring quotes offline, save favourites, listen and share",
+      "fullDescription": "Find a little perspective in your day with Quoter, a minimalist quotes app for reading, reflection and motivation. Explore thousands of quotes in a quiet monochrome reader, with your favourites close at hand.\n\nREAD AND DISCOVER\nBrowse quotes by topic, or search for words and authors. The bundled collection is available offline, so you can keep reading without waiting for a network connection.\n\nKEEP YOUR FAVOURITES\nSave the quotes you want to return to. Quotes and Saved have separate reading positions, making it easy to switch between discovering something different and revisiting a favourite.\n\nLISTEN AT YOUR OWN PACE\nHear quotes through your device's on-device text-to-speech engine. Choose from compatible installed offline voices and adjust speech speed. Available voices depend on your device and speech engine; voice selection does not translate the quote text.\n\nSHARE A QUOTE\nShare a quote as an image with its author and attributed text through Android's sharing menu.\n\nMAKE TIME FOR REFLECTION\nSet a daily quote reminder at a time that suits you. Choose text or image-style notifications.\n\nA READER THAT FITS YOUR SCREEN\nUse Light, Dark or Automatic appearance. Turn glass controls on or off and adjust their transparency. On supported unfolded and tablet layouts, open Browse or Settings beside the reader while keeping your quote in view.\n\nQuoter keeps the focus on the words, with bold typography and a simple reading experience.\n\nFeedback: adhikaridayamoy@gmail.com"
+    }
+  }
+}

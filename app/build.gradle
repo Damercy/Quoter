@@ -1,102 +1,90 @@
 plugins {
-    id 'com.android.application'
-    id 'kotlin-android'
-    id 'kotlin-kapt'
-    id 'com.google.devtools.ksp'
-    id 'androidx.navigation.safeargs.kotlin'
-    id 'com.google.gms.google-services'
-    id 'com.google.dagger.hilt.android'
+    alias(libs.plugins.screenshot)
+    alias(libs.plugins.android)
+    alias(libs.plugins.compose)
+    alias(libs.plugins.serialization)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.google.services)
+    alias(libs.plugins.hilt)
 }
-
+ksp { arg('room.schemaLocation', "$projectDir/schemas") }
+def uploadSigning = ['QUOTER_UPLOAD_STORE', 'QUOTER_UPLOAD_ALIAS',
+                     'QUOTER_UPLOAD_STORE_PASSWORD', 'QUOTER_UPLOAD_KEY_PASSWORD']
+        .collectEntries { [(it): System.getenv(it)] }
+def hasUploadSigning = uploadSigning.values().every { it }
+if (uploadSigning.values().any { it } && !hasUploadSigning) {
+    throw new GradleException('Supply all four QUOTER_UPLOAD_* environment variables for signing.')
+}
 android {
-    compileSdk 36
-
+    experimentalProperties['android.experimental.enableScreenshotTest'] = true
+    namespace 'com.dayaonweb.quoter'
+    compileSdk 37
     defaultConfig {
-        applicationId "com.dayaonweb.quoter"
-        minSdkVersion 24
-        targetSdk 36
-        versionCode 30000
-        versionName "3.00.00"
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        applicationId 'com.dayaonweb.quoter'
+        minSdk 24
+        targetSdk 37
+        versionCode 40000
+        versionName '4.00.00'
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
-
+    signingConfigs {
+        if (hasUploadSigning) {
+            upload {
+                storeFile file(uploadSigning.QUOTER_UPLOAD_STORE)
+                keyAlias uploadSigning.QUOTER_UPLOAD_ALIAS
+                storePassword uploadSigning.QUOTER_UPLOAD_STORE_PASSWORD
+                keyPassword uploadSigning.QUOTER_UPLOAD_KEY_PASSWORD
+            }
+        }
+    }
     buildTypes {
         release {
+            if (hasUploadSigning) signingConfig signingConfigs.upload
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
-        debug{
-            minifyEnabled true
-            shrinkResources true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-        }
+        debug { minifyEnabled false; shrinkResources false }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        jvmTarget = '1.8'
-    }
-    buildFeatures{
-        viewBinding true
-    }
-    namespace 'com.dayaonweb.quoter'
+    buildFeatures { compose true; buildConfig true }
 }
-
 dependencies {
-
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation "androidx.core:core-ktx:1.15.0"
-    implementation "androidx.appcompat:appcompat:1.7.0"
-    implementation "com.google.android.material:material:1.12.0"
-    implementation "androidx.constraintlayout:constraintlayout:2.2.0"
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-
-    // Splash Screen
-    implementation "androidx.core:core-splashscreen:1.0.1"
-
-    // Hilt
-    implementation "com.google.dagger:hilt-android:$hilt_version"
-    ksp "com.google.dagger:hilt-android-compiler:$hilt_version"
-
-    // Testing
-    testImplementation "junit:junit:4.13.2"
-    androidTestImplementation "androidx.test.ext:junit:1.2.1"
-    androidTestImplementation "androidx.test.espresso:espresso-core:3.6.1"
-
-    // Livedata & ViewModel
-    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
-    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
-
-    // Navigation
-    implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
-    implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
-
-    // Datastore
-    implementation "androidx.datastore:datastore-preferences:$datastore_version"
-
-    // Retrofit & Moshi
-    implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
-    implementation "com.squareup.retrofit2:converter-moshi:$retrofit_version"
-    implementation "com.squareup.moshi:moshi:$moshi_version"
-    ksp "com.squareup.moshi:moshi-kotlin-codegen:$moshi_version"
-
-    // OkHttp Logger
-    implementation "com.squareup.okhttp3:logging-interceptor:$okhttp_version"
-
-    // Glide
-    implementation "com.github.bumptech.glide:glide:$glide_version"
-    ksp "com.github.bumptech.glide:compiler:$glide_version"
-
-    // Firebase (base)
-    implementation platform("com.google.firebase:firebase-bom:33.7.0")
-    implementation "com.google.firebase:firebase-analytics"
-
-    // Lottie
-    implementation "com.airbnb.android:lottie:$lottie_version"
-
-    // Number picker
-    implementation "io.github.ShawnLin013:number-picker:2.4.13"
+    implementation libs.play.review
+    implementation libs.compose.animation.graphics
+    screenshotTestImplementation libs.screenshot.validation
+    screenshotTestImplementation platform(libs.compose.bom)
+    screenshotTestImplementation libs.compose.tooling
+    implementation libs.core
+    implementation libs.splashscreen
+    implementation platform(libs.compose.bom)
+    implementation libs.compose.material3
+    implementation libs.backdrop
+    implementation libs.compose.foundation
+    implementation libs.compose.preview
+    implementation libs.activity.compose
+    implementation libs.lifecycle.compose
+    implementation libs.lifecycle.viewmodel
+    implementation libs.navigation3.ui
+    implementation libs.adaptive.navigation3
+    implementation libs.room.runtime
+    implementation libs.datastore
+    implementation libs.okhttp
+    implementation libs.hilt
+    ksp libs.hilt.compiler
+    ksp libs.room.compiler
+    implementation platform(libs.firebase.bom)
+    implementation libs.firebase.analytics
+    debugImplementation libs.compose.tooling
+    debugImplementation libs.compose.test.manifest
+    testImplementation libs.junit
+    androidTestImplementation libs.android.junit
+    androidTestImplementation libs.espresso
+    androidTestImplementation platform(libs.compose.bom)
+    androidTestImplementation libs.compose.test
+    androidTestImplementation libs.window.testing
+    androidTestImplementation libs.uiautomator
 }

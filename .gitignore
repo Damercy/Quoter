@@ -19,6 +19,7 @@ out/
 
 # Gradle files
 .gradle/
+.kotlin/
 build/
 
 # Local configuration file (sdk path, etc)
@@ -38,8 +39,12 @@ captures/
 
 # Keystore files
 # Uncomment the following lines if you do not want to check your keystore files in.
-#*.jks
-#*.keystore
+*.jks
+*.keystore
+*.p12
+*.pfx
+*.clixml
+keystore.properties
 
 # External native build folder generated in Android Studio 2.2 and later
 .externalNativeBuild
@@ -72,3 +77,9 @@ lint/tmp/
 
 #IDE
 .idea/
+
+# Google Play publishing credentials and local Python artifacts
+*service-account*.json
+*play-credentials*.json
+publisher.json
+__pycache__/

@@ -1,0 +1,22 @@
+{
+  "packageName": "com.dayaonweb.quoter",
+  "versionName": "4.00.00",
+  "capturedOn": "2026-10-09",
+  "source": "Resizable_Experimental_API_VanillaIceCream emulator; actual app UI, phone and OPENED large-window configurations",
+  "phone": [
+    {"path":"screenshots/phone/01-reader.png","alt":"Minimal monochrome quote reader with listening, saving and sharing controls"},
+    {"path":"screenshots/phone/02-browse.png","alt":"Browse quotes, search by words or author, and filter by topic"},
+    {"path":"screenshots/phone/03-saved.png","alt":"Saved quotes with a separate reading position and selected bookmark"},
+    {"path":"screenshots/phone/04-appearance.png","alt":"Light, Dark, Automatic and adjustable glass appearance settings"},
+    {"path":"screenshots/phone/05-voice-and-reminders.png","alt":"On-device voice and speech speed settings with daily notification options"},
+    {"path":"screenshots/phone/06-reminder-clock.png","alt":"Native reminder time sheet with an analogue clock"},
+    {"path":"screenshots/phone/07-image-sharing.png","alt":"Android sharing menu with quote image, author and Quoter attribution"},
+    {"path":"screenshots/phone/08-dark-reader.png","alt":"Dark monochrome quote reader with glass controls"}
+  ],
+  "largeScreen": [
+    {"path":"screenshots/large-screen/01-unfolded-browse.png","alt":"Unfolded large-screen reader with Browse beside the quote"},
+    {"path":"screenshots/large-screen/02-unfolded-settings.png","alt":"Unfolded large-screen reader with Settings in the supporting pane"},
+    {"path":"screenshots/large-screen/03-unfolded-saved.png","alt":"Saved quote with Browse available alongside on a large screen"},
+    {"path":"screenshots/large-screen/04-unfolded-dark.png","alt":"Dark unfolded large-screen reader and Browse pane"}
+  ]
+}

@@ -1,0 +1,110 @@
+[
+  {
+    "path": "screenshots/phone/01-reader.png",
+    "dimensions": [
+      1080,
+      1920
+    ],
+    "sha256": "45569b75e2f8d4936bd9a001a6e2ef13d5a79a81668085e09e58058538dd8214",
+    "alt": "Minimal monochrome quote reader with listening, saving and sharing controls"
+  },
+  {
+    "path": "screenshots/phone/02-browse.png",
+    "dimensions": [
+      1080,
+      1920
+    ],
+    "sha256": "f16060fb01fd92758d831ba906e9e0056767050370f927c608fb30681eb1f433",
+    "alt": "Browse quotes, search by words or author, and filter by topic"
+  },
+  {
+    "path": "screenshots/phone/03-saved.png",
+    "dimensions": [
+      1080,
+      1920
+    ],
+    "sha256": "ad259395d5280e367ae3b0373693884b5cc35a362344c182b2aec09c55fd7490",
+    "alt": "Saved quotes with a separate reading position and selected bookmark"
+  },
+  {
+    "path": "screenshots/phone/04-appearance.png",
+    "dimensions": [
+      1080,
+      1920
+    ],
+    "sha256": "3bc5a60a0f9f3218d3475aa5b057828b0330ccec35ee1b9ae73d4ab2c5bc5674",
+    "alt": "Light, Dark, Automatic and adjustable glass appearance settings"
+  },
+  {
+    "path": "screenshots/phone/05-voice-and-reminders.png",
+    "dimensions": [
+      1080,
+      1920
+    ],
+    "sha256": "12e452953f82fe712cb62e8b800cf88499daf30b77e0b430c7880260897df225",
+    "alt": "On-device voice and speech speed settings with daily notification options"
+  },
+  {
+    "path": "screenshots/phone/06-reminder-clock.png",
+    "dimensions": [
+      1080,
+      1920
+    ],
+    "sha256": "476b2799d3bf73aa99efd451d12fbd8ccaa9d3dedbf54e6b92e1208aeabb53f1",
+    "alt": "Native reminder time sheet with an analogue clock"
+  },
+  {
+    "path": "screenshots/phone/07-image-sharing.png",
+    "dimensions": [
+      1080,
+      1920
+    ],
+    "sha256": "4757f9687c017270a903d9ac77cac6c5586ea0dc9052c06f546a3fbac216f0da",
+    "alt": "Android sharing menu with quote image, author and Quoter attribution"
+  },
+  {
+    "path": "screenshots/phone/08-dark-reader.png",
+    "dimensions": [
+      1080,
+      1920
+    ],
+    "sha256": "0a83aa8c1913408aebf5289cbcd61c40a36dc2d090e4b089f64de20bdc4408c9",
+    "alt": "Dark monochrome quote reader with glass controls"
+  },
+  {
+    "path": "screenshots/large-screen/01-unfolded-browse.png",
+    "dimensions": [
+      1920,
+      1080
+    ],
+    "sha256": "cf935f9fb89e20955a7e3b4aa25ad95fa3ff7451edeb812fbc55a030a54a40f7",
+    "alt": "Unfolded large-screen reader with Browse beside the quote"
+  },
+  {
+    "path": "screenshots/large-screen/02-unfolded-settings.png",
+    "dimensions": [
+      1920,
+      1080
+    ],
+    "sha256": "baf228e78f2848bb4427123f9323c863c34e5f273ce22f9acb4709448952b412",
+    "alt": "Unfolded large-screen reader with Settings in the supporting pane"
+  },
+  {
+    "path": "screenshots/large-screen/03-unfolded-saved.png",
+    "dimensions": [
+      1920,
+      1080
+    ],
+    "sha256": "52c2b36a0300923f6d61d8e3f34f57cd6a77df82e6a44e1d3b5a4252ef21e06f",
+    "alt": "Saved quote with Browse available alongside on a large screen"
+  },
+  {
+    "path": "screenshots/large-screen/04-unfolded-dark.png",
+    "dimensions": [
+      1920,
+      1080
+    ],
+    "sha256": "c8d905ba4bdaa0f0b09943487b741d0b9a6fe13270ea8a1b9adc6524b7664a63",
+    "alt": "Dark unfolded large-screen reader and Browse pane"
+  }
+]

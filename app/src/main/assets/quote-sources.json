@@ -1,0 +1,22 @@
+{
+  "imported": "2026-10-08",
+  "quoteCount": 3079,
+  "sources": [
+    {
+      "repo": "micheleriva/the-quotes-database",
+      "commit": "61fb35c364e9a076d7f359fea9626a731aab8768",
+      "endpoint": "https://raw.githubusercontent.com/micheleriva/the-quotes-database/master/src/data/quotes.json",
+      "sha256": "4d10c2f02e5ecb7e781e1e38cec3da41dbd2507dcc257a20fd4e63401b8f3a15",
+      "inputCount": 5421,
+      "license": "MIT"
+    },
+    {
+      "repo": "Musheer360/QuoteSlate",
+      "commit": "15febfa55c5aa817a30f4dd7c662cd779a140ab9",
+      "endpoint": "https://raw.githubusercontent.com/Musheer360/QuoteSlate/main/data/quotes.json",
+      "sha256": "a2f411b4e291c695768dc4dbc01151b54c2f138585fbf1a847bc6e0bedc6392c",
+      "inputCount": 2616,
+      "license": "MIT"
+    }
+  ]
+}

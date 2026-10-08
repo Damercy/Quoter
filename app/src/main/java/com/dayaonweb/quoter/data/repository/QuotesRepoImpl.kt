@@ -1,98 +1,122 @@
 package com.dayaonweb.quoter.data.repository
 
-import com.dayaonweb.quoter.data.local.LOCAL_QUOTES_JSON
-import com.dayaonweb.quoter.data.remote.QuotesClient
-import com.dayaonweb.quoter.data.remote.model.RandomQuotesListingResponseItem
+import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.longPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.room.withTransaction
+import com.dayaonweb.quoter.data.local.*
 import com.dayaonweb.quoter.domain.models.UiQuote
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.withContext
-import org.json.JSONArray
-import javax.inject.Inject
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import java.io.ByteArrayOutputStream
+import java.io.IOException
 
-class QuotesRepoImpl @Inject constructor(
-    private val remoteDataSource: QuotesClient
-) : QuotesRepo {
+/** UI reads Room; network refresh never sits in the reading path. */
+class QuotesRepoImpl(private val context: Context, private val database: QuoteDatabase,
+    private val client: OkHttpClient, private val scope: CoroutineScope,
+    private val settings: DataStore<Preferences> = context.settingsDatastore,
+    private val endpoints: List<String> = ENDPOINTS,
+    private val clock: () -> Long = System::currentTimeMillis,
+    startAutomatically: Boolean = true) : QuotesRepo {
+    private val dao = database.quotes()
+    private val mutex = Mutex()
+    private val mutableStatus = MutableStateFlow("Loading local quotes")
+    val status = mutableStatus.asStateFlow()
+    val allQuotes = dao.observeQuotes().map { rows -> rows.map(QuoteParser::domain) }
+    val savedIds = dao.observeSaved().map { it.toSet() }
+    init { if (startAutomatically) scope.launch { initialize(); refresh() } }
 
-    override fun getTags(): Flow<List<String>> = flow {
-        try {
-            val remoteResponse = remoteDataSource.api.getAllGenres()
-            if (remoteResponse.isEmpty()) {
-                emit(getLocalQuotes()
-                    .flatMap { it.tags }
-                    .distinct()
-                    .shuffled()
-                )
-            } else {
-                emit(remoteResponse.distinct())
-            }
-        } catch (_: Exception) {
-            emit(getLocalQuotes()
-                .flatMap { it.tags }
-                .distinct()
-                .shuffled()
-            )
+    suspend fun initialize() = mutex.withLock {
+        val preferences = settings.data.first()
+        if (preferences[stringPreferencesKey("QUOTE_BUNDLE_VERSION")] != BUNDLE_VERSION || dao.count() == 0) {
+            val quotes = withContext(Dispatchers.IO) { context.assets.open("quotes.json").bufferedReader().use { QuoteParser.parse(it.readText()) } }
+            require(quotes.isNotEmpty()) { "Bundled quote collection is empty" }
+            database.withTransaction { dao.insertQuotes(quotes.map(QuoteParser::store)) }
+            settings.edit { it[stringPreferencesKey("QUOTE_BUNDLE_VERSION")] = BUNDLE_VERSION }
         }
+        mutableStatus.value = "Offline collection ready"
     }
 
-    override fun getQuotesByTags(tags: List<String>): Flow<List<UiQuote>> = flow {
-        try {
-            // Attempt to fetch from remote
-            val remoteResponse =
-                remoteDataSource.api.getQuotes(tags = tags.distinct().joinToString())
-            // Map remote response here if necessary. Assuming local fallback for now:
-            if (remoteResponse.isEmpty()) {
-                emit(
-                    getLocalQuotes().filter { it.tags.contains(tags.distinct().firstOrNull()) }
-                )
-            } else {
-                emit(mapToDomainModel(remoteResponse = remoteResponse))
-            }
-        } catch (_: Exception) {
-            emit(
-                getLocalQuotes().filter { it.tags.contains(tags.distinct().firstOrNull()) }
-            )
+    suspend fun refresh(force: Boolean = false) = mutex.withLock {
+        val preferences = settings.data.first()
+        val now = clock()
+        val lastSuccess = preferences[longPreferencesKey("QUOTE_REFRESH_SUCCESS")] ?: 0L
+        val nextAttempt = preferences[longPreferencesKey("QUOTE_REFRESH_AFTER")] ?: 0L
+        if (!force && (now < nextAttempt || now - lastSuccess < DAY)) return@withLock
+        var success = false
+        for ((index, url) in endpoints.withIndex()) {
+            currentCoroutineContext().ensureActive()
+            val etagKey = stringPreferencesKey("QUOTE_ETAG_$index")
+            try {
+                val response = withContext(Dispatchers.IO) {
+                    val request = Request.Builder().url(url).header("Accept", "application/json")
+                    preferences[etagKey]?.let { request.header("If-None-Match", it) }
+                    client.newCall(request.build()).execute().use { result ->
+                        when {
+                            result.code == 304 -> RefreshResult(null, result.header("ETag"))
+                            result.code == 429 -> throw IOException("Quote refresh rate limited")
+                            !result.isSuccessful -> throw IOException("Quote refresh HTTP ${result.code}")
+                            else -> {
+                                val body = result.body
+                                if (body.contentLength() > MAX_BYTES) throw IOException("Quote response too large")
+                                val output = ByteArrayOutputStream()
+                                body.byteStream().use { input ->
+                                    val buffer = ByteArray(8192)
+                                    while (true) {
+                                        val size = input.read(buffer); if (size < 0) break
+                                        if (output.size() + size > MAX_BYTES) throw IOException("Quote response too large")
+                                        output.write(buffer, 0, size)
+                                    }
+                                }
+                                RefreshResult(output.toString("UTF-8"), result.header("ETag"))
+                            }
+                        }
+                    }
+                }
+                currentCoroutineContext().ensureActive()
+                response.json?.let { json ->
+                    val incoming = withContext(Dispatchers.Default) { QuoteParser.parse(json) }
+                    require(incoming.isNotEmpty()) { "Empty or invalid quote source" }
+                    val existing = allQuotes.first().associateBy { it.id }
+                    val merged = incoming.map { quote ->
+                        val tags = (existing[quote.id]?.tags.orEmpty() + quote.tags).distinct()
+                        quote.copy(tags = if (tags.size > 1) tags.filterNot { it == "general" } else tags)
+                    }
+                    database.withTransaction { dao.insertQuotes(merged.map(QuoteParser::store)) }
+                }
+                response.etag?.let { etag -> settings.edit { it[etagKey] = etag } }
+                success = true
+            } catch (cancelled: CancellationException) { throw cancelled }
+            catch (_: Exception) { /* The persistent local collection remains authoritative. */ }
         }
+        settings.edit {
+            if (success) it[longPreferencesKey("QUOTE_REFRESH_SUCCESS")] = now
+            it[longPreferencesKey("QUOTE_REFRESH_AFTER")] = now + if (success) DAY else HOUR
+        }
+        mutableStatus.value = if (success) "Collection up to date" else "Offline collection · refresh unavailable"
     }
 
-    private suspend fun getLocalQuotes(): List<UiQuote> = withContext(Dispatchers.Default) {
-        val mockLocalJson = LOCAL_QUOTES_JSON
-        val jsonArray = JSONArray(mockLocalJson)
-        val quotes = mutableListOf<UiQuote>()
-        for (i in 0 until jsonArray.length()) {
-            val jsonObject = jsonArray.getJSONObject(i)
-            val tagsArray = jsonObject.getJSONArray("tags")
-            val tagsList = mutableListOf<String>()
-            for (j in 0 until tagsArray.length()) {
-                tagsList.add(tagsArray.getString(j))
-            }
-            quotes.add(
-                UiQuote(
-                    id = jsonObject.getString("id"),
-                    quote = jsonObject.getString("quote"),
-                    author = jsonObject.getString("author"),
-                    tags = tagsList,
-                    authorImage = if (jsonObject.isNull("authorImage")) null else jsonObject.getString(
-                        "authorImage"
-                    ),
-                    quoteLength = jsonObject.getInt("quoteLength")
-                )
-            )
-        }
-        quotes
+    suspend fun setSaved(id: String, saved: Boolean) { if (saved) dao.save(SavedQuote(id)) else dao.unsave(id) }
+    suspend fun randomQuote(): UiQuote { initialize(); return QuoteParser.domain(requireNotNull(dao.randomQuote())) }
+    override fun getTags(): Flow<List<String>> = allQuotes.map { quotes -> quotes.flatMap { it.tags }.distinct().sorted() }
+    override fun getQuotesByTags(tags: List<String>): Flow<List<UiQuote>> = allQuotes.map { quotes ->
+        val wanted = tags.toSet(); if (wanted.isEmpty()) quotes else quotes.filter { quote -> quote.tags.any { it in wanted } }
     }
-
-
-    private suspend fun mapToDomainModel(remoteResponse: List<RandomQuotesListingResponseItem?>): List<UiQuote> =
-        withContext(Dispatchers.Default) {
-            remoteResponse.mapNotNull {
-                UiQuote(
-                    id = it?.id?.toString() ?: "",
-                    quote = it?.quote ?: "",
-                    author = it?.author ?: "",
-                    tags = it?.tags ?: emptyList(),
-                )
-            }
-        }
+    private data class RefreshResult(val json: String?, val etag: String?)
+    companion object {
+        const val BUNDLE_VERSION = "2026-10-08-3079"
+        private const val MAX_BYTES = 4 * 1024 * 1024
+        private const val HOUR = 60 * 60 * 1000L
+        private const val DAY = 24 * HOUR
+        val ENDPOINTS = listOf(
+            "https://raw.githubusercontent.com/Musheer360/QuoteSlate/main/data/quotes.json",
+            "https://raw.githubusercontent.com/micheleriva/the-quotes-database/master/src/data/quotes.json")
+    }
 }

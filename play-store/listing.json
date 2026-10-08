@@ -1,0 +1,10 @@
+{
+  "listings": {
+    "en-GB": {
+      "shortDescription": "Copy, share & set reminders for your favourite quotes.",
+      "fullDescription": "Here's everything you can do on Quoter:\n\n- Set notifications\n- Read aloud a quote in your favourite language voice\n- Copy quote text\n- Share quote as image\n- Customize notification type: Get text only quotes or image styled quotes as notifications\n- Switch between light theme & dark theme\n\n🔔 <b>Get notified</b>\nSet notifications at your suitable time and receive quotes straight to your device. Fire & Forget!\n\n🗣️ <b>Listen a quote</b>\nYou can tap on the speaker icon to read aloud a quote. You can also customize the voice of the spoken language in settings.\n\n👥 <b> Copy & Share quotes</b>\nGet the conversation going by copying and/or sharing your favourite quotes with your loved ones.\n\nMore features are under development! For feature requests, leave a review or hit me up at: adhikaridayamoy@gmail.com\n\nEnough said! ;)",
+      "title": "Quotes app | Quoter"
+    }
+  },
+  "packageName": "com.dayaonweb.quoter"
+}

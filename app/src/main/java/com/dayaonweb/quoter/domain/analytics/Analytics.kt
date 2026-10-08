@@ -3,7 +3,7 @@ package com.dayaonweb.quoter.domain.analytics
 import android.content.Context
 import com.dayaonweb.quoter.BuildConfig
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.analytics.logEvent
 
 object Analytics {
 
