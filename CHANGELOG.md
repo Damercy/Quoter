@@ -12,8 +12,8 @@
 - Add the shared phone/large-screen gallery, CI verification, signing/release scripts and prepared Play listing copy.
 - Remove the tracked keystore from the current tree; provision publishing credentials separately.
 
-GitHub assets are published for this version; the Play production update and
-listing/screenshots have been submitted and are awaiting Google review.
+GitHub assets and the Play production update are published for this version;
+Play Console confirmed publication on 9 October 2026. Store propagation can vary.
 The GitHub APK uses the upload certificate and cannot update a Play-installed copy.
 Physical-device audio/performance, haptic feel and gesture-navigation validation
 remain outstanding. See [release notes](play-store/release-notes.md) for downloads

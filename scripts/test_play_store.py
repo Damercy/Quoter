@@ -81,6 +81,27 @@ class ReleaseGuards(unittest.TestCase):
         self.assertEqual(request.next_chunk.call_count, 2)
         request.next_chunk.assert_called_with(num_retries=3)
 
+    def test_new_localization_is_created_and_existing_listing_is_patched(self):
+        service = MagicMock()
+        edits = service.edits.return_value
+        edits.listings.return_value.list.return_value.execute.return_value = {'listings': [{'language': 'en-GB'}]}
+        spanish = {'title': 'Quoter', 'shortDescription': 'Frases en inglés', 'fullDescription': 'Interfaz en inglés.'}
+        data = {'listings': {'en-GB': {'title': 'Quoter'}, 'es-419': spanish}}
+        with contextlib.redirect_stdout(io.StringIO()):
+            play.apply(service, {'editId': 'temporary-edit'}, self.manifest, data)
+        edits.listings.return_value.patch.assert_called_once_with(editId='temporary-edit', language='en-GB', body={'title': 'Quoter'})
+        edits.listings.return_value.update.assert_called_once_with(editId='temporary-edit', language='es-419', body=spanish)
+        edits.tracks.assert_not_called()
+        edits.bundles.assert_not_called()
+
+    def test_new_localization_rejects_incomplete_fields(self):
+        service = MagicMock()
+        edits = service.edits.return_value
+        edits.listings.return_value.list.return_value.execute.return_value = {'listings': []}
+        with contextlib.redirect_stdout(io.StringIO()), self.assertRaisesRegex(ValueError, 'all three text fields'):
+            play.apply(service, {'editId': 'temporary-edit'}, self.manifest, {'listings': {'es-419': {'title': 'Quoter'}}})
+        edits.listings.return_value.update.assert_not_called()
+
 
 if __name__ == "__main__":
     unittest.main()

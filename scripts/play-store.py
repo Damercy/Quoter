@@ -121,9 +121,16 @@ def export(service, base, output):
 def apply(service, base, manifest, data):
     from googleapiclient.http import MediaFileUpload
     edits = service.edits()
+    existing_languages = {item['language'] for item in
+                          edits.listings().list(**base).execute().get('listings', [])}
     for language, listing in data.get("listings", {}).items():
         print(f'Updating {language} listing', flush=True)
-        edits.listings().patch(**base, language=language, body=listing).execute()
+        if language in existing_languages:
+            edits.listings().patch(**base, language=language, body=listing).execute()
+        else:
+            if not {'title', 'shortDescription', 'fullDescription'} <= listing.keys():
+                raise ValueError(f'New localization {language} needs all three text fields.')
+            edits.listings().update(**base, language=language, body=listing).execute()
     for language, types in data.get("images", {}).items():
         for kind, images in types.items():
             params = {**base, "language": language, "imageType": kind}

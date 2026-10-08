@@ -11,6 +11,9 @@ on-device voices, set daily reminders and share attributed quote images.
 Monochrome Light/Dark themes, adjustable glass and supporting panes adapt the
 reader to phone, tablet and unfolded windows.
 
+The app interface and quote collection are in English. Spanish and German store
+listing copy and captioned assets are maintained in [play-store](play-store/ASO-RESEARCH.md).
+
 ## Screenshots
 
 <!-- QUOTER-SCREENSHOTS:START -->

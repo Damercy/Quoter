@@ -25,8 +25,9 @@ listing content.
 
 Google Play signs distributed APKs with a different certificate. This GitHub APK
 cannot update an existing Play-installed copy; use Google Play for that update.
-The same bundle, updated description and shared screenshot set have been
-submitted to Google Play production and are awaiting Google review.
+The same bundle, updated description and shared screenshot set are published on
+Google Play. Play Console confirmed publication on 9 October 2026; store
+propagation can vary.
 
 ## Verification
 

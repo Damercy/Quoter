@@ -92,6 +92,10 @@ in each tablet slot, release notes and R8 crash mapping. Google validated and
 committed the edit. Submission is distinct from review approval/public availability.
 
 Bundle SHA-256: `aca9c616d8c2328a4ee75118a95305f4733394a4b40ab2c0dce9b76c88044a32`.
+Play Console subsequently confirmed publication on 9 October 2026. A separate
+metadata-only edit with English refinements, Spanish/German listings and localized
+screenshot captions was validated and committed. It leaves production code 40000
+and its uploaded bundle unchanged; localization approval/propagation is separate.
 Private before/after snapshots and submission logs are retained under
 `%USERPROFILE%/.codex/quoter-play/releases/play-v4.00.00`.
 

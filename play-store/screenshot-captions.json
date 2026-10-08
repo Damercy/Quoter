@@ -1,0 +1,12 @@
+{
+  "es-419": {
+    "disclosure": "Interfaz y citas en inglés",
+    "phone": ["Un momento de inspiración", "Busca por tema o autor", "Guarda tus frases favoritas", "Elige tu estilo de lectura", "Escucha a tu ritmo", "Tu recordatorio diario", "Comparte una frase como imagen", "Lee también en modo oscuro"],
+    "largeScreen": ["Explora junto al lector", "Ajustes junto a tu cita", "Tus favoritas a la vista", "Más espacio para leer"]
+  },
+  "de-DE": {
+    "disclosure": "Oberfläche und Zitate auf Englisch",
+    "phone": ["Ein Moment der Inspiration", "Nach Thema oder Autor suchen", "Deine Lieblingszitate speichern", "Dein Stil beim Lesen", "In deinem Tempo zuhören", "Deine tägliche Erinnerung", "Ein Zitat als Bild teilen", "Auch im Dunkelmodus lesen"],
+    "largeScreen": ["Stöbern neben dem Zitat", "Einstellungen neben dem Zitat", "Deine Favoriten im Blick", "Mehr Platz zum Lesen"]
+  }
+}
