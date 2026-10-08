@@ -119,7 +119,8 @@ def export(service, base, output):
 
 
 def apply(service, base, manifest, data):
-    from googleapiclient.http import MediaFileUpload
+    if data.get('images') or data.get('bundle'):
+        from googleapiclient.http import MediaFileUpload
     edits = service.edits()
     existing_languages = {item['language'] for item in
                           edits.listings().list(**base).execute().get('listings', [])}
