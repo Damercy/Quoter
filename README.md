@@ -83,7 +83,7 @@ The 4.00.00 Play update is pending.
 
 ## Documentation
 
-- [Contributing and agent guidance](AGENTS.md)
+- [Contributing and agent guidance](AGENTS.md) · [CI guide](audit/CI.md)
 - [Design direction](audit/DESIGN-DIRECTION.md) · [Validation](audit/MIGRATION-VALIDATION.md)
 - [Release workflow](audit/RELEASE-WORKFLOW.md) · [Play setup](audit/PLAY-PUBLISHING-SETUP.md)
 - [Quote sources and attribution](audit/QUOTE-SOURCES.md)
