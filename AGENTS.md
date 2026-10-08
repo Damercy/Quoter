@@ -1,27 +1,126 @@
-# Quoter development instructions
+# Working on Quoter
 
-These preferences were explicitly supplied by the app owner on 8 October 2026.
+## Project map
 
-- Use the globally installed Android CLI (`android`) and its relevant installed official skills throughout Android development. Read the applicable SKILL.md and references before applying their workflows. Use CLI documentation lookup, SDK/device management, installation, layout inspection and running where supported. Gradle and ADB remain supporting tools when required by the CLI skills or when CLI functionality is unavailable; document a fallback.
-- Use remote physical devices through `android device remote` when validation requires hardware, OEM behavior, real performance or speech/audio. Check authentication, available projects/models and session constraints first. Never present emulator evidence as physical-device validation. Release reservations when finished.
-- Preserve Quoter's existing monochrome theme, colors, bundled fonts, bold typography and sparse composition. Do not introduce warm ivory/teal palettes, marketing headings or a rounded-card feed. The initial Compose POC's visual direction was rejected; its feature exploration and tests remain useful.
-- New features must support minimalism through progressive disclosure. Follow `audit/DESIGN-DIRECTION.md` for the proposed revised design and its references.
-- TTS should prefer natural-sounding on-device voices when available. Respect an explicit saved voice; otherwise use a suitable installed offline voice from the device-selected engine, guided by locale/quality and real listening tests. Do not equate engine quality metadata with guaranteed neural/natural speech. Avoid a cloud-speech dependency as the default.
-- Keep the owner informed during implementation. Ask uncertain product choices or missing requirements through popup questions. Prepare and validate the revised POC before production migration. Remote devices must use verified free quota only unless the owner changes that limit.
-- The owner subsequently authorized proceeding with emulator testing and production migration, deferring remote devices. Physical audio/performance validation remains unverified. The owner explicitly skipped Android Studio Upgrade Assistant and authorized manual AGP migration.
-- The owner approved static JSON refresh plus an offline database in place of the unavailable/rate-limited quote REST API.
-- The owner subsequently requested restrained Apple Liquid Glass inspired controls, a wavy Material 3 speech slider and sleek spring motion, while retaining the monochrome palette and plain quote page. Exact Apple platform rendering is unavailable on Android; use real blur/lens effects where supported, accessible fallbacks elsewhere and respect reduced motion.
-- Keep the native emulator window available for manual testing. Announce automated testing before taking control; leave the emulator untouched between runs so the owner can try the app.
+- `app/src/main/java/.../presentation/compose`: reader, Browse, Settings, speech and sharing UI.
+- `app/src/main/java/.../data`: offline Room quotes, parsing, refresh and DataStore preferences.
+- `app/src/main/java/.../domain/broadcast`: reminder scheduling and delivery.
+- `app/src/main/assets`: bundled quotes, source provenance, licenses and vector source icons.
+- `app/src/test`, `app/src/androidTest`, `app/src/screenshotTest`: JVM, device and preview checks.
+- `play-store`: listing copy, ordered original screenshots and release manifests.
+- `scripts`: imports, image presentation, verification and publishing tools.
 
-- The owner approved optional Browse beside the reader on unfolded/tablet windows; retain a single quote view when closed. Prevent duplicate routes and keep controls/text clear of separating hinges, including dialogs.
-- The owner requested a persistent glass on/off setting and adjustable transparency. Quotes and Saved must be separate pills with a clear selected state; preserve monochrome colors and minimalist reading.
-- Use only the existing `Resizable_Experimental_API_VanillaIceCream` local AVD for phone, fold and tablet checks. Do not create additional local AVDs. The owner authorized deleting our unnecessary AVDs and wiping/cold booting this emulator to resolve its System UI dialog.
-- Settings must preserve the original section spacing. Remove offline-ready text, overflow/About destinations and app dialogs; use bottom sheets. Keep Browse and Settings icons at the top right. Use native animated vectors, restrained microanimations and navigation motion; suppress ripples when glass is enabled and respect reduced motion.
-- Attempt native Play in-app review on launches 2, 4, 8, 16 and subsequent powers of two. Play controls display quotas and does not support prefilling stars or detecting review completion. Never claim an attempt means a review was submitted.
-- Latest refinement: Share opens the system chooser directly with PNG plus attributed text, without an app choice sheet. Remove the Reviews section from Settings while retaining the agreed launch-based native review behavior. Use icon-only System/Light/Dark choices, compact 24 dp settings gutters, native monochrome loading dots, bouncing splash exit, opaque navigation surfaces, uniform living wavy sliders and a subdued rounded Browse search field. Idle waves must respect reduced motion and stop when not visible/started.
-- The owner approved three-button system navigation on the retained emulator as a temporary workaround after its edge-swipe monitor ANR returned. Hardware-GPU graphics services also saturated guest CPU; use its software renderer and cold boot. Revisit gesture/predictive-back validation separately; do not claim this workaround proves gesture behavior or real-device performance.
-- Pause the browser screenshot mirror through `http://127.0.0.1:8765/pause` during device boot, builds and automated interaction. Its original perpetual 900 ms captures added graphics load even without viewers. The replacement captures only on visible requests, at most once every four seconds; resume through `/resume` for manual viewing. The native emulator remains the interactive window.
-- Latest Apple-inspired refinement supersedes the earlier pills and icon-only theme picker: use grouped Settings with 16 dp gutters, Light/Dark screen previews plus Automatic, plain Quotes/Saved text tabs, large-to-compact scrolling titles and backdrop frost without a rectangular toolbar shadow. Preserve living wavy sliders, original colors/fonts and adaptive large-text value rows. Use restrained platform haptics for taps, selections, toggles, slider steps and completed swipe paging, respecting device haptic settings.
-- Latest motion/detail refinement supersedes the bouncing splash: retain the platform splash with immediate exit, compact icons/text, one spring underline shared by Quotes/Saved (no tab pinch), a smaller rolling quote counter and no Next icon. Browse uses plain text categories and one continuous monochrome surface. Complete the native sheet hide animation on selection/close. Settings and Browse are mutually exclusive supporting panes on wide/folded windows, with anchored reader toolbar controls. The owner chose a simplified clock for reminder time, with a compact input fallback when a clock cannot fit. Shared text includes “Shared with Quoter” and the verified Play Store app link. Suppress ripples explicitly on glass icon controls; retain platform accessibility targets, reduced-motion support and haptics. Extensive additional E2E coverage should use reproducible random mixed-use journeys against the real app and cancel system sharing without choosing recipients.
-- Latest collection/Browse refinement: preserve independent saveable positions for Quotes and Saved; keep Browse category hit targets and header line height stable when filtering. Use original simple monochrome vector illustrations with concise guidance and actions for empty states. Hide the background Browse control without moving Settings while the phone sheet is open; omit the phone sheet Close button, keeping native handle/Back/scrim dismissal and the wide-pane Close control. Shorten navigation and collection transitions while preserving accessibility and reduced-motion behavior.
-- Latest ripple/shadow refinement supersedes earlier conditional ripple guidance: disable ripple drawing throughout Quoter in both glass and plain modes, including Material controls, sheets and Foundation click targets. Preserve haptics and microanimations. Disabled Share opacity must retain the overflowing glass shadow without introducing a bounded offscreen clipping layer.
+Read [design direction](audit/DESIGN-DIRECTION.md) before UI changes and
+[validation](audit/MIGRATION-VALIDATION.md) before making release-readiness claims.
+Treat older exploration documents as history; these rules describe current requirements.
+
+## Build and tools
+
+Use the official `android` CLI and relevant installed Android skills for docs,
+SDK/device management, installation, layout inspection and supported interactions.
+Read applicable skills and their referenced workflows first. Gradle and ADB
+support operations required by skills or unavailable in the CLI; record material fallbacks.
+
+Use JDK 17+, SDK platform 37, `JAVA_HOME`, `ANDROID_HOME` and the Gradle wrapper.
+Use `./gradlew.bat` on Windows or `./gradlew` on Unix.
+
+```sh
+./gradlew :app:testDebugUnitTest :app:lintDebug :app:lintRelease :app:bundleRelease
+./gradlew :app:validateDebugScreenshotTest
+node scripts/check-native-alignment.mjs app/build/outputs/bundle/release/app-release.aab
+```
+
+Run relevant checks for each change. UI/state changes also need targeted device
+regressions; use reproducible seeded mixed-use journeys for broader coverage.
+Do not update screenshot baselines merely to silence a regression.
+
+## Design and interaction
+
+- Preserve the monochrome palette, bundled fonts, bold typography, sparse reader
+  and progressive disclosure. Avoid new accent palettes, promotional headings and card feeds.
+- Use plain Quotes/Saved tabs with one spring underline, independent saveable
+  reading positions, a compact rolling counter and no Next icon.
+- Anchor Browse and Settings at the top right. Supporting panes are mutually
+  exclusive on wide windows; retain one reader on compact windows. Prevent
+  duplicate destinations and keep content, controls and sheets clear of hinges.
+- Browse uses plain categories, stable hit targets/header height, a subdued search
+  field and one continuous surface. Hide its background control while the phone
+  sheet is open without shifting Settings. Phone sheets use native handle, Back
+  and scrim dismissal; wide panes retain Close.
+- Settings uses grouped sections with 16 dp gutters, Light/Dark screen previews
+  and Automatic, adaptive large-text rows and a clock with compact-input fallback.
+  Use sheets rather than app dialogs or overflow/About/Reviews destinations.
+- Glass is optional, persistent and adjustable. Use real backdrop frost/lens
+  effects where supported and accessible fallbacks elsewhere. Keep navigation
+  surfaces opaque; avoid a rectangular toolbar shadow. Dim disabled Share
+  without clipping its overflowing glass shadow.
+- Disable ripples in glass and plain modes, including Material and Foundation
+  targets. Retain accessibility targets, restrained haptics, animated vectors,
+  short spring motion and microanimations. Respect reduced motion and device
+  haptic settings; stop idle waves when hidden or not started.
+- Keep the platform splash with immediate exit. Finish sheet hide animations on
+  selection/close. Empty states use simple monochrome vectors and concise actions.
+
+## Data and platform behavior
+
+- Keep bundled offline quotes and bounded static JSON refresh with provenance,
+  licenses, stable IDs, saved data and invalid-response recovery. Avoid restoring
+  a dependency on an unavailable/rate-limited quote REST service.
+- Preserve preference/data upgrades. Speech uses the device-selected engine and
+  suitable installed offline voices, preserving explicit choices. Evaluate
+  locale/quality metadata with real listening; metadata does not prove natural
+  or neural speech. Cloud speech is not the default.
+- Share opens Android's chooser directly with PNG and attributed text including
+  “Shared with Quoter” and the verified Play link. Do not add an app choice sheet
+  or replay sharing after recreation. Tests cancel sharing without recipients.
+- Reminders handle permission/channel denial, disabled state, reboot and time
+  changes. Successful scheduling does not prove delivery.
+- Attempt native Play review on launches 2, 4, 8, 16 and subsequent powers of two.
+  Google controls quotas; do not prefill stars, detect completion or claim an
+  attempted prompt proves a submitted review.
+
+## Device validation
+
+Keep the native emulator available for manual testing. Announce automation before
+controlling it and leave it untouched between runs. Reuse the workspace's existing
+configured AVD for phone/fold/tablet checks; do not create extra local AVDs.
+Hosted CI may create disposable emulators. Consult
+[local device notes](audit/LOCAL-DEVICE-NOTES.md) for workstation configuration.
+
+Document renderer/navigation workarounds and their validation limits; they do
+not establish gesture or physical performance. Pause any configured screenshot
+mirror during boot, builds and automation; resume it for manual viewing. Do not
+start a mirror that is absent.
+
+Hardware/OEM behavior, performance, haptic feel and audible TTS require physical
+validation through `android device remote`. Check authentication, models, session
+constraints and verified free quota first; release reservations afterward.
+Record deferred checks in validation notes. Do not spend paid quota without
+authorization or describe emulator results as physical-device evidence.
+
+## Documentation, CI and releases
+
+Keep README concise and detailed procedures in `audit`. Keep this file current
+and declarative; remove obsolete rules and conversational history. Ask about
+unresolved product decisions and report meaningful implementation progress.
+
+Original Play screenshots remain RGB PNGs. Reuse them in vector device wrappers;
+do not synthesize app UI or let image bots alter reviewed assets/baselines.
+Regenerate presentation with:
+
+```sh
+node scripts/frame-store-gallery.mjs
+python scripts/sync-store-gallery.py
+```
+
+CI runs lightweight source/media/workflow checks for all changes, gates Android
+builds/device jobs on relevant paths, cancels superseded runs and bounds job
+time/artifact retention. Preserve minimum-API and wide-window coverage; use
+manually dispatched full checks when needed. Never execute publishing from CI.
+
+Publish only to explicitly authorized destinations. Use the reviewed, hash-frozen
+plan and journal in [release workflow](audit/RELEASE-WORKFLOW.md). GitHub-only
+publication excludes Play. Keep credentials, keystores and passwords outside Git
+and provision them privately on new machines. Preserve release history and
+published tags. Play submission is distinct from approval/public availability;
+the upload-signed GitHub APK cannot update a Google-signed Play installation.

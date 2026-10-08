@@ -49,7 +49,8 @@ def source_files():
     docs = {'audit/RELEASE-WORKFLOW.md', 'audit/PLAY-PUBLISHING-SETUP.md',
             'audit/DESIGN-DIRECTION.md', 'audit/QUOTE-SOURCES.md',
             'audit/MIGRATION-VALIDATION.md', 'audit/MIGRATION-READINESS.md',
-            'audit/RANDOM-JOURNEYS.md', 'audit/GITHUB-RELEASE-4.00.00.md'}
+            'audit/RANDOM-JOURNEYS.md', 'audit/GITHUB-RELEASE-4.00.00.md',
+            'audit/LOCAL-DEVICE-NOTES.md'}
     selected = []
     removed = []
     tracked = set(run('git', 'ls-files', '-z').split('\0'))

@@ -1,89 +1,93 @@
-![Banner](https://github.com/Damercy/Quoter/assets/24220261/338a7a61-eb22-4683-a71e-667a077d5918 "Banner")  
+<p align="center"><strong>Quoter</strong> — a minimalist Android app for reading, saving and listening to quotes.</p>
+<p align="center">
+  <a href="https://play.google.com/store/apps/details?id=com.dayaonweb.quoter">Google Play</a> ·
+  <a href="https://github.com/Damercy/Quoter/releases/latest">Download APK</a> ·
+  <a href="CHANGELOG.md">Changelog</a> ·
+  <a href="https://github.com/Damercy/Quoter/actions/workflows/android.yml">CI</a>
+</p>
 
-A minimalist Android quotes app for offline reading, saved favourites, daily
-reminders and on-device listening. Browse by topic, search words or authors, and
-share an attributed quote image. On supported unfolded and tablet layouts, keep
-Browse or Settings beside the reader.
+Read offline, browse topics and authors, save favourites, listen with installed
+on-device voices, set daily reminders and share attributed quote images.
+Monochrome Light/Dark themes, adjustable glass and supporting panes adapt the
+reader to phone, tablet and unfolded windows.
 
-#### Screenshots
+## Screenshots
 
 <!-- QUOTER-SCREENSHOTS:START -->
-<p>
-<img src="play-store/screenshots/phone/01-reader.png" width="200" alt="Minimal monochrome quote reader with listening, saving and sharing controls" />
-<img src="play-store/screenshots/phone/02-browse.png" width="200" alt="Browse quotes, search by words or author, and filter by topic" />
-<img src="play-store/screenshots/phone/03-saved.png" width="200" alt="Saved quotes with a separate reading position and selected bookmark" />
-<img src="play-store/screenshots/phone/04-appearance.png" width="200" alt="Light, Dark, Automatic and adjustable glass appearance settings" />
-<img src="play-store/screenshots/phone/05-voice-and-reminders.png" width="200" alt="On-device voice and speech speed settings with daily notification options" />
-<img src="play-store/screenshots/phone/06-reminder-clock.png" width="200" alt="Native reminder time sheet with an analogue clock" />
-<img src="play-store/screenshots/phone/07-image-sharing.png" width="200" alt="Android sharing menu with quote image, author and Quoter attribution" />
-<img src="play-store/screenshots/phone/08-dark-reader.png" width="200" alt="Dark monochrome quote reader with glass controls" />
-</p>
-<p>
-<img src="play-store/screenshots/large-screen/01-unfolded-browse.png" width="600" alt="Unfolded large-screen reader with Browse beside the quote" />
-<img src="play-store/screenshots/large-screen/02-unfolded-settings.png" width="600" alt="Unfolded large-screen reader with Settings in the supporting pane" />
-<img src="play-store/screenshots/large-screen/03-unfolded-saved.png" width="600" alt="Saved quote with Browse available alongside on a large screen" />
-<img src="play-store/screenshots/large-screen/04-unfolded-dark.png" width="600" alt="Dark unfolded large-screen reader and Browse pane" />
-</p>
+<table>
+<tr>
+<td align="center"><a href="play-store/screenshots/phone/01-reader.png"><img src="screenshots/frames/phone-01-reader.svg" width="140" alt="Minimal monochrome quote reader with listening, saving and sharing controls" /></a><br/><sub>Reader</sub></td>
+<td align="center"><a href="play-store/screenshots/phone/02-browse.png"><img src="screenshots/frames/phone-02-browse.svg" width="140" alt="Browse quotes, search by words or author, and filter by topic" /></a><br/><sub>Browse</sub></td>
+<td align="center"><a href="play-store/screenshots/phone/03-saved.png"><img src="screenshots/frames/phone-03-saved.svg" width="140" alt="Saved quotes with a separate reading position and selected bookmark" /></a><br/><sub>Saved</sub></td>
+<td align="center"><a href="play-store/screenshots/phone/04-appearance.png"><img src="screenshots/frames/phone-04-appearance.svg" width="140" alt="Light, Dark, Automatic and adjustable glass appearance settings" /></a><br/><sub>Appearance</sub></td>
+</tr>
+</table>
+
+<details>
+<summary>Voice, reminders, sharing and dark mode</summary>
+
+<table>
+<tr>
+<td align="center"><a href="play-store/screenshots/phone/05-voice-and-reminders.png"><img src="screenshots/frames/phone-05-voice-and-reminders.svg" width="140" alt="On-device voice and speech speed settings with daily notification options" /></a><br/><sub>Voice and reminders</sub></td>
+<td align="center"><a href="play-store/screenshots/phone/06-reminder-clock.png"><img src="screenshots/frames/phone-06-reminder-clock.svg" width="140" alt="Native reminder time sheet with an analogue clock" /></a><br/><sub>Reminder clock</sub></td>
+<td align="center"><a href="play-store/screenshots/phone/07-image-sharing.png"><img src="screenshots/frames/phone-07-image-sharing.svg" width="140" alt="Android sharing menu with quote image, author and Quoter attribution" /></a><br/><sub>Image sharing</sub></td>
+<td align="center"><a href="play-store/screenshots/phone/08-dark-reader.png"><img src="screenshots/frames/phone-08-dark-reader.svg" width="140" alt="Dark monochrome quote reader with glass controls" /></a><br/><sub>Dark reader</sub></td>
+</tr>
+</table>
+
+</details>
+
+
+<details>
+<summary>Unfolded and tablet layouts</summary>
+
+<table>
+<tr>
+<td align="center"><a href="play-store/screenshots/large-screen/01-unfolded-browse.png"><img src="screenshots/frames/unfolded-01-unfolded-browse.svg" width="280" alt="Unfolded large-screen reader with Browse beside the quote" /></a><br/><sub>Browse</sub></td>
+<td align="center"><a href="play-store/screenshots/large-screen/02-unfolded-settings.png"><img src="screenshots/frames/unfolded-02-unfolded-settings.svg" width="280" alt="Unfolded large-screen reader with Settings in the supporting pane" /></a><br/><sub>Settings</sub></td>
+</tr>
+<tr>
+<td align="center"><a href="play-store/screenshots/large-screen/03-unfolded-saved.png"><img src="screenshots/frames/unfolded-03-unfolded-saved.svg" width="280" alt="Saved quote with Browse available alongside on a large screen" /></a><br/><sub>Saved</sub></td>
+<td align="center"><a href="play-store/screenshots/large-screen/04-unfolded-dark.png"><img src="screenshots/frames/unfolded-04-unfolded-dark.svg" width="280" alt="Dark unfolded large-screen reader and Browse pane" /></a><br/><sub>Dark</sub></td>
+</tr>
+</table>
+
+</details>
+
 <!-- QUOTER-SCREENSHOTS:END -->
 
-#### Features
+Click a preview for the full capture. Frames are illustrative; all views use the
+same screenshots prepared for the [Play listing](play-store/ASO-RESEARCH.md).
 
-- Read the bundled quote collection offline; search words, authors and topics.
-- Save favourites with a separate reading position.
-- Listen using compatible installed offline voices and adjust speech speed.
-- Share a quote image with its author and attributed text through Android's chooser.
-- Set daily reminders with text or image-style notifications.
-- Choose Light, Dark or Automatic appearance, with optional adjustable glass controls.
-- Open Browse or Settings beside the quote on supported large and unfolded screens.
+## Quickstart
 
-The gallery shows version 4.00.00 on the retained phone/unfolded emulator. The
-same image files are prepared for the next Play listing update. See
-[the ASO and media plan](play-store/ASO-RESEARCH.md).
+Install JDK 17+, Android SDK platform 37 and the official Android CLI. Set
+`JAVA_HOME` and `ANDROID_HOME`, then:
 
-Download the signed APK, Play bundle, crash mapping and checksums from
-[Quoter 4.00.00](https://github.com/Damercy/Quoter/releases/tag/v4.00.00).
-The GitHub APK cannot update an existing Play-installed copy because Google uses
-a different app signing certificate. The Play Store update is pending.
-
-<p float="left">
-<a href='https://play.google.com/store/apps/details?id=com.dayaonweb.quoter&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png' width=500 height=200/></a>
- </p>
-
-Share feedback at: adhikaridayamoy@gmail.com.
-
-## Development
-
-See [CHANGELOG](CHANGELOG.md) for versioned changes. The reader uses Compose, bundled offline quotes, optional
-static data refresh, saved quotes and the device's text-to-speech engine.
-
-Clone this existing repository and install JDK 17 or newer, the Android SDK
-(platform 37 and the required build tools), and the official Android CLI.
-Set `JAVA_HOME` and `ANDROID_HOME` for your machine, then use the included Gradle
-wrapper; no global Gradle installation is needed.
-
-```powershell
+```sh
 git clone https://github.com/Damercy/Quoter.git
 cd Quoter
 android info
-./gradlew.bat :app:assembleDebug :app:testDebugUnitTest :app:lintDebug
+./gradlew :app:assembleDebug :app:testDebugUnitTest :app:lintDebug
 ```
 
-On macOS/Linux use `./gradlew` (make it executable if necessary). Read
-[AGENTS.md](AGENTS.md) before changing the app. The Android CLI handles supported
-SDK/device workflows; Gradle builds and verifies the project. Release credentials
-are optional for development and are supplied privately for publishing.
+On Windows, use `./gradlew.bat`. On Unix, run `chmod +x gradlew` first.
+Release credentials are unnecessary for development.
 
-## Releases from chat
+## Releases
 
-When the owner confirms the final reviewed release, the local release client
-updates this repository, creates an annotated version tag and GitHub release,
-and submits the same signed bundle plus reviewed store images/descriptions to
-Google Play. The README and versioned release notes are reviewed before that
-confirmation. Google controls review and when the Play update becomes public.
-An explicitly requested GitHub-only release uses `--github-only` and publishes
-code, tag and assets without submitting a Play edit.
+[GitHub releases](https://github.com/Damercy/Quoter/releases/latest) include a signed
+APK, Play bundle, crash mapping and SHA-256 checksums. The GitHub APK uses a
+different certificate from Play-installed copies and cannot update them.
+The 4.00.00 Play update is pending.
 
-See [the release workflow](audit/RELEASE-WORKFLOW.md) and
-[Play setup](audit/PLAY-PUBLISHING-SETUP.md) for commands and recovery details.
-Cloning includes source and tooling; publishing on another machine additionally
-requires secure signing/Play credentials and GitHub authentication.
+## Documentation
+
+- [Contributing and agent guidance](AGENTS.md)
+- [Design direction](audit/DESIGN-DIRECTION.md) · [Validation](audit/MIGRATION-VALIDATION.md)
+- [Release workflow](audit/RELEASE-WORKFLOW.md) · [Play setup](audit/PLAY-PUBLISHING-SETUP.md)
+- [Quote sources and attribution](audit/QUOTE-SOURCES.md)
+
+Report bugs or suggest improvements through [GitHub issues](https://github.com/Damercy/Quoter/issues).
+This repository is licensed under [CC0 1.0](LICENSE); bundled dependencies and
+quote sources retain their [respective notices](app/src/main/assets/licenses).

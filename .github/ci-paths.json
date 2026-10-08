@@ -1,0 +1,9 @@
+{
+  "android": [
+    "app/**", "gradle/**", "gradlew", "gradlew.bat", "build.gradle",
+    "settings.gradle", "gradle.properties", ".github/workflows/android.yml",
+    ".github/ci-paths.json", "scripts/ci-changes.py", "scripts/check-native-alignment.mjs"
+  ],
+  "androidIgnore": ["app/src/main/assets/icons/**"],
+  "description": "README, AGENTS, audit docs, store copy, screenshots and publishing-only tooling run lightweight checks; Android sources/build configuration run the full matrix. Icon SVG sources are ignored until generated Android resources change."
+}

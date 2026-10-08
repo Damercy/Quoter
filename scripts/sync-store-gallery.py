@@ -16,8 +16,7 @@ def main():
     plan = json.loads((STORE / 'listing.next.json').read_text(encoding='utf-8'))
     rows = []
     inventory = []
-    for group, expected, width in [('phone', (1080, 1920), 200), ('largeScreen', (1920, 1080), 600)]:
-        rows.append('<p>')
+    for group, expected, width in [('phone', (1080, 1920), 140), ('largeScreen', (1920, 1080), 280)]:
         for item in media[group]:
             file = STORE / item['path']
             content = file.read_bytes()
@@ -28,8 +27,27 @@ def main():
                 raise ValueError(f'Use 24-bit RGB PNG at {expected}: {file}')
             inventory.append({'path': item['path'], 'dimensions': dimensions,
                               'sha256': hashlib.sha256(content).hexdigest(), 'alt': item['alt']})
-            rows.append(f'<img src="play-store/{html.escape(item["path"])}" width="{width}" alt="{html.escape(item["alt"])}" />')
-        rows.append('</p>')
+        def table(items, columns):
+            result = ['<table>']
+            for start in range(0, len(items), columns):
+                result.append('<tr>')
+                for item in items[start:start + columns]:
+                    prefix = 'phone' if group == 'phone' else 'unfolded'
+                    frame = f'screenshots/frames/{prefix}-{Path(item["path"]).stem}.svg'
+                    if not (ROOT / frame).is_file():
+                        raise ValueError('Generate device frames with node scripts/frame-store-gallery.mjs first.')
+                    label = Path(item['path']).stem[3:].replace('unfolded-', '').replace('-', ' ').capitalize()
+                    result.append(f'<td align="center"><a href="play-store/{html.escape(item["path"])}"><img src="{frame}" width="{width}" alt="{html.escape(item["alt"])}" /></a><br/><sub>{label}</sub></td>')
+                result.append('</tr>')
+            return result + ['</table>']
+        if group == 'phone':
+            rows.extend(table(media[group][:4], 4))
+            rows.extend(['', '<details>', '<summary>Voice, reminders, sharing and dark mode</summary>', ''])
+            rows.extend(table(media[group][4:], 4))
+        else:
+            rows.extend(['', '<details>', '<summary>Unfolded and tablet layouts</summary>', ''])
+            rows.extend(table(media[group], 2))
+        rows.extend(['', '</details>', ''])
     plan['images'] = {'en-GB': {
         'phoneScreenshots': [x['path'] for x in media['phone']],
         'sevenInchScreenshots': [x['path'] for x in media['largeScreen']],
