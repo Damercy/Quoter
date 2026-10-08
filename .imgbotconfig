@@ -1,0 +1,8 @@
+{
+  "ignoredFiles": [
+    "app/src/main/assets/icons/*",
+    "app/src/screenshotTestDebug/reference/*",
+    "play-store/screenshots/*"
+  ],
+  "aggressiveCompression": false
+}

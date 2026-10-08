@@ -44,7 +44,7 @@ def source_files():
     # Keep release sources, tests, build setup and reviewed docs. Device captures
     # and the experimental POC are not release source inputs.
     roots = {'app', 'gradle', 'scripts', 'play-store', '.github', 'screenshots'}
-    top = {'README.md', 'CHANGELOG.md', 'AGENTS.md', '.gitignore', 'build.gradle',
+    top = {'README.md', 'CHANGELOG.md', 'AGENTS.md', '.gitignore', '.imgbotconfig', 'build.gradle',
            'settings.gradle', 'gradle.properties', 'gradlew', 'gradlew.bat', 'LICENSE'}
     docs = {'audit/RELEASE-WORKFLOW.md', 'audit/PLAY-PUBLISHING-SETUP.md',
             'audit/DESIGN-DIRECTION.md', 'audit/QUOTE-SOURCES.md',
