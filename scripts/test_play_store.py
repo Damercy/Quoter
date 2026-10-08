@@ -71,6 +71,16 @@ class ReleaseGuards(unittest.TestCase):
         edits.commit.assert_called_once_with(packageName=play.PACKAGE, editId="temporary-edit", changesInReviewBehavior="ERROR_IF_IN_REVIEW")
         edits.delete.assert_not_called()
 
+    def test_resumable_upload_returns_final_server_response(self):
+        request = MagicMock()
+        status = MagicMock()
+        status.progress.return_value = .5
+        request.next_chunk.side_effect = [(status, None), (None, {'versionCode': 40000})]
+        with contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(play.upload_chunks(request, 'Bundle'), {'versionCode': 40000})
+        self.assertEqual(request.next_chunk.call_count, 2)
+        request.next_chunk.assert_called_with(num_retries=3)
+
 
 if __name__ == "__main__":
     unittest.main()

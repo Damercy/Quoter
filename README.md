@@ -79,7 +79,8 @@ Release credentials are unnecessary for development.
 [GitHub releases](https://github.com/Damercy/Quoter/releases/latest) include a signed
 APK, Play bundle, crash mapping and SHA-256 checksums. The GitHub APK uses a
 different certificate from Play-installed copies and cannot update them.
-The 4.00.00 Play update is pending.
+Get Quoter from [Google Play](https://play.google.com/store/apps/details?id=com.dayaonweb.quoter)
+for store-managed installation and updates.
 
 ## Documentation
 

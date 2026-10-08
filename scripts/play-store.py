@@ -81,10 +81,24 @@ def load_plan(path):
 
 def client(key):
     from google.oauth2 import service_account
+    from google_auth_httplib2 import AuthorizedHttp
     from googleapiclient.discovery import build
+    from googleapiclient.http import build_http
     credentials = service_account.Credentials.from_service_account_file(
         str(key), scopes=["https://www.googleapis.com/auth/androidpublisher"])
-    return build("androidpublisher", "v3", credentials=credentials, cache_discovery=False)
+    transport = build_http()  # Excludes HTTP 308 from redirects for resumable uploads.
+    transport.timeout = 120
+    return build("androidpublisher", "v3", http=AuthorizedHttp(credentials, http=transport), cache_discovery=False)
+
+
+def upload_chunks(request, label):
+    result = None
+    while result is None:
+        status, result = request.next_chunk(num_retries=3)
+        if status:
+            print(f'{label}: {status.progress():.0%}', flush=True)
+    print(f'{label}: uploaded', flush=True)
+    return result
 
 
 def export(service, base, output):
@@ -108,31 +122,35 @@ def apply(service, base, manifest, data):
     from googleapiclient.http import MediaFileUpload
     edits = service.edits()
     for language, listing in data.get("listings", {}).items():
+        print(f'Updating {language} listing', flush=True)
         edits.listings().patch(**base, language=language, body=listing).execute()
     for language, types in data.get("images", {}).items():
         for kind, images in types.items():
             params = {**base, "language": language, "imageType": kind}
             edits.images().deleteall(**params).execute()
             for image in images:
+                print(f'Uploading {kind}: {Path(image).name}', flush=True)
                 file = (manifest.parent / image).resolve()
                 mime = "image/png" if file.suffix.lower() == ".png" else "image/jpeg"
                 edits.images().upload(**params, media_body=MediaFileUpload(str(file), mimetype=mime)).execute()
     if data.get("bundle"):
         release = data["release"]
-        result = edits.bundles().upload(**base, media_body=MediaFileUpload(
+        result = upload_chunks(edits.bundles().upload(**base, media_body=MediaFileUpload(
             str((manifest.parent / data["bundle"]).resolve()),
-            mimetype="application/octet-stream", resumable=True)).execute()
+            mimetype="application/octet-stream", resumable=True, chunksize=1024 * 1024)), 'Bundle')
         version = result["versionCode"]
         if version != release["expectedVersionCode"]:
             raise ValueError("Uploaded bundle version differs from reviewed expectedVersionCode.")
         if data.get("mapping"):
-            edits.deobfuscationfiles().upload(**base, apkVersionCode=version,
+            upload_chunks(edits.deobfuscationfiles().upload(**base, apkVersionCode=version,
                 deobfuscationFileType="proguard", media_body=MediaFileUpload(
-                    str((manifest.parent / data["mapping"]).resolve()), mimetype="application/octet-stream")).execute()
+                    str((manifest.parent / data["mapping"]).resolve()), mimetype="application/octet-stream",
+                    resumable=True, chunksize=1024 * 1024)), 'Crash mapping')
         body = {key: release[key] for key in ("name", "status", "releaseNotes", "userFraction") if key in release}
         body["versionCodes"] = [str(version)]
         # The manifest intentionally specifies the entire target-track release replacement.
         edits.tracks().update(**base, track=release["track"], body={"releases": [body]}).execute()
+    print('Validating release edit', flush=True)
     edits.validate(**base).execute()
 
 
@@ -169,6 +187,7 @@ def main():
         if args.command == "apply":
             apply(service, base, args.manifest.resolve(), data)
             if args.commit:
+                print('Committing production/listing edit', flush=True)
                 edits.commit(**base, changesInReviewBehavior="ERROR_IF_IN_REVIEW").execute()
                 committed = True
                 print("Edit committed. Google review/publishing rules still apply.")

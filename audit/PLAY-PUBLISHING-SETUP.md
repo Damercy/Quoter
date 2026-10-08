@@ -84,6 +84,22 @@ verifies the signed bundle cryptographically and checks that certificate before
 uploading. See `audit/RELEASE-WORKFLOW.md` for the final confirmation workflow.
 Do not put keystore passwords in tracked Gradle files or manifests.
 
+## Production submission — 4.00.00
+
+Version code 40000 and the signed GitHub bundle were submitted to production,
+with the reviewed en-GB description, eight phone screenshots, four screenshots
+in each tablet slot, release notes and R8 crash mapping. Google validated and
+committed the edit. Submission is distinct from review approval/public availability.
+
+Bundle SHA-256: `aca9c616d8c2328a4ee75118a95305f4733394a4b40ab2c0dce9b76c88044a32`.
+Private before/after snapshots and submission logs are retained under
+`%USERPROFILE%/.codex/quoter-play/releases/play-v4.00.00`.
+
+The publishing client uses 1 MiB resumable bundle/mapping uploads with bounded
+chunk retries and the Google client's upload-aware HTTP transport. An initial
+write timeout and a resumable-response transport error stopped before commit;
+the successful attempt validated and committed the entire edit.
+
 ## Home-address support request
 
 The street address remains public. An account change has not been made. The

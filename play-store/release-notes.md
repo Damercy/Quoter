@@ -25,7 +25,8 @@ listing content.
 
 Google Play signs distributed APKs with a different certificate. This GitHub APK
 cannot update an existing Play-installed copy; use Google Play for that update.
-This release publishes GitHub assets only. The Play Store update remains pending.
+The same bundle, updated description and shared screenshot set have been
+submitted to Google Play production and are awaiting Google review.
 
 ## Verification
 
