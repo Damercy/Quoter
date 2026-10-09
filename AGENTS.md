@@ -104,6 +104,11 @@ Keep README concise and detailed procedures in `audit`. Keep this file current
 and declarative; remove obsolete rules and conversational history. Ask about
 unresolved product decisions and report meaningful implementation progress.
 
+Keep planned work in [ROADMAP.md](ROADMAP.md) and the public issue ledger.
+Follow [CONTRIBUTING.md](CONTRIBUTING.md) for requests and triage. Link changes to
+their issue, update completion checklists and release notes, and preserve issue
+history. Milestone assignment does not imply implementation or a published release.
+
 Original Play screenshots remain RGB PNGs. Reuse them in vector device wrappers;
 do not synthesize app UI or let image bots alter reviewed assets/baselines.
 Regenerate presentation with:

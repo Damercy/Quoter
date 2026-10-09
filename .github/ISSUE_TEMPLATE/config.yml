@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Roadmap and request process
+    url: https://github.com/Damercy/Quoter/blob/master/ROADMAP.md
+    about: See planned work, voting and how requests are prioritized.
+  - name: Private security reporting
+    url: https://github.com/Damercy/Quoter/blob/master/SECURITY.md
+    about: Report vulnerabilities privately rather than in public issues.

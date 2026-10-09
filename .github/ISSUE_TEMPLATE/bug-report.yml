@@ -1,0 +1,48 @@
+name: Bug report
+description: Report a reproducible problem in Quoter.
+labels: [bug, needs-triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Search existing issues before filing. For security vulnerabilities, use
+        the private reporting instructions in SECURITY.md, not a public issue.
+        Remove personal information, credentials and private quotes from logs.
+  - type: input
+    id: version
+    attributes:
+      label: Quoter version and installation source
+      placeholder: 4.00.00, Google Play or GitHub APK
+    validations:
+      required: true
+  - type: input
+    id: device
+    attributes:
+      label: Device and Android version
+      description: Include the device model and Android version; mention a foldable or tablet if relevant.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: List the actions needed to observe the problem.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Screenshots or sanitized logs
+      description: Optional evidence. Check it for private information before posting.

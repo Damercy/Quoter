@@ -3,6 +3,7 @@
   <a href="https://play.google.com/store/apps/details?id=com.dayaonweb.quoter">Google Play</a> ·
   <a href="https://github.com/Damercy/Quoter/releases/latest">Download APK</a> ·
   <a href="CHANGELOG.md">Changelog</a> ·
+  <a href="ROADMAP.md">Roadmap</a> ·
   <a href="https://github.com/Damercy/Quoter/actions/workflows/android.yml">CI</a>
 </p>
 
@@ -87,11 +88,12 @@ for store-managed installation and updates.
 
 ## Documentation
 
-- [Contributing and agent guidance](AGENTS.md) · [CI guide](audit/CI.md)
+- [Contributing](CONTRIBUTING.md) · [Roadmap](ROADMAP.md) · [Agent guidance](AGENTS.md) · [CI guide](audit/CI.md)
 - [Design direction](audit/DESIGN-DIRECTION.md) · [Validation](audit/MIGRATION-VALIDATION.md)
 - [Release workflow](audit/RELEASE-WORKFLOW.md) · [Play setup](audit/PLAY-PUBLISHING-SETUP.md)
 - [Quote sources and attribution](audit/QUOTE-SOURCES.md)
 
-Report bugs or suggest improvements through [GitHub issues](https://github.com/Damercy/Quoter/issues).
+Track upcoming work in the [roadmap](ROADMAP.md), suggest features or report bugs
+through the [public request ledger](https://github.com/Damercy/Quoter/issues/new/choose).
 This repository is licensed under [CC0 1.0](LICENSE); bundled dependencies and
 quote sources retain their [respective notices](app/src/main/assets/licenses).

@@ -1,0 +1,43 @@
+name: Feature request
+description: Suggest an improvement to Quoter.
+labels: [enhancement, needs-triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Search existing requests first. If one matches, add a thumbs-up reaction
+        and any new context there. Requests inform the roadmap; they do not
+        guarantee implementation. Keep account details and credentials private.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What would this help you do?
+      description: Describe the situation or difficulty you encounter.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What behavior would you like?
+      description: Explain the desired experience, with an example if helpful.
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Feature area
+      options:
+        - Reader and saved quotes
+        - Widgets
+        - AppFunctions and assistants
+        - Appearance and motion
+        - Speech and reminders
+        - Accessibility and large screens
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Alternatives and context
+      description: Add alternatives, sketches or relevant device details. Remove private information from screenshots.
