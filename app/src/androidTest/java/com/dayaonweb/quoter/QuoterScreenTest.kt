@@ -88,7 +88,9 @@ class QuoterScreenTest {
         compose.onNodeWithContentDescription("Settings").performClick()
         restoration.emulateSavedInstanceStateRestore()
         compose.onNodeWithText("Daily reminder").performScrollTo().assertIsDisplayed()
-        compose.onNodeWithContentDescription("Back to quotes").performClick()
+        val settingsClose = if (compose.onAllNodesWithContentDescription("Close settings").fetchSemanticsNodes().isNotEmpty())
+            "Close settings" else "Back to quotes"
+        compose.onNodeWithContentDescription(settingsClose).performClick()
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val chooser = instrumentation.addMonitor(IntentFilter(Intent.ACTION_CHOOSER), null, true)
         try {

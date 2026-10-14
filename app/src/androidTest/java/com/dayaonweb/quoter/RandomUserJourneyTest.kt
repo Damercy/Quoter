@@ -124,7 +124,16 @@ class RandomUserJourneyTest {
                         }
                         Step.REMINDER_CANCEL -> {
                             openSettings()
-                            onElement { isScrollable }.scrollToElement(Direction.DOWN) { textAsString() == "Time" }.click()
+                            val visibleTime = onElementOrNull(0) { textAsString() == "Time" && isVisibleToUser }
+                            if (visibleTime != null) visibleTime.click()
+                            else {
+                                val settingsX = label("APPEARANCE").visibleBounds.centerX()
+                                onElement {
+                                    isScrollable && android.graphics.Rect().also { getBoundsInScreen(it) }.let {
+                                        settingsX >= it.left && settingsX < it.right
+                                    }
+                                }.scrollToElement(Direction.DOWN) { textAsString() == "Time" }.click()
+                            }
                             label("Reminder time")
                             assertTrue("Both sheet actions must be reachable", label("Cancel").visibleBounds.height() > 0 && label("Done").visibleBounds.height() > 0)
                             label("Cancel").click()
