@@ -123,19 +123,7 @@ jobs:
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader -no-snapshot -noaudio -no-boot-anim
           # Wide-window tests publish synthetic separating hinges; this is not hardware fold validation.
-          script: |
-            adb shell wm size ${{ matrix.size }}
-            adb shell wm density ${{ matrix.density }}
-            mkdir -p app/build/reports/device-diagnostics
-            adb logcat -c
-            adb logcat -v threadtime > app/build/reports/device-diagnostics/logcat.txt &
-            logcat_pid=$!
-            trap 'kill "$logcat_pid" 2>/dev/null || true' EXIT
-            status=0
-            timeout --signal=TERM --kill-after=30s 15m ./gradlew :app:connectedDebugAndroidTest --info || status=$?
-            adb shell dumpsys activity activities > app/build/reports/device-diagnostics/activities.txt || true
-            adb exec-out screencap -p > app/build/reports/device-diagnostics/screen.png || true
-            exit "$status"
+          script: bash scripts/ci-device-tests.sh '${{ matrix.size }}' '${{ matrix.density }}'
       - uses: actions/upload-artifact@v7.0.2
         if: ${{ !cancelled() }}
         with:
