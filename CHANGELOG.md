@@ -1,6 +1,6 @@
 # Changelog
 
-## 4.00.01 — Unreleased
+## 4.00.01 — 2026-10-15
 
 - Restore the selected quote before reporting a page change.
 - Dismiss search focus on topic selection and keep Back in the Browse sheet.
