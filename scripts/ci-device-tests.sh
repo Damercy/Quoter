@@ -31,7 +31,7 @@ status=0
 timeout --signal=TERM --kill-after=30s 12m ./gradlew :app:assembleDebug :app:assembleDebugAndroidTest
 timeout --signal=TERM --kill-after=15s 2m adb install -r -t --user 0 app/build/outputs/apk/debug/app-debug.apk
 timeout --signal=TERM --kill-after=15s 2m adb install -r -t -g --user 0 app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
-timeout --signal=TERM --kill-after=30s 8m adb shell am instrument -r -w com.dayaonweb.quoter.test/androidx.test.runner.AndroidJUnitRunner | tee "$diagnostics/instrumentation.txt" || status=$?
+timeout --signal=TERM --kill-after=30s 9m python3 scripts/capture_device_tests.py --timeout 480 --result "$diagnostics/instrumentation.txt" || status=$?
 if ! python3 scripts/verify_device_tests.py --result "$diagnostics/instrumentation.txt" --output "$diagnostics/device-tests.xml"; then
   if [[ "$status" == 0 ]]; then status=1; fi
 fi
