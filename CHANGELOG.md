@@ -1,5 +1,15 @@
 # Changelog
 
+## 4.00.01 — Unreleased
+
+- Restore the selected quote before reporting a page change.
+- Dismiss search focus on topic selection and keep Back in the Browse sheet.
+- Serialize saved-state changes so repeated taps count and persist once.
+- Ignore stale speech callbacks and measure listening only when speech starts or completes.
+- Measure settled quote views, share chooser openings, reminders and review requests without quote content.
+- Make local Firebase configuration optional and keep publishing inputs private.
+- Bound device verification and retain logs for failed or stalled test runs.
+
 ## 4.00.00 — 2026-10-09
 
 - Migrate the reader to Compose while preserving Quoter's monochrome theme and fonts.
@@ -11,10 +21,3 @@
 - Retain on-device speech, daily reminders and launch-based native Play review attempts.
 - Add the shared phone/large-screen gallery, CI verification, signing/release scripts and prepared Play listing copy.
 - Remove the tracked keystore from the current tree; provision publishing credentials separately.
-
-GitHub assets and the Play production update are published for this version;
-Play Console confirmed publication on 9 October 2026. Store propagation can vary.
-The GitHub APK uses the upload certificate and cannot update a Play-installed copy.
-Physical-device audio/performance, haptic feel and gesture-navigation validation
-remain outstanding. See [release notes](play-store/release-notes.md) for downloads
-and [validation evidence](audit/MIGRATION-VALIDATION.md) for the checks performed.

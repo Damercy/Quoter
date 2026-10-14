@@ -101,8 +101,8 @@ internal fun BrowsePane(quotes: List<UiQuote>, query: String, onQuery: (String) 
             }
         }
         LazyRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-            items(topics, key = { it }) { tag -> MicroTextButton(onClick = { onTopic(tag) },
-                modifier = Modifier.semantics { selected = topic == tag }, pressFeedback = false) {
+            items(topics, key = { it }) { tag -> MicroTextButton(onClick = { focus.clearFocus(); onTopic(tag) },
+                modifier = Modifier.semantics { selected = topic == tag }, pressFeedback = false, clickCooldownMillis = 0L) {
                 val selected = topic == tag
                 Text(tag.replaceFirstChar { it.titlecase() }, fontFamily = quoterFont,
                     fontSize = 14.sp, fontWeight = FontWeight.Bold,

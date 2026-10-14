@@ -35,7 +35,7 @@ internal fun CollectionTabs(savedOnly: Boolean, onQuotes: () -> Unit, onSaved: (
                 val selected = savedOnly == isSaved
                 MicroTextButton(onClick = if (isSaved) onSaved else onQuotes,
                     modifier = Modifier.onGloballyPositioned { if (isSaved) savedBounds = it.boundsInParent() else quotesBounds = it.boundsInParent() }
-                        .semantics { this.selected = selected }, pressFeedback = false) {
+                        .semantics { this.selected = selected }, pressFeedback = false, clickCooldownMillis = 0L) {
                     Text(label, fontFamily = quoterFont, fontWeight = FontWeight.Bold, fontSize = 16.sp,
                         color = if (selected) ink else MaterialTheme.colorScheme.onSurfaceVariant)
                 }

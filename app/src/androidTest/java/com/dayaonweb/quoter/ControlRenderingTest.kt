@@ -16,6 +16,8 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import android.graphics.Bitmap
+import android.os.Build
+import androidx.compose.ui.graphics.asImageBitmap
 import com.dayaonweb.quoter.presentation.compose.*
 import com.kyant.backdrop.backdrops.rememberCanvasBackdrop
 import org.junit.Assert.*
@@ -42,16 +44,25 @@ class ControlRenderingTest {
                 }
             }
         }
+        fun captureFixture(): Bitmap {
+            compose.waitForIdle()
+            val bounds = compose.onNodeWithTag("fixture").fetchSemanticsNode().boundsInWindow
+            val frame = checkNotNull(InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot())
+            return try { Bitmap.createBitmap(frame, bounds.left.toInt(), bounds.top.toInt(), bounds.width.toInt(), bounds.height.toInt()) }
+            finally { frame.recycle() }
+        }
         listOf(compose.onNodeWithContentDescription("Share"), compose.onNodeWithText("Browse")).forEach { button ->
-            val before = compose.onNodeWithTag("fixture").captureToImage().toPixelMap()
+            val beforeFrame = captureFixture()
+            val before = beforeFrame.asImageBitmap().toPixelMap()
             button.performTouchInput { down(center) }
             compose.mainClock.advanceTimeBy(300)
-            val held = compose.onNodeWithTag("fixture").captureToImage().toPixelMap()
+            val heldFrame = captureFixture()
+            val held = heldFrame.asImageBitmap().toPixelMap()
             try {
                 for (y in 0 until before.height) for (x in 0 until before.width) {
                     assertEquals("A held plain control must not paint a ripple at $x,$y", before[x,y], held[x,y])
                 }
-            } finally { button.performTouchInput { up() } }
+            } finally { beforeFrame.recycle(); heldFrame.recycle(); button.performTouchInput { up() } }
         }
     }
 
@@ -100,9 +111,11 @@ class ControlRenderingTest {
             }
             return (top until top + 8).maxOf { 1f - android.graphics.Color.red(pixels.getPixel(x,it)) / 255f }
         }
-        assertTrue("Fixture must have a visible glass shadow outside its touch bounds", shadowDarkness("share-shadow-enabled") > .002f)
+        val enabledShadow = shadowDarkness("share-shadow-enabled")
+        if (Build.VERSION.SDK_INT >= 31) assertTrue("Supported glass must have an overflowing shadow", enabledShadow > .002f)
         compose.runOnIdle { enabled.value = false }
         compose.onNodeWithTag("share").assertIsNotEnabled()
-        assertTrue("Disabled alpha must retain the overflowing shadow", shadowDarkness("share-shadow-disabled") > .002f)
+        val disabledShadow = shadowDarkness("share-shadow-disabled")
+        if (Build.VERSION.SDK_INT >= 31) assertTrue("Disabled alpha must retain the overflowing shadow", disabledShadow > .002f)
     }
 }

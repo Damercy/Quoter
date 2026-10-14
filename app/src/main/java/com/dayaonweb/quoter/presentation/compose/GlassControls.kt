@@ -178,6 +178,7 @@ internal fun WavySlider(value: Float, onValueChange: (Float) -> Unit, onValueCha
 
 @Composable
 internal fun MicroTextButton(onClick: () -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true, pressFeedback: Boolean = true,
+    clickCooldownMillis: Long = 240L,
     content: @Composable RowScope.() -> Unit) {
     val interaction = remember { MutableInteractionSource() }
     val pressed by interaction.collectIsPressedAsState()
@@ -187,7 +188,7 @@ internal fun MicroTextButton(onClick: () -> Unit, modifier: Modifier = Modifier,
     val haptic = rememberQuoterHaptic()
     var lastClick by remember { mutableLongStateOf(-1000L) }
     TextButton({ val now = android.os.SystemClock.uptimeMillis()
-        if (now - lastClick >= 240) { lastClick = now; haptic(false); onClick() }
+        if (now - lastClick >= clickCooldownMillis) { lastClick = now; haptic(false); onClick() }
     }, modifier.graphicsLayer { scaleX = scale; scaleY = scale }, enabled,
         interactionSource = interaction, content = content)
 }

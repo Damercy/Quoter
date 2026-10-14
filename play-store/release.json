@@ -33,17 +33,17 @@
       ]
     }
   },
-  "bundle": "../app/build/distribution/v4.00.00/quoter-4.00.00.aab",
-  "mapping": "../app/build/distribution/v4.00.00/quoter-4.00.00-mapping.txt",
+  "bundle": "../app/build/distribution/v4.00.01/quoter-4.00.01.aab",
+  "mapping": "../app/build/distribution/v4.00.01/quoter-4.00.01-mapping.txt",
   "release": {
     "track": "production",
     "status": "completed",
-    "expectedVersionCode": 40000,
-    "name": "4.00.00",
+    "expectedVersionCode": 40001,
+    "name": "4.00.01",
     "releaseNotes": [
       {
         "language": "en-GB",
-        "text": "A refreshed monochrome reader with offline quotes, searchable topics and authors, saved favourites, on-device listening and direct image sharing. New grouped settings, adjustable glass, daily reminders and supporting panes on unfolded and tablet screens."
+        "text": "Saving handles repeated taps more reliably. Listening ignores delayed callbacks from a previous speech session. Quote positions survive restoration more reliably, and Back closes Browse consistently."
       }
     ]
   }

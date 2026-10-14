@@ -310,6 +310,7 @@ fun QuoterScreen(initialState: QuoterState, initialActions: QuoterActions = Quot
         }
         val browseSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
         fun dismissBrowse() { scope.launch { browseSheetState.hideThroughResize(); browse = false } }
+        BackHandler(enabled = browse) { dismissBrowse() }
         if (browse) CompositionLocalProvider(LocalChromeInset provides 0.dp, LocalChromeScrolled provides {}) { ModalBottomSheet(onDismissRequest = { browse = false }, containerColor = MaterialTheme.colorScheme.surface, sheetState = browseSheetState) {
             QuietTapSounds()
             Box(Modifier.fillMaxWidth().fillMaxHeight(0.85f)) {
@@ -353,9 +354,18 @@ private fun QuoteReader(quotes: List<UiQuote>, selectedId: String, saved: Set<St
     onPage: (String) -> Unit, onSave: (UiQuote) -> Unit, onListen: (UiQuote) -> Unit, onShare: (UiQuote) -> Unit) {
     val pager = rememberPagerState(initialPage = quotes.indexOfFirst { it.id == selectedId }.coerceAtLeast(0), pageCount = { quotes.size })
     val scope = rememberCoroutineScope()
-    LaunchedEffect(quotes[pager.settledPage].id) {
-        onPage(quotes[pager.settledPage].id)
-        Analytics.record(QuoteEvent.VIEW)
+    var selectionReady by remember { mutableStateOf(false) }
+    LaunchedEffect(selectedId) {
+        selectionReady = false
+        val index = quotes.indexOfFirst { it.id == selectedId }
+        if (index >= 0 && index != pager.settledPage && !pager.isScrollInProgress) pager.scrollToPage(index)
+        selectionReady = true
+    }
+    LaunchedEffect(pager.settledPage, selectionReady) {
+        if (selectionReady) {
+            onPage(quotes[pager.settledPage].id)
+            Analytics.record(QuoteEvent.VIEW)
+        }
     }
     val haptic = rememberQuoterHaptic()
     val dragged by pager.interactionSource.collectIsDraggedAsState()
@@ -368,10 +378,6 @@ private fun QuoteReader(quotes: List<UiQuote>, selectedId: String, saved: Set<St
             userPaging = false
             lastSettled = pager.settledPage
         }
-    }
-    LaunchedEffect(selectedId) {
-        val index = quotes.indexOfFirst { it.id == selectedId }
-        if (index >= 0 && index != pager.settledPage && !pager.isScrollInProgress) pager.scrollToPage(index)
     }
     val current = quotes[pager.settledPage]
     val quoteBackdrop = rememberLayerBackdrop { drawContent() }
