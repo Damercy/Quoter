@@ -113,6 +113,8 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
       - run: chmod +x gradlew
+      - name: Configure SDK tools before AVD creation
+        run: bash scripts/ci-sdk-tools.sh
       - uses: ReactiveCircus/android-emulator-runner@v2.38.0
         with:
           api-level: ${{ matrix.api }}
@@ -123,7 +125,6 @@ jobs:
           emulator-boot-timeout: 300
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader -no-snapshot -noaudio -no-boot-anim
-          pre-emulator-launch-script: bash scripts/ci-sdk-tools.sh
           # Wide-window tests publish synthetic separating hinges; this is not hardware fold validation.
           script: bash scripts/ci-device-tests.sh '${{ matrix.size }}' '${{ matrix.density }}' '${{ matrix.api }}'
       - uses: actions/upload-artifact@v7.0.2
