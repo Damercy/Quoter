@@ -5,6 +5,8 @@ import androidx.datastore.preferences.core.*
 import androidx.lifecycle.Lifecycle
 import com.dayaonweb.quoter.data.local.settingsDatastore
 import com.google.android.play.core.review.ReviewManagerFactory
+import com.dayaonweb.quoter.domain.analytics.Analytics
+import com.dayaonweb.quoter.domain.analytics.QuoteEvent
 
 internal object ReviewLaunchPolicy {
     fun isDue(launches: Long) = launches >= 2 && launches and (launches - 1) == 0L
@@ -25,6 +27,7 @@ internal class ReviewPrompter(private val activity: ComponentActivity) {
         return due
     }
     fun request() {
+        Analytics.record(QuoteEvent.REVIEW_REQUEST)
         val manager = ReviewManagerFactory.create(activity)
         manager.requestReviewFlow().addOnCompleteListener(activity) { task ->
             if (task.isSuccessful && !activity.isFinishing && activity.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED))

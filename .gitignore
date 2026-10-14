@@ -51,7 +51,8 @@ keystore.properties
 .cxx/
 
 # Google Services (e.g. APIs or Firebase)
-# google-services.json
+google-services.json
+*.private-backup
 
 # Freeline
 freeline.py
@@ -83,3 +84,10 @@ lint/tmp/
 *play-credentials*.json
 publisher.json
 __pycache__/
+
+# Local guidance, preparation and Firebase configuration
+AGENTS.md
+docs/
+audit/
+poc/
+.scratch/

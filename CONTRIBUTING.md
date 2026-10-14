@@ -29,8 +29,7 @@ them. Include the use case, scope and relevant validation; link the issue.
 Roadmap wording can also be proposed through a pull request, with maintainers
 reviewing changes to priority or release scope.
 
-Follow [development guidance](AGENTS.md), the
-[design direction](audit/DESIGN-DIRECTION.md) and the [CI guide](audit/CI.md).
+Run the relevant unit, lint and device checks using the Gradle wrapper.
 Keep Quoter monochrome and accessible. Describe emulator evidence accurately;
 physical-device behavior needs physical validation. Keep credentials outside Git.
 Do not update visual baselines just to hide failures.

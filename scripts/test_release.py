@@ -11,6 +11,13 @@ spec.loader.exec_module(release)
 
 
 class ReleaseTest(unittest.TestCase):
+    def test_source_plan_keeps_configuration_and_local_notes_private(self):
+        names = ['README.md', 'AGENTS.md', 'audit/CI.md', 'app/google-services.json', 'app/src/main/AndroidManifest.xml']
+        with patch.object(release, 'run', return_value='\0'.join(names)), patch.object(release, 'file_hash', return_value='hash'):
+            sources, removed = release.source_files()
+        self.assertEqual({'README.md', 'app/src/main/AndroidManifest.xml'}, set(sources))
+        self.assertEqual({'AGENTS.md', 'audit/CI.md', 'app/google-services.json'}, set(removed))
+
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)

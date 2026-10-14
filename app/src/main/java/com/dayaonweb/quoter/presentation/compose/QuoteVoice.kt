@@ -9,6 +9,8 @@ import android.speech.tts.UtteranceProgressListener
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import java.util.Locale
+import com.dayaonweb.quoter.domain.analytics.Analytics
+import com.dayaonweb.quoter.domain.analytics.QuoteEvent
 
 /** Offline selection is a quality heuristic; naturalness requires listening. */
 class QuoteVoice(context: Context, initialize: Boolean = true) {
@@ -18,6 +20,7 @@ class QuoteVoice(context: Context, initialize: Boolean = true) {
     private var engine: TextToSpeech? = null
     private var ready = false
     private var speaking = false
+    private val listening = ListenSession()
     private var configuration = AppSettings()
     val availableVoices: List<android.speech.tts.Voice>
         get() = engine?.voices.orEmpty().filter { !it.isNetworkConnectionRequired && TextToSpeech.Engine.KEY_FEATURE_NOT_INSTALLED !in it.features.orEmpty() }.sortedBy { it.name }
@@ -31,10 +34,26 @@ class QuoteVoice(context: Context, initialize: Boolean = true) {
                 .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH).build())
             tts.setSpeechRate(1f)
             tts.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
-                override fun onStart(id: String?) { main.post { speaking = true; mutableStatus.value = "Stop" } }
-                override fun onDone(id: String?) { main.post { speaking = false; mutableStatus.value = "Listen" } }
+                override fun onStart(id: String?) { main.post {
+                    if (listening.start(id)) {
+                        speaking = true; mutableStatus.value = "Stop"
+                        Analytics.record(QuoteEvent.LISTEN_START)
+                    }
+                } }
+                override fun onDone(id: String?) { main.post {
+                    if (listening.isActive(id)) {
+                        val completed = listening.complete(id)
+                        speaking = false; mutableStatus.value = "Listen"
+                        if (completed) Analytics.record(QuoteEvent.LISTEN_COMPLETE)
+                    }
+                } }
                 @Deprecated("Platform callback")
-                override fun onError(id: String?) { main.post { speaking = false; mutableStatus.value = "Speech failed. Tap to retry" } }
+                override fun onError(id: String?) { main.post {
+                    if (listening.isActive(id)) {
+                        listening.cancel(); speaking = false
+                        mutableStatus.value = "Speech failed. Tap to retry"
+                    }
+                } }
             })
             ready = true
             configure(configuration)
@@ -63,9 +82,14 @@ class QuoteVoice(context: Context, initialize: Boolean = true) {
     fun toggle(quote: com.dayaonweb.quoter.domain.models.UiQuote) {
         if (speaking) { stop(); return }
         if (!ready || selectedVoiceName == null) return
-        if (engine?.speak("${quote.quote}. ${quote.author}", TextToSpeech.QUEUE_FLUSH, null, quote.id) == TextToSpeech.ERROR)
+        val id = listening.begin()
+        speaking = true
+        mutableStatus.value = "Stop"
+        if (engine?.speak("${quote.quote}. ${quote.author}", TextToSpeech.QUEUE_FLUSH, null, id) != TextToSpeech.SUCCESS) {
+            listening.cancel(); speaking = false
             mutableStatus.value = "Speech failed. Tap to retry"
+        }
     }
-    fun stop() { engine?.stop(); speaking = false; if (ready && selectedVoiceName != null) mutableStatus.value = "Listen" }
+    fun stop() { listening.cancel(); engine?.stop(); speaking = false; if (ready && selectedVoiceName != null) mutableStatus.value = "Listen" }
     fun close() { stop(); engine?.shutdown(); engine = null }
 }

@@ -1,7 +1,7 @@
 # Security reporting
 
-Report suspected vulnerabilities privately to
-[adhikaridayamoy@gmail.com](mailto:adhikaridayamoy@gmail.com).
+Use GitHub's private vulnerability reporting option when available, or contact
+the maintainer through [GitHub](https://github.com/Damercy) to arrange disclosure.
 Include the affected version, impact and reproduction steps. Do not include
 passwords, private signing keys or unnecessary personal data.
 

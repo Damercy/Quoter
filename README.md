@@ -77,6 +77,9 @@ android info
 
 On Windows, use `./gradlew.bat`. On Unix, run `chmod +x gradlew` first.
 Release credentials are unnecessary for development.
+Firebase analytics is optional for local builds. To enable it for your own
+project, place your Firebase Android configuration in `app/google-services.json`;
+this file stays outside version control.
 
 ## Releases
 
@@ -88,10 +91,8 @@ for store-managed installation and updates.
 
 ## Documentation
 
-- [Contributing](CONTRIBUTING.md) · [Roadmap](ROADMAP.md) · [Agent guidance](AGENTS.md) · [CI guide](audit/CI.md)
-- [Design direction](audit/DESIGN-DIRECTION.md) · [Validation](audit/MIGRATION-VALIDATION.md)
-- [Release workflow](audit/RELEASE-WORKFLOW.md) · [Play setup](audit/PLAY-PUBLISHING-SETUP.md)
-- [Quote sources and attribution](audit/QUOTE-SOURCES.md)
+- [Contributing](CONTRIBUTING.md) · [Roadmap](ROADMAP.md)
+- [Quote source notices](app/src/main/assets/licenses)
 
 Track upcoming work in the [roadmap](ROADMAP.md), suggest features or report bugs
 through the [public request ledger](https://github.com/Damercy/Quoter/issues/new/choose).

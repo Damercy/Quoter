@@ -50,6 +50,8 @@ jobs:
             echo "::error::Private publishing credentials must not be tracked."
             exit 1
           fi
+      - name: Check public source
+        run: python3 scripts/check_public_source.py
   build:
     name: Build, lint and previews
     needs: checks

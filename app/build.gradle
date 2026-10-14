@@ -4,9 +4,11 @@ plugins {
     alias(libs.plugins.compose)
     alias(libs.plugins.serialization)
     alias(libs.plugins.ksp)
-    alias(libs.plugins.google.services)
+    alias(libs.plugins.google.services) apply false
     alias(libs.plugins.hilt)
 }
+def firebaseConfigured = file('google-services.json').isFile()
+if (firebaseConfigured) apply plugin: 'com.google.gms.google-services'
 ksp { arg('room.schemaLocation', "$projectDir/schemas") }
 def uploadSigning = ['QUOTER_UPLOAD_STORE', 'QUOTER_UPLOAD_ALIAS',
                      'QUOTER_UPLOAD_STORE_PASSWORD', 'QUOTER_UPLOAD_KEY_PASSWORD']
@@ -25,6 +27,7 @@ android {
         targetSdk 37
         versionCode 40000
         versionName '4.00.00'
+        buildConfigField 'boolean', 'USE_FIREBASE', firebaseConfigured.toString()
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
     signingConfigs {

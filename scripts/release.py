@@ -41,26 +41,25 @@ def file_hash(path):
 
 def source_files():
     names = run('git', 'ls-files', '--cached', '--others', '--exclude-standard', '-z').split('\0')
-    # Keep release sources, tests, build setup and reviewed docs. Device captures
-    # and the experimental POC are not release source inputs.
+    # Keep product sources, tests and build setup. Local instructions,
+    # operational notes and Firebase configuration are not public inputs.
     roots = {'app', 'gradle', 'scripts', 'play-store', '.github', 'screenshots'}
-    top = {'README.md', 'CHANGELOG.md', 'AGENTS.md', '.gitignore', '.imgbotconfig', 'build.gradle',
+    top = {'README.md', 'CHANGELOG.md', 'CONTRIBUTING.md', 'SECURITY.md', 'ROADMAP.md', '.gitignore', '.imgbotconfig', 'build.gradle',
            'settings.gradle', 'gradle.properties', 'gradlew', 'gradlew.bat', 'LICENSE'}
-    docs = {'audit/RELEASE-WORKFLOW.md', 'audit/PLAY-PUBLISHING-SETUP.md',
-            'audit/DESIGN-DIRECTION.md', 'audit/QUOTE-SOURCES.md',
-            'audit/MIGRATION-VALIDATION.md', 'audit/MIGRATION-READINESS.md',
-            'audit/RANDOM-JOURNEYS.md', 'audit/GITHUB-RELEASE-4.00.00.md',
-            'audit/LOCAL-DEVICE-NOTES.md', 'audit/CI.md'}
     selected = []
     removed = []
     tracked = set(run('git', 'ls-files', '-z').split('\0'))
     for name in sorted(set(names) - {''}):
         path = Path(name)
+        if path.name in {'AGENTS.md', 'google-services.json'} or any(part in {'audit', 'docs', 'poc', '.scratch'} for part in path.parts):
+            if name in tracked:
+                removed.append(name)
+            continue
         if path.suffix.lower() in {'.jks', '.keystore', '.p12', '.pfx', '.clixml'}:
             if name in tracked:
                 removed.append(name)
             continue
-        if path.parts[0] not in roots and name not in top and name not in docs:
+        if path.parts[0] not in roots and name not in top:
             continue
         if name.endswith(('publisher.json', 'keystore.properties')):
             raise ValueError('A private credential is among release sources.')
@@ -195,6 +194,7 @@ def execute(args):
     else:
         run('git', 'tag', '-a', tag, state['commit'], '-m', f'Quoter {tag}')
     if not state.get('pushed'):
+        run(sys.executable, ROOT / 'scripts/check_public_source.py')
         run('git', 'push', '--atomic', 'origin', 'HEAD:refs/heads/master', f'refs/tags/{tag}')
         state['pushed'] = True
         save()

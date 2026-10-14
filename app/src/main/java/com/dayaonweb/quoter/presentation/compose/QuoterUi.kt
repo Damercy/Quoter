@@ -1,6 +1,8 @@
 package com.dayaonweb.quoter.presentation.compose
 
 import com.dayaonweb.quoter.R
+import com.dayaonweb.quoter.domain.analytics.Analytics
+import com.dayaonweb.quoter.domain.analytics.QuoteEvent
 import com.dayaonweb.quoter.domain.models.UiQuote
 import com.dayaonweb.quoter.domain.broadcast.ReminderScheduler
 import com.dayaonweb.quoter.domain.broadcast.ReminderTime
@@ -271,6 +273,7 @@ fun QuoterScreen(initialState: QuoterState, initialActions: QuoterActions = Quot
                                         try {
                                             val intent = withContext(Dispatchers.IO) { QuoteImage.export(context, quote, dark) }
                                             context.startActivity(Intent.createChooser(intent, "Share quote"))
+                                            Analytics.record(QuoteEvent.SHARE_SHEET)
                                         } catch (cancelled: kotlinx.coroutines.CancellationException) { throw cancelled }
                                         catch (_: Exception) { notice = "Could not create the quote image. Please try again." }
                                         finally { shareBusy = false }
@@ -350,7 +353,10 @@ private fun QuoteReader(quotes: List<UiQuote>, selectedId: String, saved: Set<St
     onPage: (String) -> Unit, onSave: (UiQuote) -> Unit, onListen: (UiQuote) -> Unit, onShare: (UiQuote) -> Unit) {
     val pager = rememberPagerState(initialPage = quotes.indexOfFirst { it.id == selectedId }.coerceAtLeast(0), pageCount = { quotes.size })
     val scope = rememberCoroutineScope()
-    LaunchedEffect(pager.settledPage) { onPage(quotes[pager.settledPage].id) }
+    LaunchedEffect(quotes[pager.settledPage].id) {
+        onPage(quotes[pager.settledPage].id)
+        Analytics.record(QuoteEvent.VIEW)
+    }
     val haptic = rememberQuoterHaptic()
     val dragged by pager.interactionSource.collectIsDraggedAsState()
     var userPaging by remember { mutableStateOf(false) }
