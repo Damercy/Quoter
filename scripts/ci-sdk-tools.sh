@@ -7,9 +7,9 @@ if [[ "${CI:-}" != true ]]; then
 fi
 
 # Older avdmanager versions silently encode minor-version platforms as android-0.
-sdkmanager --install 'cmdline-tools;22.0'
-sdk_tools="$ANDROID_HOME/cmdline-tools/22.0"
 sdk_latest="$ANDROID_HOME/cmdline-tools/latest"
+"$sdk_latest/bin/sdkmanager" --install 'cmdline-tools;22.0'
+sdk_tools="$ANDROID_HOME/cmdline-tools/22.0"
 sdk_backup="$ANDROID_HOME/cmdline-tools/preinstalled-ci"
 test -x "$sdk_tools/bin/avdmanager"
 if [[ "$(readlink -f "$sdk_latest")" != "$(readlink -f "$sdk_tools")" ]]; then

@@ -2,7 +2,9 @@
   "android": [
     "app/**", "gradle/**", "gradlew", "gradlew.bat", "build.gradle",
     "settings.gradle", "gradle.properties", ".github/workflows/android.yml",
-    ".github/ci-paths.json", "scripts/ci-changes.py", "scripts/check-native-alignment.mjs"
+    ".github/ci-paths.json", "scripts/ci-changes.py", "scripts/check-native-alignment.mjs",
+    "scripts/ci-sdk-tools.sh", "scripts/ci-device-tests.sh",
+    "scripts/capture_device_tests.py", "scripts/verify_device_tests.py"
   ],
   "androidIgnore": ["app/src/main/assets/icons/**"],
   "description": "Product documentation, store copy, screenshots and publishing tooling run lightweight checks; Android sources and build configuration run the full matrix. Icon SVG sources are ignored until generated Android resources change."

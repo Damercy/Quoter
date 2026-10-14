@@ -19,7 +19,9 @@ class Routing(unittest.TestCase):
         for path in ['app/src/main/AndroidManifest.xml', 'app/src/main/java/example/Reader.kt',
                      'app/src/main/res/drawable/vec_share.xml', 'app/src/main/assets/quotes.json',
                      'app/src/androidTest/Test.kt', 'gradle/libs.versions.toml',
-                     '.github/workflows/android.yml', 'scripts/ci-changes.py']:
+                     '.github/workflows/android.yml', 'scripts/ci-changes.py',
+                     'scripts/ci-sdk-tools.sh', 'scripts/ci-device-tests.sh',
+                     'scripts/capture_device_tests.py', 'scripts/verify_device_tests.py']:
             with self.subTest(path=path):
                 self.assertTrue(changes.android_changed([path], config))
 
