@@ -21,6 +21,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -40,6 +41,7 @@ import com.dayaonweb.quoter.domain.models.UiQuote
 internal fun BrowsePane(quotes: List<UiQuote>, query: String, onQuery: (String) -> Unit, topic: String,
     onTopic: (String) -> Unit, onClose: (() -> Unit)? = null, onSelect: (UiQuote,List<UiQuote>) -> Unit) {
     val focus = LocalFocusManager.current
+    val keyboard = LocalSoftwareKeyboardController.current
     val haptic = rememberQuoterHaptic()
     val motion = rememberMotionEnabled()
     val backdrop = rememberLayerBackdrop { drawContent() }
@@ -101,7 +103,7 @@ internal fun BrowsePane(quotes: List<UiQuote>, query: String, onQuery: (String) 
             }
         }
         LazyRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-            items(topics, key = { it }) { tag -> MicroTextButton(onClick = { focus.clearFocus(); onTopic(tag) },
+            items(topics, key = { it }) { tag -> MicroTextButton(onClick = { focus.clearFocus(); keyboard?.hide(); onTopic(tag) },
                 modifier = Modifier.semantics { selected = topic == tag }, pressFeedback = false, clickCooldownMillis = 0L) {
                 val selected = topic == tag
                 Text(tag.replaceFirstChar { it.titlecase() }, fontFamily = quoterFont,

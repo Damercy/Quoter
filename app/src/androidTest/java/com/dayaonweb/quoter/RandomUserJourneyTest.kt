@@ -49,6 +49,8 @@ class RandomUserJourneyTest {
                             hideKeyboard()
                             val result = onElement { textAsString() == "Albert Einstein" }
                             result.click()
+                            // Supporting panes stay open after selection on wide windows.
+                            onElementOrNull(300) { contentDescription?.toString() == "Close browse" }?.click()
                             reader()
                             onElement { textAsString().orEmpty().contains("EINSTEIN") }
                             label("Quotes").click()
@@ -70,9 +72,16 @@ class RandomUserJourneyTest {
                             listOf("Action", "All", "Abundance", "All", "Action").shuffled(random).forEach { category ->
                                 label(category).click()
                                 desc("Search quotes or authors")
-                                assertNull("Phone Browse has no redundant close control", onElementOrNull(0) { contentDescription?.toString() == "Close browse" })
+                                if (context.resources.configuration.screenWidthDp < 720) {
+                                    assertNull("Phone Browse has no redundant close control", onElementOrNull(0) { contentDescription?.toString() == "Close browse" })
+                                } else {
+                                    desc("Close browse")
+                                }
                             }
                             label("All").click()
+                            // Back dismisses the IME first when Browse's search field has focus.
+                            hideKeyboard()
+                            desc("Search quotes or authors")
                             device.pressBack()
                             reader()
                         }

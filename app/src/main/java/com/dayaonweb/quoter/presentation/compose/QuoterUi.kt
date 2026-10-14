@@ -355,6 +355,7 @@ private fun QuoteReader(quotes: List<UiQuote>, selectedId: String, saved: Set<St
     val pager = rememberPagerState(initialPage = quotes.indexOfFirst { it.id == selectedId }.coerceAtLeast(0), pageCount = { quotes.size })
     val scope = rememberCoroutineScope()
     var selectionReady by remember { mutableStateOf(false) }
+    var lastReportedId by remember { mutableStateOf<String?>(null) }
     LaunchedEffect(selectedId) {
         selectionReady = false
         val index = quotes.indexOfFirst { it.id == selectedId }
@@ -363,8 +364,12 @@ private fun QuoteReader(quotes: List<UiQuote>, selectedId: String, saved: Set<St
     }
     LaunchedEffect(pager.settledPage, selectionReady) {
         if (selectionReady) {
-            onPage(quotes[pager.settledPage].id)
-            Analytics.record(QuoteEvent.VIEW)
+            val id = quotes[pager.settledPage].id
+            if (id != lastReportedId) {
+                lastReportedId = id
+                onPage(id)
+                Analytics.record(QuoteEvent.VIEW)
+            }
         }
     }
     val haptic = rememberQuoterHaptic()

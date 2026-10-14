@@ -9,6 +9,7 @@ fi
 # Keep the recorder and cleanup in one shell; emulator-runner separates script lines.
 diagnostics=app/build/reports/device-diagnostics
 mkdir -p "$diagnostics"
+grep -Fx "target=android-$3" "$ANDROID_AVD_HOME/test.ini" > "$diagnostics/avd-target.txt"
 adb shell wm size "$1"
 adb shell wm density "$2"
 adb logcat -c

@@ -83,4 +83,23 @@ class AnalyticsJourneyTest {
             database.close()
         }
     }
+
+    @Test fun settledPagingCountsEachVisitWithoutRepeatingSelectionCallbacks() {
+        val next = quote.copy(id = "next-fixture", quote = "Take the next step.")
+        val state = mutableStateOf(QuoterState(listOf(quote, next)))
+        compose.setContent { QuoterScreen(state.value) }
+        compose.waitForIdle()
+        assertEquals(1, events.count { it == QuoteEvent.VIEW })
+        compose.onNodeWithText(quote.quote).performTouchInput { swipeLeft() }
+        compose.onNodeWithText("2 / 2").assertIsDisplayed()
+        compose.waitForIdle()
+        assertEquals(2, events.count { it == QuoteEvent.VIEW })
+        compose.runOnIdle { state.value = state.value.copy(sourceStatus = "Offline collection ready") }
+        compose.waitForIdle()
+        assertEquals(2, events.count { it == QuoteEvent.VIEW })
+        compose.onNodeWithText(next.quote).performTouchInput { swipeRight() }
+        compose.onNodeWithText("1 / 2").assertIsDisplayed()
+        compose.waitForIdle()
+        assertEquals(3, events.count { it == QuoteEvent.VIEW })
+    }
 }
